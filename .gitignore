@@ -1,12 +1,12 @@
-# Byte-compiled / optimized / DLL files
+# --- 파이썬 바이트 컴파일 / 최적화 / DLL 파일 ---
 __pycache__/
 *.py[codz]
 *$py.class
 
-# C extensions
+# C 확장 파일
 *.so
 
-# Distribution / packaging
+# 배포 및 패키징 관련 파일
 .Python
 build/
 develop-eggs/
@@ -26,17 +26,17 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
+# PyInstaller 관련 (실행파일 빌드 시 생성되는 파일)
 # 보통 이 파일들은 PyInstaller가 실행 파일(.exe)을 빌드하기 전에 
 # 날짜나 기타 정보를 주입하기 위해 템플릿을 기반으로 파이썬 스크립트가 작성하는 파일들입니다.
 *.manifest
 *.spec
 
-# Installer logs
+# 패키지 설치 로그
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# 유닛 테스트 및 커버리지 리포트
 htmlcov/
 .tox/
 .nox/
@@ -51,56 +51,56 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Translations
+# 번역 파일
 *.mo
 *.pot
 
-# Django stuff:
+# 장고(Django) 관련
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Flask stuff:
+# 플라스크(Flask) 관련
 instance/
 .webassets-cache
 
-# Scrapy stuff:
+# 스크라피(Scrapy) 관련
 .scrapy
 
-# Sphinx documentation
+# 스핑크스(Sphinx) 문서 빌드 결과물
 docs/_build/
 
-# PyBuilder
+# 파이빌더(PyBuilder) 관련
 .pybuilder/
 target/
 
-# Jupyter Notebook
+# 주피터 노트북 체크포인트
 .ipynb_checkpoints
 
-# IPython
+# 아이파이썬(IPython) 관련
 profile_default/
 ipython_config.py
 
-## pyenv
+## 피브엔프(pyenv) 버전 지정 파일 (필요시 주석 해제)
 #   라이브러리나 패키지의 경우 여러 환경에서 실행을 테스트해야 하므로 
 #   이 파일을 무시(gitignore)하는 것이 좋습니다. 
 #   그렇지 않은 일반 프로젝트라면 Git에 포함(커밋)하세요:
 # .python-version
 
-# pipenv
+# 핍env (Pipenv) 관련 잠금 파일
 #   pypa/pipenv 이슈 #598에 따르면, 버전 관리(Git)에 Pipfile.lock을 포함하는 것이 권장됩니다.
 #   하지만 협업 시 플랫폼(OS)에 종속적인 패키지가 있거나 크로스 플랫폼을 지원하지 않는 패키지가 있다면,
 #   pipenv가 작동하지 않는 의존성을 설치하거나 필요한 의존성 전체를 설치하지 못할 수 있습니다.
 # Pipfile.lock
 
-# UV
+# UV 패키지 매니저 잠금 파일
 #   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 uv.lock을 포함하는 것이 권장됩니다.
 #   특히 실행 가능한(바이너리) 패키지의 경우 재현성을 보장하기 위해 포함하는 것이 좋으며,
 #   라이브러리의 경우 보통 무시(gitignore)하는 편입니다.
 # uv.lock
 
-# poetry
+# 포이트리 (Poetry) 관련 잠금 파일
 #   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 poetry.lock을 포함하는 것이 권장됩니다.
 #   특히 실행 가능한(바이너리) 패키지의 경우 재현성을 보장하기 위해 포함하는 것이 좋으며,
 #   라이브러리의 경우 보통 무시(gitignore)하는 편입니다.
@@ -108,7 +108,7 @@ ipython_config.py
 # poetry.lock
 # poetry.toml
 
-# pdm
+# PDM 패키지 매니저 관련
 #   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 pdm.lock을 포함하는 것이 권장됩니다.
 #   pdm은 프로젝트 전체 설정인 pdm.toml은 포함하고, .pdm-python은 제외할 것을 권장합니다.
 #   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
@@ -117,37 +117,38 @@ ipython_config.py
 .pdm-python
 .pdm-build/
 
-# pixi
+# 픽시 (Pixi) 가상환경 및 잠금 파일
 #   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 pixi.lock을 포함하는 것이 권장됩니다.
 # pixi.lock
 #   Pixi는 venv 모듈이 .venv 디렉토리를 만드는 것과 마찬가지로, .pixi 디렉토리 안에 가상 환경을 생성합니다. 
 #   이 디렉토리는 버전 관리에 포함하지 않는 것(Git 무시)을 권장합니다.
 .pixi
 
+# PEP 582 패키지 디렉토리
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
-# Celery stuff
+# 샐러리(Celery) 관련
 celerybeat-schedule
 celerybeat.pid
 
-# Redis
+# 레디스(Redis) 관련
 *.rdb
 *.aof
 *.pid
 
-# RabbitMQ
+# 래빗MQ 관련
 mnesia/
 rabbitmq/
 rabbitmq-data/
 
-# ActiveMQ
+# 액티브MQ 관련
 activemq-data/
 
-# SageMath parsed files
+# 세이지매스(SageMath) 파싱 파일
 *.sage.py
 
-# Environments
+# 가상환경 폴더들 (절대 커밋 금지)
 .env
 .envrc
 .venv
@@ -157,44 +158,44 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
+# 스파이더(Spyder) 프로젝트 설정
 .spyderproject
 .spyproject
 
-# Rope project settings
+# 로프(Rope) 프로젝트 설정
 .ropeproject
 
-# mkdocs documentation
+# mkdocs 문서 빌드 폴더
 /site
 
-# mypy
+# 마이피(mypy) 타입 체커 캐시
 .mypy_cache/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
+# Pyre 타입 체커
 .pyre/
 
-# pytype static type analyzer
+# pytype 정적 분석기 pytype static type analyzer
 .pytype/
 
-# Cython debug symbols
+# 사이톤(Cython) 디버그 심볼
 cython_debug/
 
-# PyCharm
+# 파이참(PyCharm) 등 JetBrains IDE 설정
 #   JetBrains 전용 템플릿은 별도의 JetBrains.gitignore로 관리되며, 
 #   https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore 에서 확인할 수 있습니다.
 #   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
 #   더 강력한(전부 차단하는) 방법으로는(권장하지 않음), 다음 주석을 해제하여 전체 .idea 폴더를 무시할 수 있습니다.
 # .idea/
 
-# Abstra
+# Abstra 자동화 프레임워크 설정
 #   Abstra는 AI 기반 프로세스 자동화 프레임워크입니다.
 #   사용자 인증 정보, 로컬 상태 및 설정이 포함된 디렉토리를 무시합니다.
 #   자세한 내용은 https://abstra.io/docs 에서 확인하세요.
 .abstra/
 
-# Visual Studio Code
+# 비주얼 스튜디오 코드(VS Code) 설정 (필요시 주석 해제)
 #   Visual Studio Code 전용 템플릿은 별도의 VisualStudioCode.gitignore로 관리되며, 
 #   https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore 에서 확인할 수 있습니다.
 #   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
@@ -204,19 +205,21 @@ cython_debug/
 # 부분 코드 실행을 위한 임시 파일
 tempCodeRunnerFile.py
 
-# Ruff stuff:
+# Ruff 린터 캐시
 .ruff_cache/
 
-# PyPI configuration file
+# PyPI 설정 파일
 .pypirc
 
-# Marimo
+# Marimo 관련
 marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Streamlit
+# Streamlit 비밀키 설정 파일 (배포 시 보안 필수)
 .streamlit/secrets.toml
+
+# --- 국방 대시보드 팀 프로젝트 추가 보안 및 데이터 관리 ---
 
 # 로컬 SQLite 데이터베이스 파일 (100MB 용량 제한 대응)
 data/*.db
@@ -238,3 +241,7 @@ data/processed/*.db
 data/processed/chroma/
 data/processed/_*
 data/processed/fund_chunks/
+
+# 운영체제 생성 파일 및 로그
+.DS_Store
+*.log
