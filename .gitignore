@@ -27,8 +27,8 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#   Usually these files are written by a python script from a template
-#   before PyInstaller builds the exe, so as to inject date/other infos into it.
+# 보통 이 파일들은 PyInstaller가 실행 파일(.exe)을 빌드하기 전에 
+# 날짜나 기타 정보를 주입하기 위해 템플릿을 기반으로 파이썬 스크립트가 작성하는 파일들입니다.
 *.manifest
 *.spec
 
@@ -82,35 +82,35 @@ target/
 profile_default/
 ipython_config.py
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
+## pyenv
+#   라이브러리나 패키지의 경우 여러 환경에서 실행을 테스트해야 하므로 
+#   이 파일을 무시(gitignore)하는 것이 좋습니다. 
+#   그렇지 않은 일반 프로젝트라면 Git에 포함(커밋)하세요:
 # .python-version
 
 # pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
+#   pypa/pipenv 이슈 #598에 따르면, 버전 관리(Git)에 Pipfile.lock을 포함하는 것이 권장됩니다.
+#   하지만 협업 시 플랫폼(OS)에 종속적인 패키지가 있거나 크로스 플랫폼을 지원하지 않는 패키지가 있다면,
+#   pipenv가 작동하지 않는 의존성을 설치하거나 필요한 의존성 전체를 설치하지 못할 수 있습니다.
 # Pipfile.lock
 
 # UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
+#   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 uv.lock을 포함하는 것이 권장됩니다.
+#   특히 실행 가능한(바이너리) 패키지의 경우 재현성을 보장하기 위해 포함하는 것이 좋으며,
+#   라이브러리의 경우 보통 무시(gitignore)하는 편입니다.
 # uv.lock
 
 # poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
+#   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 poetry.lock을 포함하는 것이 권장됩니다.
+#   특히 실행 가능한(바이너리) 패키지의 경우 재현성을 보장하기 위해 포함하는 것이 좋으며,
+#   라이브러리의 경우 보통 무시(gitignore)하는 편입니다.
 #   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
 # poetry.lock
 # poetry.toml
 
 # pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 pdm.lock을 포함하는 것이 권장됩니다.
+#   pdm은 프로젝트 전체 설정인 pdm.toml은 포함하고, .pdm-python은 제외할 것을 권장합니다.
 #   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
 # pdm.lock
 # pdm.toml
@@ -118,10 +118,10 @@ ipython_config.py
 .pdm-build/
 
 # pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+#   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 pixi.lock을 포함하는 것이 권장됩니다.
 # pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
+#   Pixi는 venv 모듈이 .venv 디렉토리를 만드는 것과 마찬가지로, .pixi 디렉토리 안에 가상 환경을 생성합니다. 
+#   이 디렉토리는 버전 관리에 포함하지 않는 것(Git 무시)을 권장합니다.
 .pixi
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
@@ -182,25 +182,26 @@ dmypy.json
 cython_debug/
 
 # PyCharm
-#   JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#   be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#   and can be added to the global gitignore or merged into this file.  For a more nuclear
-#   option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#   JetBrains 전용 템플릿은 별도의 JetBrains.gitignore로 관리되며, 
+#   https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore 에서 확인할 수 있습니다.
+#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
+#   더 강력한(전부 차단하는) 방법으로는(권장하지 않음), 다음 주석을 해제하여 전체 .idea 폴더를 무시할 수 있습니다.
 # .idea/
 
 # Abstra
-#   Abstra is an AI-powered process automation framework.
-#   Ignore directories containing user credentials, local state, and settings.
-#   Learn more at https://abstra.io/docs
+#   Abstra는 AI 기반 프로세스 자동화 프레임워크입니다.
+#   사용자 인증 정보, 로컬 상태 및 설정이 포함된 디렉토리를 무시합니다.
+#   자세한 내용은 https://abstra.io/docs 에서 확인하세요.
 .abstra/
 
 # Visual Studio Code
-#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#   you could uncomment the following to ignore the entire vscode folder
+#   Visual Studio Code 전용 템플릿은 별도의 VisualStudioCode.gitignore로 관리되며, 
+#   https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore 에서 확인할 수 있습니다.
+#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
+#   하지만 원하신다면, 다음 주석을 해제하여 전체 .vscode 폴더를 무시할 수도 있습니다.
 # .vscode/
-# Temporary file for partial code execution
+
+# 부분 코드 실행을 위한 임시 파일
 tempCodeRunnerFile.py
 
 # Ruff stuff:
@@ -216,3 +217,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# 로컬 SQLite 데이터베이스 파일 (100MB 용량 제한 대응)
+data/*.db
+data/*.sqlite
+
+# 빅쿼리(BigQuery) 등 서비스 계정 인증 JSON 키 및 비밀키 폴더
+*.json
+secrets/
+
+# SSH 키 파일 차단
+*.pem
+
+# 원본 데이터 폴더 차단 (내부 README만 예외 허용)
+data/raw/*
+!data/raw/README.md
+
+# 가공된 데이터 및 벡터DB 등 대용량 파일 차단
+data/processed/*.db
+data/processed/chroma/
+data/processed/_*
+data/processed/fund_chunks/
