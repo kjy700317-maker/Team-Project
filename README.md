@@ -193,6 +193,9 @@ git add .
 git commit -m "메모 작성"
 git push -u origin develop
 
+# push 오류시 
+--rebase
+
 # 스테이징 (Staging Area로 이동)
 git add 파일명                  # 특정 파일만 추가
 git add 파일명1 파일명2         # 여러 파일 동시 추가
