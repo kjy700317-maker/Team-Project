@@ -216,3 +216,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# 1. 로컬 SQLite 데이터베이스 파일 (100MB 용량 제한 대응)
+data/*.db
+data/*.sqlite
+
+# 2. 빅쿼리(BigQuery) 등 서비스 계정 인증 JSON 키 및 비밀키 폴더
+*.json
+secrets/
+
+# SSH 키 파일 차단
+*.pem
+
+# 원본 데이터 폴더 차단 (내부 README만 예외 허용)
+data/raw/*
+!data/raw/README.md
+
+# 가공된 데이터 및 벡터DB 등 대용량 파일 차단
+data/processed/*.db
+data/processed/chroma/
+data/processed/_*
+data/processed/fund_chunks/
