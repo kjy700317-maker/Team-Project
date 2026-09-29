@@ -127,7 +127,7 @@ git init
 # 변경 사항을 깃허브에 업로드하는 표준 순서
 git add .
 git commit -m "메모 작성"
-git push -u origin main
+git push origin develop
 
 # 스테이징 (Staging Area로 이동)
 git add 파일명                  # 특정 파일만 추가
