@@ -40,6 +40,7 @@
 ---
 
 ## 4. 프로젝트 폴더 구조 (Directory Structure)
+```text
 Team-Project/
 ├── .github/                   # 이슈 및 PR 템플릿
 ├── .streamlit/                # 스트림릿 디자인 및 설정 파일 (.toml)
@@ -55,7 +56,7 @@ Team-Project/
 ├── config.py                  # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
 ├── README.md                  # 프로젝트 소개 및 가이드 문서
 └── requirements.txt           # 패키지 의존성 목록 (버전 고정)
-
+```
 ---
 
 ## 5. 협업 규칙 및 템플릿 사용법 (Workflow & Templates)
