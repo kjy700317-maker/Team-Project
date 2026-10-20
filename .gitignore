@@ -246,7 +246,7 @@ data/processed/fund_chunks/
 .DS_Store
 *.log
 
-# .vscode /settings.json 환경 고정 커밋 금지 
+# .vscode /* 환경 고정 커밋 금지 
 # 3 : 1 환경 기준
-.vscode/settings.json
-
+.vscode/*
+!.vscode/extensions.json
