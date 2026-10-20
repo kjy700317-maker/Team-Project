@@ -101,13 +101,13 @@ Team-Project/
 #### 2. 머지(Merge) 진행 순서 및 규칙
 1. **이슈 생성 및 브랜치 파기**
    - 개발 시작 전 깃허브에서 이슈를 만들고, 로컬에서 `git switch -c feature/기능이름` 브랜치를 생성하여 작업합니다.
-2. **최신 `main (develop)` 코드 동기화 (충돌 방지)**
+2. **최신 `main` 코드 동기화 (충돌 방지)**
    - PR을 올리기 전, 내 브랜치에 최신 `main` 코드를 먼저 병합하여 충돌이 나는지 미리 확인합니다.
      ```bash
-     git switch main (develop)
-     git pull origin main (develop)
+     git switch main
+     git pull origin main
      git switch feature/기능이름
-     git merge main (develop)
+     git merge main
      ```
 3. **Pull Request (PR) 요청**
    - 작업 완료 후 `main` 브랜치로 Pull Request를 생성합니다.
@@ -193,11 +193,7 @@ git add .
 git commit -m "메모 작성"
 git push -u origin develop
 
-<<<<<<< HEAD
 # push 오류시
-=======
-# push 오류시 
->>>>>>> db782f80196578a419b5b9e2f1473c8957eb7d83
 git pull origin develop --rebase
 
 # 스테이징 (Staging Area로 이동)

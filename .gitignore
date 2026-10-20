@@ -245,3 +245,8 @@ data/processed/fund_chunks/
 # 운영체제 생성 파일 및 로그
 .DS_Store
 *.log
+
+# .vscode /settings.json 환경 고정 커밋 금지 
+# 3 : 1 환경 기준
+.vscode/settings.json
+
