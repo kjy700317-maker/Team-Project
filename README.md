@@ -218,6 +218,9 @@ git difftool 커밋아이디         # 특정 커밋 간 차이점 비교
 git branch 브랜치명             # 브랜치 생성
 git switch 브랜치명             # 해당 브랜치로 이동
 
+# 신규 생성방법
+git switch -c 브랜치명
+
 # 브랜치 삭제
 git branch -d 브랜치명          # 이미 머지(Merge)된 브랜치 삭제
 git branch -D 브랜치명          # 머지되지 않은 브랜치 강제 삭제

@@ -242,6 +242,8 @@ data/processed/chroma/
 data/processed/_*
 data/processed/fund_chunks/
 
+!data/processed/*.csv
+
 # 운영체제 생성 파일 및 로그
 .DS_Store
 *.log
