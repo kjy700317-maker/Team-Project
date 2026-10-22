@@ -13,5 +13,8 @@ DB_PATH = "data/database.db" # SQLite 데이터베이스 파일 경로
 # 3. API 및 기타 설정
 RAM_CUTS = [40, 60, 90, 120] # 원점수 기준선
 RATIO_CUTS = [100, 150, 200, 300] # 평소대비 기준선
-
+STAGE_NAMES = {1: "평온", 2: "관심", 3: "주의", 4: "경계", 5: "심각"} # 긴장도 5단계
+STAGE_COLORS = {1: "green", 2: "blue", 3: "yellow", 4: "orange", 5: "red"} # 임시 색
+SIMILAR_N = 3 # 과거 유사 시기 몇 개 보여줄지 (팀의견 확정 전)
+SIMILAR_EXCLUDE_MONTHS = 12 # 최근 몇 개월은 비교해서 뺄지 (팀의견 확정 전)
 # 필요한 공통 상수가 있다면 이곳에 추가하세요.
