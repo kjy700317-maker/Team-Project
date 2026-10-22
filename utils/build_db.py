@@ -1,5 +1,6 @@
 """
-봉수 통합 DB 만들기 (SQLite)  — v1.2 (2026-10-20)
+봉수 통합 DB 만들기 (SQLite)  — v1.3 (2026-10-22)
+    v1.3: 끝에서 utils/build_erd.py 를 호출해 ERD v4 테이블(국가·날짜·사건_일단위·사건_연단위·지표값·보조)도 함께 생성
 
 data/processed/ 아래의 전처리 CSV를 모두 읽어서 SQLite DB 하나로 합칩니다.
 
@@ -253,6 +254,12 @@ def main():
             print(f"    - {n}")
 
     print("\n결과:", "문제 없음" if not 문제 else f"확인 필요 {len(문제)}건 → {', '.join(문제)}")
+
+    # ── 2단계: ERD v4 테이블 (이슈 #7) ─────────────────────
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    from build_erd import build_erd
+    build_erd(con, Path(__file__).parent.parent / "db" / "schema.sql")
     con.close()
 
 
