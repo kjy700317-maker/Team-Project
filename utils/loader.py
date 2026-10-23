@@ -1,5 +1,5 @@
 import config
-from utils.dummy import make_daily, make_monthly   # 쉼표로 여러 개를 한 번에 가져올 수 있음
+from utils.dummy import make_daily, make_monthly, make_elements # 쉼표로 여러 개를 한 번에 가져올 수 있음
 
 # ===== 테이블 통로 =====
 def load_daily():
@@ -14,3 +14,10 @@ def load_monthly():
         return make_monthly(make_daily()) # 더미 일별 표를 만들어서 월별로 묶어 알려줌
     else:
         raise NotImplementedError("월별 표 아직 실제 DB 연결을 하지 않음")
+
+# ===== 점수구성 통로 =====
+def load_elements():
+    if config.USE_DUMMY:
+        return make_elements()
+    else:
+        raise NotImplementedError("점수 아직 실제 DB 연결을 하지 않음")

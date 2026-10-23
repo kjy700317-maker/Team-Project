@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 import config # 맨 위 폴더의 config.py를 불러온다. streamlit은  app.py가 있는 폴더를 기준으로 파일을 찾아서, pages 안에서도 이렇게 불러 올 수 있다.
-from utils.loader import load_daily, load_monthly
+from utils.loader import load_daily, load_monthly, load_elements
 import plotly.express as px
 
 # ===== 페이지 제목 =====
@@ -71,9 +71,17 @@ for i in range(config.SIMILAR_N):
     past_stage = int(row["최종단계"]) # 그달의 단계 번호
     with cols[i]: # 1번째 칸안에 그리기
         st.metric(row["연월"], round(row["평소대비"]), f"{past_stage}단계 {config.STAGE_NAMES[past_stage]}", delta_color="off")
+# ===== 점수 구성표 =====
+st.subheader("점수 구성 (최근 30일)")
+elements = load_elements().sort_values("점수", ascending=False) # ascending: 오름차순 / elements = elements.srot_values() : 정렬한 결과를 같은 이름에 담는 작업 : 실행하지 않으면 정렬한 표가 그냥 버려짐
+st.dataframe(elements, hide_index=True) #
+st.caption(f"합계 {elements['점수'].sum()}점 (가중치가 음수인 요소는 점수를 깎음)") # 표 아래 작은 회색 글씨
 
 # 월별 표 확인용
 # from utils.dummy import make_monthly
 # st.dataframe(make_monthly(df))
 #월별 표 확인용 2
 # st.dataframe(monthly)
+# 점수 구성 확인용
+# from utils.loader import load_elements
+# st.dataframe(load_elements(), hide_index= True)

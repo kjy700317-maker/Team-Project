@@ -43,3 +43,11 @@ def make_monthly(daily): # daily 매개변수
     monthly["원점수"] = monthly["원점수"].round(1)
     monthly["평소대비"] = monthly["평소대비"].round(1)
     return monthly
+
+# ===== 점수 구성 (결과 일별 요소, 최근 30일 합계로 단순화) =====
+def make_elements():
+    rng = np.random.default_rng(7)
+    elements = pd.DataFrame({"요소코드": ["X1","X2","X3","X4","X5"], "요소명": ["미사일 발사", "군사훈련", "무력 충돌", "외교 비난", "정상화담"], "주체국": ["PRK", "USA", "PRK", "CHN", "KOR"], "가중치": [5,2,8,1,-3]}) # 음수는 긴장을 낮추는 사건
+    elements["건수"] = rng.integers(0, 6, size=len(elements)) # elements의 정수 뽑기 (0 ~ 5 사이)
+    elements ["점수"] = elements["건수"] * elements["가중치"] # ERD규칙: 점수 = 건수 * 가중치
+    return elements
