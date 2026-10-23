@@ -51,3 +51,4 @@ def make_elements():
     elements["건수"] = rng.integers(0, 6, size=len(elements)) # elements의 정수 뽑기 (0 ~ 5 사이)
     elements ["점수"] = elements["건수"] * elements["가중치"] # ERD규칙: 점수 = 건수 * 가중치
     return elements
+

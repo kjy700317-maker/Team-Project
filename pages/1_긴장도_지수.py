@@ -85,3 +85,43 @@ st.caption(f"합계 {elements['점수'].sum()}점 (가중치가 음수인 요소
 # 점수 구성 확인용
 # from utils.loader import load_elements
 # st.dataframe(load_elements(), hide_index= True)
+
+# ===== csv =====
+
+# 사건 파일 확인용
+# from utils.real import read_events
+# a2 = read_events("data/processed/A/A2_미사일_발사_CSV.csv")
+# st.write("A2 미사일 사건 수:", len(a2))
+
+# 사건 파일 결합 확인용
+# from utils.real import read_all_events
+# events = read_all_events()
+# st.write("전체 사건 수:", len(events))
+
+# 사건 표 정리 확인용
+# from utils.real import make_events
+# events = make_events()
+# st.write("정리된 사건 수:", len(events))
+# st.write(events["카테고리코드"].value_counts())   # 카테고리별 건수 세기
+
+# 점수 구성 확인용
+# from utils.real import make_events, make_daily_elements
+# elements_real = make_daily_elements(make_events())
+# st.write("줄 수:", len(elements_real), "/ 건수 합:", elements_real["건수"].sum(), "/ 점수 합:", elements_real["점수"].sum())
+# st.dataframe(elements_real.tail(), hide_index=True)
+
+# 원점수 확인용
+# from utils.real import make_events, make_daily_elements, make_raw_daily
+# raw_real = make_raw_daily(make_daily_elements(make_events()))
+# st.write("일수:", len(raw_real), "/ 마지막 원점수:", raw_real["원점수"].iloc[-1])
+# st.plotly_chart(px.line(raw_real, x="날짜", y="원점수"))
+
+# 평소대비 확인용
+# from utils.real import make_daily_real
+# daily_real = make_daily_real()
+# st.write("평소대비 최저:", daily_real["평소대비"].min(), "/ 최고:", daily_real["평소대비"].max())
+# st.dataframe(daily_real.tail(), hide_index=True)
+
+# # 점수 구성표
+# from utils.real import make_recent_elements
+# st.dataframe(make_recent_elements(), hide_index=True)
