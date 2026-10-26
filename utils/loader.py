@@ -1,6 +1,6 @@
 import config
-from utils.dummy import make_daily, make_monthly, make_elements # 쉼표로 여러 개를 한 번에 가져올 수 있음
-from utils.real import make_daily_real, make_recent_elements
+from utils.dummy import make_daily, make_monthly, make_elements, make_yearly # 쉼표로 여러 개를 한 번에 가져올 수 있음
+from utils.real import make_daily_real, make_recent_elements, make_events
 import streamlit as st
 # ===== 테이블 통로 =====
 @st.cache_data
@@ -31,7 +31,7 @@ def load_daily():
     if config.USE_DUMMY:
         return make_daily()
     else:
-        return make_daily_real()              # 진짜 결과_일별
+        return make_daily_real() # 진짜 결과_일별
 
 @st.cache_data
 def load_monthly():
@@ -45,4 +45,16 @@ def load_elements():
     if config.USE_DUMMY:
         return make_elements()
     else:
-        return make_recent_elements()          # 진짜 최근 30일 요소
+        return make_recent_elements() # 진짜 최근 30일 요소
+    
+@st.cache_data # 사건 표
+def load_events():
+    return make_events()
+
+@st.cache_data
+def load_yearly():
+    if config.USE_DUMMY:
+        return make_yearly(make_daily())
+    else:
+        return make_yearly(make_daily_real()) # 진짜 일별 표를 연별로 묶기
+

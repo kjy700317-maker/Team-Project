@@ -38,11 +38,19 @@ def make_daily(): # 지속일수
 # ===== 월별 표 결과_월별 모양) =====
 def make_monthly(daily): # daily 매개변수
     m = daily.copy() # 복사본 생성, 연월 컬럼을 붙이면 원래 일별 표까지 변형되기에 사전에 복사
-    m["연월"] = m["날짜"].dt.strftime("%Y=%m") # 날짜를 2026-10 같은 글자로 변경, .dt는 날짜기능 사용, %Y는 4자리 연도, %m 은 2자리 월
+    m["연월"] = m["날짜"].dt.strftime("%Y-%m") # 날짜를 2026-10 같은 글자로 변경, .dt는 날짜기능 사용, %Y는 4자리 연도, %m 은 2자리 월
     monthly = m.groupby("연월").agg(원점수=("원점수", "mean"), 평소대비=("평소대비", "mean"), 최종단계=("최종단계", "max")).reset_index() # 가틍ㄴ 연월끼리 묶음, 엑셀의 피벗 테이블과 같은 개념 / .reset_index() : .groupby를 하면 연월이 표의 줄이름을로 올라가기에 다시 일반컬럼으로 내림
     monthly["원점수"] = monthly["원점수"].round(1)
     monthly["평소대비"] = monthly["평소대비"].round(1)
     return monthly
+
+def make_yearly(daily):  # 일별 표를 받아서 결과_연별 모양으로 묶어 돌려줌
+    y = daily.copy()
+    y["연도"] = y["날짜"].dt.year # 날짜 → 2024 (숫자)
+    yearly = y.groupby("연도").agg( 원점수=("원점수", "mean"), 평소대비=("평소대비", "mean"), 최종단계=("최종단계", "max")).reset_index() # 최종단계=("최종단계", "max") :그해 가장 높았던 단계
+    yearly["원점수"] = yearly["원점수"].round(1)
+    yearly["평소대비"] = yearly["평소대비"].round(1)
+    return yearly
 
 # ===== 점수 구성 (결과 일별 요소, 최근 30일 합계로 단순화) =====
 def make_elements():
