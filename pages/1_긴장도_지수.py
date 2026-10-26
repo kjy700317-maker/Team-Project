@@ -4,10 +4,12 @@ import config # 맨 위 폴더의 config.py를 불러온다. streamlit은  app.p
 from utils.loader import load_daily, load_monthly, load_elements
 import plotly.express as px
 
+# ===== 페이지 설정 =====
+st.set_page_config(page_title="한반도 긴장도", layout="wide")
+
 # ===== 페이지 제목 =====
 st.title("한반도 군사 긴장 지수")
-st.write("이곳에 긴장도 지수 대시보드가 들어갈 예정입니다")
-st.write("더미 데이터 사용중:", config.USE_DUMMY) # config.USE_DUMMY : config 파일 안의 USE_DUMMY 값을 꺼내 온다 "파일이름.변수이름"형태 / st.write에 쉽표로 여러개를 넣으면 이어서 보여준다.
+# st.write("더미 데이터 사용중:", config.USE_DUMMY) # config.USE_DUMMY : config 파일 안의 USE_DUMMY 값을 꺼내 온다 "파일이름.변수이름"형태 / st.write에 쉽표로 여러개를 넣으면 이어서 보여준다.
 # from utils.dummy import make_daily # utils 폴더 → dummy.py 파일 → make_daily 함수를 꺼내옴 , 맨아레
 # st.dataframe(make_daily()) # 표를 화면에 보여줌
 
@@ -16,6 +18,7 @@ df = load_daily()
 latest = df.iloc[-1] # 몇 번째 줄 위치로 꺼내는 방법, 0은 첫줄 -1은 맨 마지막줄: 파이썬에서 음수 번호는 뒤에서 부터 센다는 뜻
 # st.write(latest) # 확인용 한줄
 monthly = load_monthly()
+st.caption(f"기준일 {latest['날짜']:%Y-%m-%d} · 최근 30일 사건 점수 합으로 계산")   # latest를 만든 뒤라서 이곳에 작성
 
 # ===== 상단 카드 3개 =====
 stage = int(latest["최종단계"]) # 표에서 꺼낸 숫자는 pandas 형식이라 딕셔너리 키로 쓰기 전에 일반 정수로 맞춰 주는 과줭
@@ -37,17 +40,24 @@ with col3:
             next_cut = cut
             break
     if next_cut is None: # 반복을 다 돌았는데도 못 찾았다면 120꺼자 다넘은 최고 단계라는 뜻, is : None 인지 확인 할 때는 == 대신 is를 쓰는 것이 파이썬 관습임
-        st.metric("원점수", round(raw, 1), "최고 기준선(120) 초과", delta_color="off")
+        # st.metric("원점수", round(raw, 1), "최고 기준선(120) 초과", delta_color="off")
+        st.metric("원점수", f"{raw:.1f}", f"최고 기준선({config.RAM_CUTS[-1]}) 초과", delta_color="off")
     else: # 120 초과 하지 않았다면 남은 거리를 표시
         st.metric("원점수", round(raw, 1), f"다음 기준선 {next_cut}까지 {next_cut - raw:.1f}" , delta_color="off")
 # ===== 5단계 기준표 =====
 st.subheader("단계 기준표")
 stage_table = pd.DataFrame({"단계": [1, 2, 3, 4, 5], "이름": list(config.STAGE_NAMES.values()), "원점수 (이상)": [0] + config.RAM_CUTS, "평소대비 (이상)": [0] + config.RATIO_CUTS}) # [0] + ..., ... : [0] + ...) : 기준선은 4개인데 단계는 4개라 1단계 0을 추가 [0, 40, 60, 90, 120]
 st.dataframe(stage_table, hide_index=True) # 줄 번호 숨기기
-# ===== 확인용: 전체 표 =====
+
+# ===== 추이 그래프 =====
 st.subheader("긴장도 추이")
-fig = px.line(df, x="날짜", y="평소대비") # px.line(표, x=가로축 컬럼, y=세로축 컬럼): 선 그레프를 만듬
-fig.add_hline(y=100, line_color="gray", annotation_text="평소 100") # .add_hline() : 가로선을 추가 / y=: 세로축 위치 / line_color: 선색 / annotation_text: 선옆에 붙은 작은 글씨
+start_year = st.slider("그래프 시작 연도", 1945, 2026, 2015)   # 끌어서 시작 연도 고르기 (제목, 최소, 최대, 기본값)
+view = df[df["날짜"].dt.year >= start_year]                    # 그래프에만 쓸 기간 / .dt.year: 날짜에서 연도만
+fig = px.line(view, x="날짜", y="평소대비")                     # px.line(표, x=가로축 컬럼, y=세로축 컬럼): 선 그래프를 만듦 / df 대신 view
+fig.add_hline(y=100, line_color="gray", annotation_text="평소 100", annotation_position="top left")   # .add_hline(): 가로선 추가 / y=: 세로축 위치 / line_color: 선 색 / annotation_text: 선 이름 / annotation_position: 이름 위치(왼쪽 위)
+# st.subheader("긴장도 추이")
+# fig = px.line(df, x="날짜", y="평소대비") # px.line(표, x=가로축 컬럼, y=세로축 컬럼): 선 그레프를 만듬
+# fig.add_hline(y=100, line_color="gray", annotation_text="평소 100") # .add_hline() : 가로선을 추가 / y=: 세로축 위치 / line_color: 선색 / annotation_text: 선옆에 붙은 작은 글씨
 for cut in config.RATIO_CUTS[1:]: # [1:] 1부터 끝까지 -> 두번째 부터 끝까지
     fig.add_hline(y=cut, line_dash="dash", line_color="gray", annotation_text=str(cut)) # dash : 점선
 lows = [0] + config.RATIO_CUTS # 각 단계 아레 끝 [1, 100, 150, 200, 300]
@@ -63,7 +73,7 @@ now = monthly.iloc[-1] # 이번달 - 마지막 줄
 past = monthly.iloc[:-config.SIMILAR_EXCLUDE_MONTHS].copy() # 최근 config.SIMILAR_EXCLUDE_MONTHS개월을 뺸 지난달, 뒤에서부터 뺀 값 / .copy() 변형을 대비
 past["차이"] = (past["평소대비"] - now["평소대비"]).abs() # 이번달과 평소대비 차이 / .abs(): 절댓값, 부호를 삭제 - 음수를 인식해 가장 작은값으로 뽑는 것을 방지
 similar = past.nsmallest(config.SIMILAR_N, "차이") # 차이가 가작 작은값, 반대 .nlargest() 가장큰줄 인식
-st.dataframe(similar, hide_index=True)
+# st.dataframe(similar, hide_index=True) # 유사시기 표
 # ===== 유사 시기 카드 ===== 카드 순서 연월 , 평소대비, 단게 순서
 cols = st.columns(config.SIMILAR_N) # 고른 개수만큼 가로 칸 나누기
 for i in range(config.SIMILAR_N):

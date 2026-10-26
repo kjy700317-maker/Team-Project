@@ -3,6 +3,10 @@ import config
 from utils.loader import load_events # 정리된 사건 표 통로
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그레프
+
+# ===== 페이지 설정 =====
+st.set_page_config(page_title="한반도 긴장도", layout="wide")
+
 # ===== 페이지 제목 =====
 st.title("사건 기록") # 정리된 사건 표 창구
 
@@ -20,7 +24,7 @@ st.sidebar.header("필터") # st.sidebar. = 왼쪽 메뉴 영역에 그리기 , 
 first = events["시작일"].min() # 가장 오래된 날 (1945-07-16)
 last = events["시작일"].max() # 가장 최근 날 (2026-09-30)
 period = st.sidebar.date_input("기간", value=(last - timedelta(days=365), last), min_value=first, max_value=last) # 기본: 최근 1년, 값을 두 개 주면 기간 선택 달력이 됨
-start, end = period[0], period[-1] # 달력에서 시작일만 누른 순간에는 값이 하나뿐이라 period[1] 입력시 오류 / 시작일만 골랐을 때도 에러 안 나게 [0], [-1] 
+start, end = period[0], period[-1] # 달력에서 시작일만 누른 순간에는 값이 하나뿐이라 period[1] 입력시 오류 / 시작일만 골랐을 때도 에러 안 나게 [0], [-1]
 kinds = st.sidebar.multiselect("사건 종류 (비우면 전체)", list(config.ELEMENT_NAMES.values())) # 여러 개 고르기
 actors = st.sidebar.multiselect("주체국 (비우면 전체)", sorted(events["주체국"].unique())) # unique: 중복 없이, sorted: 가나다순
 word = st.sidebar.text_input("사건명 검색") # 글자 입력칸
@@ -32,7 +36,7 @@ if actors:
     events = events[events["주체국"].isin(actors)]
 if word: # 검색어를 썼으면
     events = events[events["사건명"].str.contains(word, na=False)] # 사건명에 그 글자가 들어간 줄만
-    
+
 # ===== 요약 카드, 종류별 막대그래프, 표 =====
 if len(events) == 0: # 필터 결과가 0건이면
     st.warning("조건에 맞는 사건이 없습니다.") # 노란 안내 상자
@@ -51,6 +55,6 @@ st.subheader("사건 목록")
 st.dataframe(events, hide_index=True)
 
 # ===== 확인용 =====
-st.write(len(events)) # 몇 건
-st.dataframe(events, hide_index=True)
+# st.write(len(events)) # 몇 건
+# st.dataframe(events, hide_index=True)
 

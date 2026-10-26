@@ -3,6 +3,9 @@ import config
 from utils.loader import load_monthly, load_yearly
 import plotly.express as px
 
+# ===== 페이지 설정 =====
+st.set_page_config(page_title="한반도 긴장도", layout="wide")
+
 # ===== 페이지 제목 =====
 st.title("월별·연별 추이")
 
@@ -17,14 +20,14 @@ else:
     data = load_monthly()
     data = data[data["연월"].str[:4].astype(int) >= start_year].copy() # "2024-06" → "2024" → 2024
     x = "연월"
-    
+
 # ===== 막대그래프 =====
 data["단계"] = data["최종단계"].map(config.STAGE_NAMES) # 4 → 경계
 color_map = {} # 빈 딕셔너리
 for no in config.STAGE_NAMES: # no = 1, 2, 3, 4, 5
     color_map[config.STAGE_NAMES[no]] = config.STAGE_COLORS[no] # {"평온": 초록, "관심": 파랑, ...}
 
-fig = px.bar(data, x=x, y="평소대비", color="단계", color_discrete_map=color_map, category_orders={"단계": list(config.STAGE_NAMES.values())}) 
+fig = px.bar(data, x=x, y="평소대비", color="단계", color_discrete_map=color_map, category_orders={"단계": list(config.STAGE_NAMES.values())})
 # color: 이 칸 값마다 색을 다르게함, 단계 이름마다 다른 색 막대가 됨 / _discrete_ma: 어떤 값에 어떤 색인지 지정함 / _orders: 범례 순서: 평온 -> 심각 로 나오게함
 fig.add_hline(y=100, line_color="gray", annotation_text="평소 100")
 st.plotly_chart(fig)
@@ -39,4 +42,4 @@ st.dataframe(top[[x, "원점수", "평소대비", "단계"]], hide_index=True)
 # st.dataframe(data, hide_index=True)
 
 # ===== 막대그래프 확인용 =====
-st.write(len(data))
+# st.write(len(data))
