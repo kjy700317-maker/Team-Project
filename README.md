@@ -137,6 +137,8 @@ Team-Project/
 - 반감기(14일) 등의 주요 파라미터는 `config.py`에 집중 관리하며, 채택 근거는 `docs/decisions.md`에 기록합니다.
 
 ---
+## 대시보드 실행
+streamlit run 홈.py
 
 ## 환경
 ```text
