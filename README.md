@@ -42,20 +42,33 @@
 ## 4. 프로젝트 폴더 구조 (Directory Structure)
 ```text
 Team-Project/
-├── .github/                   # 이슈 및 PR 템플릿
-├── .streamlit/                # 스트림릿 디자인 및 설정 파일 (.toml)
-├── .vscode/                   # VS Code 에디터 설정 (settings.json)
-├── data/                      # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
-├── docs/                      # 프로젝트 문서화 폴더
-│   └── decisions.md           # 주요 설정값 및 기술 의사결정 기록
-├── pages/                     # 멀티페이지 대시보드 화면 파일들
-├── utils/                     # 공통 함수 및 전처리 모듈
-│   └── helpers.py             # 데이터 로드, 전처리, 공통 UI 함수 모음
-├── .gitignore                 # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
-├── app.py                     # 메인 실행 파일
-├── config.py                  # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
-├── README.md                  # 프로젝트 소개 및 가이드 문서
-└── requirements.txt           # 패키지 의존성 목록 (버전 고정)
+├── .github/                     # 이슈 및 PR 템플릿
+│   └── ISSUE_TEMPLATE           # 이슈 양식 폴더
+│        └── feature.md
+│   └── pull_request_template.md # PR 양식
+├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
+├── .vscode/                     # VS Code 에디터 설정 (settings.json) (개인별 환경유지를 위해 인식을 막아둠)
+│   └── settings.json
+├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
+│   └── processed                # 정제 데이터 폴터
+├── docs/                        # 프로젝트 문서화 폴더
+│   └── decisions.md             # 주요 설정값 및 기술 의사결정 기록
+├── pages/                       # 멀티페이지 대시보드 화면 파일들
+│   └── 1_긴장도_지수.py
+│   └── 2_사건_기록.py
+│   └── 3_월별_연별.py
+│   └── 4_보고서.py
+├── utils/                       # 공통 함수 및 전처리 모듈
+│   └── helpers.py               # 데이터 로드, 전처리, 공통 UI 함수 모음
+│   └── dummy.py
+│   └── loader.py
+│   └── real.py
+│   └── README.md
+├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
+├── 홈.py                        # 메인 실행 파일
+├── config.py                    # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
+├── README.md                    # 프로젝트 소개 및 가이드 문서
+└── requirements.txt             # 패키지 의존성 목록 (버전 고정)
 ```
 ---
 

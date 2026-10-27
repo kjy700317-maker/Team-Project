@@ -50,12 +50,12 @@ def make_daily_elements(events):
     elements["점수"] = elements["건수"] * elements["가중치"] # ERD: 점수 = 건수 × 가중치
     return elements
 
-# ===== 원점수 = 최근 30일 점수 합 (ERD 결과_일별) =====
+# ===== 원점수 = 최근 N일(config.WINDOW_DAYS) 점수 합 (ERD 결과_일별) =====
 def make_raw_daily(elements):
     daily = elements.groupby("시작일")["점수"].sum() # 날짜로 묶어서 점수 칸만 더함, 날짜별 점수 합(사건 있는 날만)
     all_days = pd.date_range(daily.index.min(), daily.index.max()) # 사건 닐 - 마지막 사건 날
     daily = daily.reindex(all_days, fill_value=0) # 사건 없는 날을 0점으로 채움, 날짜 빈칸이 존재 - 비는 날에 0울 넣어 30일 달력을 완성
-    raw = daily.rolling(30, min_periods=1).sum() # rolling: 이동합, min_periods=1: 30일이 안된 구간도 있는 만큼 더함
+    raw = daily.rolling(config.WINDOW_DAYS, min_periods=1).sum() # [수정] 30 → config.WINDOW_DAYS / # rolling: 이동합, min_periods=1: 30일이 안된 구간도 있는 만큼 더함
     # 회담, 합의는 음수 가중치라서 사건이 몰린 시기 (2018년도)는 30알 헙이 마이너스가 되는것을 확인 -> 평소대비 %가 음수로 나와서 이상한 뜻으로 변질됨 -> 그레서 아레 코드를 짜둠 - 0보다 작은 값은 전부 0이되고 나머지는 그대로 유지
     # raw = raw.clip(lower=0)
     return pd.DataFrame({"날짜": all_days, "원점수": raw.values}) # .values: 날짜 꼬리표를 때고 숫자만 꺼냄, 꼬리표 끼리 엉키는 것을 방지
@@ -82,11 +82,11 @@ def make_daily_real():
     df["지속일수"] = days
     return df
 
-# ===== 점수 구성표: 마지막 30일 요소 합계 =====
-def make_recent_elements():
+# ===== 점수 구성표: 마지막 N일 요소 합계 =====
+def make_recent_elements(day=None): # [수정] day: 기준일 (안 주면 None → 마지막 사건 날)
     elements = make_daily_elements(make_events())
-    last_day = elements["시작일"].max() # 마지막 사건 날
-    recent = elements[elements["시작일"] > last_day - pd.Timedelta(days=30)] # 최근 30일
+    last_day = elements["시작일"].max() if day is None else pd.Timestamp(day) # [수정] 기준일을 주면 그날 기준 최근 30일
+    recent = elements[(elements["시작일"] > last_day - pd.Timedelta(days=config.WINDOW_DAYS)) & (elements["시작일"] <= last_day)] # 최근 30일 / [수정] 기준일 뒤 사건은 빼기
     recent = recent.groupby(["카테고리코드", "주체국", "가중치"])[["건수", "점수"]].sum().reset_index() # 30일 동안 같은 요소 같은 나라는 하나로 합침 / 북한 미사일 등이 3일에 걸쳐 있으면 한줄로 함
     recent["요소명"] = recent["카테고리코드"].map(config.ELEMENT_NAMES)
     recent = recent.rename(columns={"카테고리코드": "요소코드"}) # 칸이름을 변경 - 화면 코드가 요소코드이기에 통일함
