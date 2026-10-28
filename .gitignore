@@ -251,5 +251,4 @@ data/processed/fund_chunks/
 # .vscode /* 환경 고정 커밋 금지
 # 3 : 1 환경 기준
 .vscode/*
-!.vscode/extensions.json
 !.vscode/settings.default.json
