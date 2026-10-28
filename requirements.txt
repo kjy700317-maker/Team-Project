@@ -27,9 +27,11 @@ uvicorn==0.52.4
 watchdog==6.0.0
 websockets==16.1.1
 streamlit>=1.40.0
-pandas>=2.0.0
+pandas==3.0.6
 plotly>=5.0.0
 networkx>=3.1
 country-converter>=1.2.0
 google-cloud-bigquery>=3.10.0
 python-docx>=1.1.0
+pytest==9.0.3
+openpyxl==3.1.5
