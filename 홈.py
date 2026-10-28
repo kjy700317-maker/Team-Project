@@ -1,6 +1,7 @@
 import streamlit as st
 import config
 from utils.loader import load_daily, load_events
+from utils.ui import stage_scale   # [수정] 5단계 눈금 (보고서와 같이 씀)
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
@@ -21,20 +22,12 @@ st.markdown(
     f"<div style='background:{color}; color:white; padding:18px 22px; border-radius:12px;'>"
     f"<div style='font-size:14px; opacity:0.9;'>{latest['날짜']:%Y-%m-%d} 기준 현재 단계</div>"
     f"<div style='font-size:30px; font-weight:700;'>{stage}단계 {config.STAGE_NAMES[stage]}</div>"
-    f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.0f} · 4단계 이상 {int(latest['지속일수'])}일째</div></div>",
+    f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.0f}"
+    + (f" · 4단계 이상 {int(latest['지속일수'])}일째" if latest["지속일수"] > 0 else "") + "</div></div>",   # [수정] 지속일수는 4단계 이상일 때만 (1·4페이지와 같게)
     unsafe_allow_html=True)   # 글 안의 HTML(색 상자)을 그대로 그리게 허락
 
 # ===== 5단계 눈금 (지금 단계만 진하게) =====
-scale = ""                                          # 칸 5개를 이어 붙일 빈 글
-for no, name in config.STAGE_NAMES.items():         # .items(): (번호, 이름)을 같이 꺼냄
-    if no == stage:                                 # 지금 단계: 진한 색 + 흰 글씨 + 굵게
-        bg, text, weight = config.STAGE_COLORS[no], "white", 700
-    else:                                           # 나머지: 연한 색(뒤에 "40" = 투명도 25%) + 회색 글씨
-        bg, text, weight = config.STAGE_COLORS[no] + "40", "#555", 400
-    scale += (f"<div style='flex:1; background:{bg}; color:{text}; font-weight:{weight}; "
-              f"text-align:center; padding:6px 0; font-size:13px; border-radius:6px;'>{no} {name}</div>")
-st.markdown(f"<div style='display:flex; gap:4px; margin-top:8px;'>{scale}</div>",   # flex: 칸을 가로로 나란히
-            unsafe_allow_html=True)
+st.markdown(stage_scale(stage), unsafe_allow_html=True)   # [수정] 눈금 만드는 코드는 utils/ui.py로 옮김
 st.write("")
 
 # ===== 페이지 안내 카드 (2 × 2) =====

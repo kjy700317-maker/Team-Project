@@ -3,6 +3,7 @@ import streamlit as st
 import plotly.express as px                     # [수정] 미니 추이 그래프
 import config
 from utils.loader import load_daily, load_monthly, load_elements, load_events
+from utils.ui import stage_scale                # [수정] 5단계 눈금 (홈과 같이 씀)
 from io import BytesIO                          # 파일 대신 쓸 메모리 공간
 from docx import Document                       # 워드 문서 만들기
 from docx.shared import Pt, RGBColor            # 글자 크기(Pt), 글자 색(RGB)
@@ -22,18 +23,9 @@ monthly = load_monthly()    # 결과_월별 표
 events = load_events()      # 사건_일단위 표
 
 # ===== [수정] 기준일 고르기 (1페이지와 같은 사례 목록) =====
-CASES = {   # 보여 줄 이름: 날짜 (None = 최신, "pick" = 달력으로 직접)
-    "최신": None,
-    "1단계 평온 · 2019-06-30 판문점 남북미 회동": "2019-06-30",
-    "2단계 관심 · 2025-06-30": "2025-06-30",
-    "3단계 주의 · 2010-11-30 연평도 포격 1주 뒤": "2010-11-30",
-    "4단계 경계 · 2017-11-30 화성-15 발사 다음 날": "2017-11-30",
-    "5단계 심각 · 2017-09-15 6차 핵실험 12일 뒤": "2017-09-15",
-    "직접 고르기": "pick",
-}
 c1, c2 = st.columns([2, 1])   # 고르는 칸과 달력을 한 줄에
-case = c1.selectbox("기준일 (단계별 사례 보기)", list(CASES.keys()))
-pick = CASES[case]   # 고른 이름 → 날짜 글자
+case = c1.selectbox("기준일 (단계별 사례 보기)", list(config.CASES.keys()))   # [수정] 사례 목록은 config.CASES 한 곳에
+pick = config.CASES[case]   # 고른 이름 → 날짜 글자
 if pick == "pick":
     pick = c2.date_input("날짜", value=df["날짜"].iloc[-1], min_value=df["날짜"].iloc[0], max_value=df["날짜"].iloc[-1])
 if pick is not None:
@@ -91,15 +83,7 @@ st.markdown(
     unsafe_allow_html=True)   # unsafe_allow_html=True: 글 안의 HTML(색 상자)을 그대로 그리게 허락
 
 # ===== [수정] 화면: 5단계 눈금 (홈과 같은 방식, 지금 단계만 진하게) =====
-scale = ""
-for no, name in config.STAGE_NAMES.items():
-    if no == stage:
-        bg, text, weight = config.STAGE_COLORS[no], "white", 700
-    else:
-        bg, text, weight = config.STAGE_COLORS[no] + "40", "#555", 400   # 뒤에 "40" = 연하게
-    scale += (f"<div style='flex:1; background:{bg}; color:{text}; font-weight:{weight}; "
-              f"text-align:center; padding:6px 0; font-size:13px; border-radius:6px;'>{no} {name}</div>")
-st.markdown(f"<div style='display:flex; gap:4px; margin-top:8px;'>{scale}</div>", unsafe_allow_html=True)
+st.markdown(stage_scale(stage), unsafe_allow_html=True)   # [수정] 눈금 만드는 코드는 utils/ui.py로 옮김
 st.write("")                  # 여백
 
 # ===== 화면: 요약 + 숫자 카드 =====
@@ -228,6 +212,3 @@ b1, b2, _ = st.columns([1, 1, 3])   # 버튼 2개를 왼쪽에 나란히, 나머
 b1.download_button("워드로 내려받기", data=buffer.getvalue(), file_name=f"긴장도_브리핑_{day}.docx",
                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 b2.download_button("md로 내려받기", data=report, file_name=f"긴장도_브리핑_{day}.md", mime="text/markdown")
-
-# ===== 확인용 =====
-# st.write(day, stage, stage_name, days, ratio, raw, len(recent))

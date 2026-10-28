@@ -69,10 +69,3 @@ for i in range(len(top)):
                 st.caption(f"{r['시작일']:%m-%d} · {r['종류']} · {r['사건명']}")
             if len(e) > 10:
                 st.caption(f"외 {len(e) - 10}건은 사건 기록 페이지에서")
-
-# ===== 슬라이더 확인용 =====
-# st.write(len(data))
-# st.dataframe(data, hide_index=True)
-
-# ===== 막대그래프 확인용 =====
-# st.write(len(data))

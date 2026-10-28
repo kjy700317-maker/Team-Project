@@ -63,7 +63,3 @@ st.subheader("사건 목록")
 st.dataframe(events, hide_index=True, use_container_width=True,
              column_config={"시작일": "날짜", "요소명": "종류", "사건명": st.column_config.TextColumn("사건명", width="large")})
 # [수정] column_config: 칸 이름 바꾸기·사건명 칸 넓게
-
-# ===== 확인용 =====
-# st.write(len(events)) # 몇 건
-# st.dataframe(events, hide_index=True)
