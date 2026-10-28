@@ -8,6 +8,8 @@ import pandas as pd
 
 import config
 
+BALLOON_KEYWORD = "Balloon"  # ADR-007 2 — 오물풍선 = A3 중 사건명에 Balloon
+
 
 def calc_days(start=config.CALC_START_DATE, end=config.END_DATE) -> pd.DatetimeIndex:
     """(보조) 𝒯 계산 기간 — start~end 하루 간격, end가 None이면 오늘."""
@@ -34,7 +36,7 @@ def daily_sums(events, days, bundles) -> pd.DataFrame:
 
 def decay_cumulative(d, half_life=config.HALF_LIFE_DAYS) -> pd.Series:
     """③ 감쇠 누적 — R_t = λ·R_t−1 + d_t, λ = 2^(−1/반감기), 시작값 0."""
-    # 기준 구현(s3_core.decay)과 같은 파이썬 루프 — ewm·lfilter로 바꾸지 않는다(대응표 ③)
+    # 기준 구현(s3_core.decay)과 같은 파이썬 루프 — 벡터화하지 않는다(대응표 ③)
     a = 2 ** (-1 / half_life)
     r = np.zeros(len(d))
     acc = 0.0
@@ -92,3 +94,52 @@ def tension_components(events, days, bundles, base_period=config.BASE_PERIOD, ha
     comp["delta"] = delta
     comp["T"] = T
     return comp, B
+
+
+def half_gauss_window(d, sigma=config.HALF_GAUSS_SIGMA, window=config.FLOOR_WINDOW) -> pd.Series:
+    """⑩ 하한 원점수 — ρ_t = Σ_{k<창} exp(−k²/(2σ²)) · d_t−k (반가우스 σ10·30일)."""
+    w = np.exp(-np.arange(window) ** 2 / (2 * sigma ** 2))
+    return pd.Series(np.convolve(d.to_numpy(float), w)[:len(d)], index=d.index)
+
+
+def type4_days(events, days, type4_ids) -> pd.Series:
+    """⑩ 물리 4거 유형 사건일 — 판정표 Y 사건의 사건표 날짜면 True."""
+    # 날짜는 사건표에서 가져온다(판정표 date 아님 — 대응표 ⑩-b)
+    t4 = events.loc[events["사건ID"].isin(list(type4_ids)), "date"].unique()
+    return pd.Series(days.isin(t4), index=days)
+
+
+def floor_physical(events, days, type4_ids, kill_ids=config.KILL_EVENTS, thresholds=config.PHYS_FLOOR,
+                   type4_stage=config.TYPE4_FLOOR_STAGE, kill_stage=config.KILL_FLOOR_STAGE,
+                   bundle=config.BUNDLE_PHYS) -> pd.Series:
+    """⑩ 물리 하한 F^물 — 풍선 뺀 A3·A7 ρ≥3→3·≥7→4, 풍선 ρ≥6→3, 4거 유형일 ≥4, 사망·침몰일 5.
+
+    순서 그대로(s3_core.floors_s1 + compute_v014.floors_v014): ① 반가우스 판정 → ② 4거 유형일 max → ③ 사망·침몰일 덮어씀.
+    """
+    ph = events[events["묶음"] == bundle]
+    balloon = ph["요소"].eq("A3") & ph["사건명"].astype(str).str.contains(BALLOON_KEYWORD, case=False, na=False)
+    rho_o = half_gauss_window(_day_sum(ph[~balloon], days)).to_numpy()
+    rho_b = half_gauss_window(_day_sum(ph[balloon], days)).to_numpy()
+    th = thresholds
+    fp = np.select([rho_o >= th["4거"], rho_o >= th["3거"], rho_b >= th["풍선3거"]], [4, 3, 3], 1)
+    t4 = type4_days(events, days, type4_ids).to_numpy()
+    fp[t4] = np.maximum(fp[t4], type4_stage)
+    kill = events.loc[events["사건ID"].isin(list(kill_ids)), "date"]
+    fp[days.isin(kill)] = kill_stage
+    return pd.Series(fp.astype("int64"), index=days)
+
+
+def floor_e5(events, days, thresholds=config.E5_FLOOR, bundle=config.BUNDLE_E5) -> pd.Series:
+    """⑩ E5 하한 F^E5 — 북러 밀착 ρ≥4→3, ≥10→4."""
+    rho = half_gauss_window(_day_sum(events[events["묶음"] == bundle], days)).to_numpy()
+    th = thresholds
+    fe = np.select([rho >= th["4거"], rho >= th["3거"]], [4, 3], 1)
+    return pd.Series(fe.astype("int64"), index=days)
+
+
+def floor_event(events, days, icbm_s=config.EVENT_FLOOR_ICBM_S, stage=config.EVENT_FLOOR_STAGE) -> pd.Series:
+    """⑩ 사건 하한 F^사 — 핵실험(A1) 또는 ICBM(A2, S ≥ 7.5) 당일 3거."""
+    el = events["요소"]
+    key = events.loc[(el == "A1") | ((el == "A2") & (events["S"] >= icbm_s)), "date"].unique()
+    fs = np.where(days.isin(key), stage, 1)
+    return pd.Series(fs.astype("int64"), index=days)
