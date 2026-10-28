@@ -2,11 +2,13 @@
 
 이 리포는 KDT 팀 프로젝트 "봉수"(한반도 군사 긴장도 대시보드, Streamlit)다. Claude Code는 **작업 프롬프트 한 장(`docs/dev/tasks/F<n>_*.md`)을 받아 그것만 수행**한다. 설계·규칙 결정은 구현 메인 세션(별도 Claude 채팅)과 사용자 몫이다.
 
+> **적용 범위:** 이 파일의 규칙은 `docs/dev/tasks/`의 작업 프롬프트로 하는 **긴장도 계산 코드화 작업**(`utils/tension/`·`scripts/`·`tests/`·`data/tension/`·`docs/dev/`·`docs/tension/`)에만 적용한다. 그 밖의 작업(화면 `홈.py`·`pages/`, DB `utils/build_*.py`·`db/`, 전처리 데이터 등)은 팀 `README.md`의 협업 규칙을 따르고, 이 파일의 1·3·5~7절은 적용하지 않는다. 다만 3절의 보안 규칙(`.env`·키·`*.json` 커밋 금지, `main` 직접 푸시 금지)은 모든 작업에 적용한다.
+
 ## 1. 매 세션 시작 순서
 1. 받은 작업 프롬프트를 끝까지 읽는다. 프롬프트에 없는 일은 하지 않는다.
 2. 이 파일과 `docs/dev/식_함수_대응표.md`(계산 작업일 때)를 읽는다.
 3. `git status` · `git branch --show-current` · `git fetch origin`. 작업트리에 내가 만들지 않은 변경이 있으면 **건드리지 않고** 보고서에 적는다.
-4. python은 **팀 conda 환경 `python311`로만** 돌린다: `conda run -n python311 python …`(이 PC 기본 `python`은 3.14 — 쓰지 않는다). 버전(3.11.x)과 numpy·pandas 버전을 보고서에 적는다. 환경이 없으면 멈추고 보고.
+4. python은 **팀 conda 환경 `python311`의 `python.exe`를 경로로 직접 호출**한다. 경로는 PC마다 다르므로 **작업 프롬프트 머리에 적힌 경로**를 쓴다(`conda run`은 PC에 따라 base 환경을 잡을 수 있어 쓰지 않는다). 버전(3.11.x)과 numpy·pandas 버전을 보고서에 적는다. 경로가 없거나 3.11이 아니면 멈추고 보고.
 5. 프롬프트가 정한 브랜치를 프롬프트가 정한 기준 브랜치에서 만든다(F0은 최신 `develop`: `git pull --ff-only origin develop` → `git switch -c feature/<이름>`. F1부터도 앞 기능 PR이 `develop`에 병합된 뒤 최신 `develop`에서 만든다 — U4. 앞 PR이 병합 전이면 시작하지 말고 멈춘다).
 6. 같은 리포 폴더에서 다른 Claude Code 세션이 돌고 있으면 시작하지 않는다(폴더 하나 = 체크아웃 브랜치 하나. 병렬 실행은 하지 않는다 — U1).
 7. 이슈(README 5절): 프롬프트가 이슈 번호를 주지 않으면 작업 시작 전에 `gh issue create`로 만든다 — 제목 `[말머리] 요약`(FEAT·FIX·DOCS·REFACTOR·CHORE), 라벨은 같은 이름 소문자(`feat`·`fix`·`docs`·`refactor`·`chore`), 본문은 `.github/ISSUE_TEMPLATE/feature.md` 양식. 번호를 보고서에 적는다.
@@ -48,7 +50,7 @@ docs/dev/진행기록.md       # 단계 6 진행 기록 — 구현 메인 소유
 - Windows에서 돈다: 줄바꿈·인코딩 차이로 diff가 커지지 않게 한다. Git Bash에서 `git show <브랜치>:.<경로>`처럼 `:` 뒤가 `.`으로 시작하면 `MSYS_NO_PATHCONV=1`을 붙인다.
 
 ## 5. 테스트·검산
-- 테스트: `conda run -n python311 python -m pytest -q`
+- 테스트: `<작업 프롬프트가 지정한 python.exe> -m pytest -q`
 - 계산 작업은 프롬프트의 v0.1.4 대조 검산을 반드시 돌리고 명령·출력 요약을 보고서에 붙인다. **검산 없는 "완료" 보고는 통과되지 않는다.**
 
 ## 6. 깃
