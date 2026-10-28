@@ -27,7 +27,7 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller 관련 (실행파일 빌드 시 생성되는 파일)
-# 보통 이 파일들은 PyInstaller가 실행 파일(.exe)을 빌드하기 전에 
+# 보통 이 파일들은 PyInstaller가 실행 파일(.exe)을 빌드하기 전에
 # 날짜나 기타 정보를 주입하기 위해 템플릿을 기반으로 파이썬 스크립트가 작성하는 파일들입니다.
 *.manifest
 *.spec
@@ -83,8 +83,8 @@ profile_default/
 ipython_config.py
 
 ## 피브엔프(pyenv) 버전 지정 파일 (필요시 주석 해제)
-#   라이브러리나 패키지의 경우 여러 환경에서 실행을 테스트해야 하므로 
-#   이 파일을 무시(gitignore)하는 것이 좋습니다. 
+#   라이브러리나 패키지의 경우 여러 환경에서 실행을 테스트해야 하므로
+#   이 파일을 무시(gitignore)하는 것이 좋습니다.
 #   그렇지 않은 일반 프로젝트라면 Git에 포함(커밋)하세요:
 # .python-version
 
@@ -120,7 +120,7 @@ ipython_config.py
 # 픽시 (Pixi) 가상환경 및 잠금 파일
 #   Pipfile.lock과 마찬가지로, 일반적으로 버전 관리(Git)에 pixi.lock을 포함하는 것이 권장됩니다.
 # pixi.lock
-#   Pixi는 venv 모듈이 .venv 디렉토리를 만드는 것과 마찬가지로, .pixi 디렉토리 안에 가상 환경을 생성합니다. 
+#   Pixi는 venv 모듈이 .venv 디렉토리를 만드는 것과 마찬가지로, .pixi 디렉토리 안에 가상 환경을 생성합니다.
 #   이 디렉토리는 버전 관리에 포함하지 않는 것(Git 무시)을 권장합니다.
 .pixi
 
@@ -183,9 +183,9 @@ dmypy.json
 cython_debug/
 
 # 파이참(PyCharm) 등 JetBrains IDE 설정
-#   JetBrains 전용 템플릿은 별도의 JetBrains.gitignore로 관리되며, 
+#   JetBrains 전용 템플릿은 별도의 JetBrains.gitignore로 관리되며,
 #   https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore 에서 확인할 수 있습니다.
-#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
+#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다.
 #   더 강력한(전부 차단하는) 방법으로는(권장하지 않음), 다음 주석을 해제하여 전체 .idea 폴더를 무시할 수 있습니다.
 # .idea/
 
@@ -196,9 +196,9 @@ cython_debug/
 .abstra/
 
 # 비주얼 스튜디오 코드(VS Code) 설정 (필요시 주석 해제)
-#   Visual Studio Code 전용 템플릿은 별도의 VisualStudioCode.gitignore로 관리되며, 
+#   Visual Studio Code 전용 템플릿은 별도의 VisualStudioCode.gitignore로 관리되며,
 #   https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore 에서 확인할 수 있습니다.
-#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다. 
+#   이 템플릿은 글로벌 gitignore에 추가하거나 이 파일에 병합할 수 있습니다.
 #   하지만 원하신다면, 다음 주석을 해제하여 전체 .vscode 폴더를 무시할 수도 있습니다.
 # .vscode/
 
@@ -248,7 +248,8 @@ data/processed/fund_chunks/
 .DS_Store
 *.log
 
-# .vscode /* 환경 고정 커밋 금지 
+# .vscode /* 환경 고정 커밋 금지
 # 3 : 1 환경 기준
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.default.json
