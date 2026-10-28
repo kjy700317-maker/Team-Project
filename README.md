@@ -4,53 +4,56 @@
 - **개발 배경 및 목적** :
 - **주요기능**
  - 대한민국 안보·위험도 예측
- - 대한민국과 타국과의 관계도
+ - 대한민국과 타국과의 관계도 (미구현)
 
 ---
 
 ## 2.팀원 역할 분담 (Contributors)
 | 이름 | 담당 역할 | 주요 기여 내용 |
 | :---: | :---: | :--- |
-| **박성인** | TA | :--- |
-| **이원희** | AA | :--- |
-| **고현진** | AA | :--- |
-| **남석현** | DA | :--- |
+| **박성인** | TA | GitHub·협업 환경 구축, Streamlit 대시보드 화면 구현 |
+| **이원희** | AA | 긴장도 산출식 설계, D~F 세부 기준·상대 점수 설계 |
+| **고현진** | AA | 가중치 설계, 지수 산출 방법론, 데이터 점수 산출·검증, 기존 업무 현황 분석, KPI 사전 측정 결과 정리 |
+| **남석현** | DA | 전처리 규칙 수립, 팀 전처리 총괄·검수, ERD 설계, DB 구축·저장소 적재 |
 
 ---
 
 ## 3. 기술 스텍 (Tech Stack)
 ### 개발 기반
- - **Python 3.11** ()
- - **Git & GitHub** ()
- - **Streamlit Community Cloud** ()
+ - **Python 3.11** 
+ - **Git & GitHub**
+ - **Streamlit Community Cloud**
 ### 화면·배포
- - **Streamlit** ()
- - **Ploty** ()
+ - **Streamlit**
+ - **Ploty**
 ### 계산 및 데이터 처리
- - **Pandas** ()
- - **NetworkX** ()
- - **Country Converter** ()
+ - **Pandas**
+ - **NetworkX**
+ - **Country Converter**
 ### 데이터 저장소
- - **SQLite** ()
+ - **SQLite**
 ### 데이터 수집
- - **Requests** ()
- - **Google Cloud BigQuery** ()
- - **수동 수집** ()
+ - **Requests**
+ - **Google Cloud BigQuery**
+ - **수동 수집**
 
 ---
 
 ## 4. 프로젝트 폴더 구조 (Directory Structure)
 ```text
 Team-Project/
+├── .vscode/                     # VS Code 에디터 설정 (settings.json) (개인별 환경유지를 위해 인식을 막아둠)
+│   └── settings.json            # 
+│   └── settings.json  
 ├── .github/                     # 이슈 및 PR 템플릿
 │   └── ISSUE_TEMPLATE           # 이슈 양식 폴더
 │        └── feature.md
 │   └── pull_request_template.md # PR 양식
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
-├── .vscode/                     # VS Code 에디터 설정 (settings.json) (개인별 환경유지를 위해 인식을 막아둠)
-│   └── settings.json
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
 │   └── processed                # 정제 데이터 폴터
+├── db/
+│   └── schema.sql
 ├── docs/                        # 프로젝트 문서화 폴더
 │   └── decisions.md             # 주요 설정값 및 기술 의사결정 기록
 ├── pages/                       # 멀티페이지 대시보드 화면 파일들
@@ -59,11 +62,14 @@ Team-Project/
 │   └── 3_월별_연별.py
 │   └── 4_보고서.py
 ├── utils/                       # 공통 함수 및 전처리 모듈
-│   └── helpers.py               # 데이터 로드, 전처리, 공통 UI 함수 모음
+│   └── build_db.py
+│   └── build_erd.py
 │   └── dummy.py
+│   └── helpers.py               # 데이터 로드, 전처리, 공통 UI 함수 모음
 │   └── loader.py
-│   └── real.py
 │   └── README.md
+│   └── real.py
+│   └── ui.py
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
 ├── 홈.py                        # 메인 실행 파일
 ├── config.py                    # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
