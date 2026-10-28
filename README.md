@@ -51,9 +51,9 @@ Team-Project/
 │   └── pull_request_template.md    # PR 양식
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
-│   └── processed                   # 정제 데이터 폴터
+│   └── processed                   # 전처리 완료 CSV (A~F 카테고리 폴더 + 공통_국가코드,단위,참여국)
 ├── db/
-│   └── schema.sql                  # ERD v4 기준 SQLite 테이블 
+│   └── schema.sql                  # ERD v4 테이블 정의 (기준T, 데이터T, 보조T | FK, CHECK 포함)
 ├── docs/                        # 프로젝트 문서화 폴더
 │   └── decisions.md               # 설정값(가중치·기준선·기준기간 등)을 정한 근거 기록
 ├── pages/                       # 멀티페이지 화면 (파일명 앞 숫자 = 메뉴 순서)
@@ -62,8 +62,8 @@ Team-Project/
 │   └── 3_월별_연별.py              # 월별·연별 추이와 대표 사건 TOP5
 │   └── 4_보고서.py                 # 기준일을 골라 요약 보고서 보기·워드(.docx) 내려받기
 ├── utils/                       # 공통 함수 및 전처리 모듈
-│   └── build_db.py                 # CSV를 읽어 SQLite DB를 만드는 스크립트
-│   └── build_erd.py                # ERD 그림을 만드는 스크립트
+│   └── build_db.py                 # 1단계: processed CSV -> bongsu.db 통합 표 (사건, 수치, 참여국 등) + 검증
+│   └── build_erd.py                # 2단계: 통합 표 -> ERD v4 테이블 (사건_일단위, 지표값, 상세 13개) + 검증
 │   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
 │   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
 │   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용)
