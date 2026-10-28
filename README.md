@@ -47,7 +47,7 @@ Team-Project/
 │   └── settings.default.json       # 팀 공유용 기본 설정 템플릿
 ├── .github/                     # 이슈 및 PR 템플릿
 │   └── ISSUE_TEMPLATE              # 이슈 양식 폴더
-│        └── feature.md                #   기능 이슈 양식 ([FEAT])
+│        └── feature.md                # 기능 이슈 양식 ([FEAT])
 │   └── pull_request_template.md    # PR 양식
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
