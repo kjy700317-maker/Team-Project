@@ -4,68 +4,75 @@
 - **개발 배경 및 목적** :
 - **주요기능**
  - 대한민국 안보·위험도 예측
- - 대한민국과 타국과의 관계도
+ - 대한민국과 타국과의 관계도 (미구현)
 
 ---
 
 ## 2.팀원 역할 분담 (Contributors)
 | 이름 | 담당 역할 | 주요 기여 내용 |
 | :---: | :---: | :--- |
-| **박성인** | TA | :--- |
-| **이원희** | AA | :--- |
-| **고현진** | AA | :--- |
-| **남석현** | DA | :--- |
+| **박성인** | TA | GitHub·협업 환경 구축, Streamlit 대시보드 화면 구현 |
+| **이원희** | AA | 긴장도 산출식 설계, D~F 세부 기준·상대 점수 설계 (수정예정) |
+| **고현진** | AA | 가중치 설계, 지수 산출 방법론, 데이터 점수 산출·검증, 기존 업무 현황 분석, KPI 사전 측정 결과 정리 |
+| **남석현** | DA | 전처리 규칙 수립, 팀 전처리 총괄·검수, ERD 설계, DB 구축·저장소 적재 |
 
 ---
 
 ## 3. 기술 스텍 (Tech Stack)
 ### 개발 기반
- - **Python 3.11** ()
- - **Git & GitHub** ()
- - **Streamlit Community Cloud** ()
+ - **Python 3.11** 
+ - **Git & GitHub**
+ - **Streamlit Community Cloud**
 ### 화면·배포
- - **Streamlit** ()
- - **Ploty** ()
+ - **Streamlit**
+ - **Ploty**
 ### 계산 및 데이터 처리
- - **Pandas** ()
- - **NetworkX** ()
- - **Country Converter** ()
+ - **Pandas**
+ - **NetworkX**
+ - **Country Converter**
 ### 데이터 저장소
- - **SQLite** ()
+ - **SQLite**
 ### 데이터 수집
- - **Requests** ()
- - **Google Cloud BigQuery** ()
- - **수동 수집** ()
+ - **Requests**
+ - **Google Cloud BigQuery**
+ - **수동 수집**
 
 ---
 
 ## 4. 프로젝트 폴더 구조 (Directory Structure)
 ```text
 Team-Project/
+├── .vscode/                     # VS Code 에디터 설정
+│   └── settings.json               # 개인별 환경 유지를 위해 깃 제외 (로컬 전용)
+│   └── settings.default.json       # 팀 공유용 기본 설정 템플릿
 ├── .github/                     # 이슈 및 PR 템플릿
-│   └── ISSUE_TEMPLATE           # 이슈 양식 폴더
-│        └── feature.md
-│   └── pull_request_template.md # PR 양식
+│   └── ISSUE_TEMPLATE              # 이슈 양식 폴더
+│        └── feature.md                # 기능 이슈 양식 ([FEAT])
+│   └── pull_request_template.md    # PR 양식
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
-├── .vscode/                     # VS Code 에디터 설정 (settings.json) (개인별 환경유지를 위해 인식을 막아둠)
-│   └── settings.json
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
-│   └── processed                # 정제 데이터 폴터
+│   └── processed                   # 정제 데이터 폴터
+├── db/
+│   └── schema.sql                  # ERD v4 기준 SQLite 테이블 
 ├── docs/                        # 프로젝트 문서화 폴더
-│   └── decisions.md             # 주요 설정값 및 기술 의사결정 기록
-├── pages/                       # 멀티페이지 대시보드 화면 파일들
-│   └── 1_긴장도_지수.py
-│   └── 2_사건_기록.py
-│   └── 3_월별_연별.py
-│   └── 4_보고서.py
+│   └── decisions.md               # 설정값(가중치·기준선·기준기간 등)을 정한 근거 기록
+├── pages/                       # 멀티페이지 화면 (파일명 앞 숫자 = 메뉴 순서)
+│   └── 1_긴장도_지수.py            # 현재 단계·평소대비·기준선 카드, 추이 그래프, 과거 유사 시기, 점수 구성
+│   └── 2_사건_기록.py              # 요소·기간별 사건 목록 검색
+│   └── 3_월별_연별.py              # 월별·연별 추이와 대표 사건 TOP5
+│   └── 4_보고서.py                 # 기준일을 골라 요약 보고서 보기·워드(.docx) 내려받기
 ├── utils/                       # 공통 함수 및 전처리 모듈
-│   └── helpers.py               # 데이터 로드, 전처리, 공통 UI 함수 모음
-│   └── dummy.py
-│   └── loader.py
-│   └── real.py
-│   └── README.md
+│   └── build_db.py                 # CSV를 읽어 SQLite DB를 만드는 스크립트
+│   └── build_erd.py                # ERD 그림을 만드는 스크립트
+│   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
+│   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
+│   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용)
+│   └── README.md                   # utils 폴더 설명
+│   └── real.py                     # 실제 사건 CSV → 원점수·평소대비·단계 계산 (결과_일별·월별·연별)
+│   └── ui.py                       # 공통 화면 조각 (5단계 눈금 stage_scale)
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
 ├── 홈.py                        # 메인 실행 파일
+├── SOURCES.md                   # 데이터·참고 자료 출처
 ├── config.py                    # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
 ├── README.md                    # 프로젝트 소개 및 가이드 문서
 └── requirements.txt             # 패키지 의존성 목록 (버전 고정)
