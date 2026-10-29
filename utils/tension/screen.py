@@ -4,6 +4,8 @@
 화면 이름 열을 더하고, 화면에서만 쓰는 값(지속일수·상위% 숨김·완화 할인 δ·사건별 남은 점수)을 만든다.
 10-29 사용자 결정: 평소대비 = 7일 표시값(원값은 `평소대비_원값`) · 상위 %는 첫 365일 숨김 · 점수 구성 = 묶음별 + 사건별 10건 ·
 주체국을 못 붙이면 "미상" · 완화 할인은 실제 δ · 시나리오는 기본이 주, 확장은 추이 그림 점선.
+F6(10-29 사용자): 비교선 T_basic(⑮′ — 정규화 효과만, 설명 자리용) · GPR 한국 월별 비교(순위% 두 선) · 반감기 민감도 표 ·
+반감기 설명 문구 · 유사 시기 그달 주요 사건.
 """
 from functools import lru_cache
 from pathlib import Path
@@ -37,6 +39,24 @@ READING_NOTES = ("기본점수·묶음 가중을 ±50% 흔들어도 일별 단�
                  "방향 쌍 63~69% 일치(내부 대조용, 출처: Crisis Group).",
                  "북미 정상외교·국내 정치 사건은 지수 밖 — 완화는 남북 회담만.",
                  "반복 발사·정책 문서처럼 국제 보도는 적지만 군사 신호가 큰 달은 봉수가 GPR보다 높다(행동 vs 관심).")
+# F6 — GPR 비교 판독문 3줄(앞 2줄은 위 READING_NOTES와 같은 문구, 셋째 줄은 10-29 사용자 결정)
+GPR_NOTE_2018 = ("2018년 정상회담기에는 GPR이 높고 봉수가 낮다 — GPR은 보도량(관심)을, "
+                 "봉수는 남북 회담에 따른 완화(행동)를 반영한다(설계상 차이).")
+GPR_NOTES = (READING_NOTES[2], READING_NOTES[3], GPR_NOTE_2018)
+# F6 — 비교선 판독문 1줄(설명 자리 "묶음 정규화 효과" 그림 아래, 사용자 확인 대기 문구)
+NORMALIZATION_NOTE = ("묶음마다 평소로 나눈 우리 방식과 단순 합(묶음 구분 없이 더함)의 차이는 지금 자료에서 작다 — "
+                      "상승 묶음의 평소값이 비슷하기 때문이다. 물리 충돌·북러 밀착은 단순 합에 묻히지 않도록 하한으로 따로 반영한다.")
+GPR_SOURCE = ("GPR 한국 = GPRC_KOR(Caldara & Iacoviello, 한국 관련 지정학 위험 기사 비율 %, 월별). "
+              "비교 지수로만 씀(가중치를 맞추지 않음). 출처 matteoiacoviello.com/gpr.htm")
+# F6 — 반감기 설명 문구(docs/tension/감쇠_표시_단계유예_조사.md 4절 그대로, ADR-006 5번)
+HALF_LIFE_NOTE = (
+    "봉수는 기록된 사건의 영향을 \"반감기 14일\"로 셉니다. 사건 점수는 14일마다 절반이 되어 30일 뒤 약 23%, "
+    "60일 뒤 약 5%가 남습니다. 14일은 두 가지를 근거로 골랐습니다.",
+    "① 통일부 남북관계연표에서 큰 도발(핵실험·ICBM·물리 충돌 18건) 뒤 그 사건을 직접 언급한 기록이 줄어드는 속도를 쟀습니다. "
+    "추정 반감기는 약 15일이고 95% 구간은 12~62일입니다.",
+    "② 분쟁 사건 연구에서 한 사건의 영향이 이어지는 기간은 대체로 수일~수주로 보고됩니다.",
+    "이 값은 \"앞으로 며칠 위험하다\"는 예측이 아니라, 지나간 사건을 얼마나 오래 세는지에 대한 설계 선택입니다. "
+    "반감기를 7·21·30일로 바꾼 결과도 함께 공개합니다.")
 
 
 def _check(scenario):
@@ -195,3 +215,102 @@ def figure(scenario="기본", data_dir=DATA_DIR):
     from utils.tension import charts   # 그림을 원할 때만 plotly를 읽는다
     compare = daily_raw("확장", data_dir) if scenario == "기본" else None
     return charts.trend_figure(daily_raw(scenario, data_dir), cuts(scenario, data_dir), compare=compare)
+
+
+# ===== F6 — 비교선 T_basic · GPR 비교 · 반감기 민감도 · 유사 시기 주요 사건 =====
+def _by_scenario(fname, scenario, data_dir):
+    _check(scenario)
+    t = tio.read_csv_kr(Path(data_dir) / fname)
+    return t[t["시나리오"] == scenario].drop(columns="시나리오").reset_index(drop=True)
+
+
+def basic_line(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
+    """(화면) 비교선 — 날짜 · T_원값 · T_표시7일(주 지수) · T_basic · T_basic_표시7일 · 차이_표시7일(T_basic − 주 지수, 7일 평균).
+
+    T_basic = 상승 묶음 R 합 ÷ 기준기간 평균 × 100 × (1 − δ)(⑮′) — 묶음별 정규화만 뺀 값(사용자 10-29). 설명 자리(산출 방법)용.
+    """
+    b = _by_scenario("비교선_일별.csv", scenario, data_dir)
+    b["날짜"] = pd.to_datetime(b["날짜"])
+    d = daily_raw(scenario, data_dir)[["T_원값", "T_표시7일"]].reset_index()
+    if len(b) != len(d) or not b["날짜"].equals(d["날짜"]):
+        raise ValueError(f"비교선_일별.csv와 일별_{scenario}.csv의 날짜가 다름 — run_tension.py로 함께 다시 만든다")
+    out = d.merge(b, on="날짜")
+    out["차이_표시7일"] = (out["T_basic_표시7일"] - out["T_표시7일"]).round(3)
+    return out
+
+
+def basic_stats(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
+    """(화면) 비교선 요약 — 항목·값: 주 지수와 상관(일별 원값) · 차이 최대·중앙(원값 절댓값) · 상승 묶음 평소값(요약.csv B_)."""
+    b = basic_line(scenario, data_dir)
+    diff = (b["T_basic"] - b["T_원값"]).abs()
+    s = summary(data_dir)[SUMMARY_COLUMN[scenario]]
+    base = " · ".join(f"{g} {float(s['B_' + g]):.2f}" for g in SCENARIOS[scenario])
+    return pd.DataFrame({"항목": ["주 지수(T)와 상관", "차이 최대(원값)", "차이 중앙(원값)", "상승 묶음 평소값"],
+                         "값": [f"{b['T_basic'].corr(b['T_원값']):.4f}", f"{diff.max():.1f}", f"{diff.median():.1f}", base]})
+
+
+def gpr_monthly(path=None) -> pd.DataFrame:
+    """(화면) GPR 한국 월별 원본 — 연월 · GPR(GPRC_KOR %). path 기본 = config.GPR_PATH."""
+    return tio.load_gpr_monthly(ROOT / config.GPR_PATH if path is None else path)
+
+
+def _pct_rank(x) -> pd.Series:
+    """(보조) 백분위 순위 0~100 — 채점 v0 s3_GPR_비교.py와 같은 rank(pct=True) × 100(같은 값은 평균 순위)."""
+    return x.rank(pct=True) * 100
+
+
+def gpr_compare(scenario="기본", data_dir=DATA_DIR, gpr_path=None) -> pd.DataFrame:
+    """(화면) 봉수 vs GPR 월별 — 연월 · 봉수_T평균(월별.csv T_평균) · GPR · 봉수_순위% · GPR_순위% · 순위차(봉수 − GPR).
+
+    두 자료가 다 있는 달만(GPR 끝 달까지). 순위는 그 비교 기간 안 백분위(0~100, 사용자 10-29 — 순위% 두 선).
+    """
+    m = monthly(scenario, data_dir)[["연월", "T_평균"]].rename(columns={"T_평균": "봉수_T평균"})
+    t = m.merge(gpr_monthly(gpr_path), on="연월", how="inner")
+    t["봉수_순위%"] = _pct_rank(t["봉수_T평균"]).round(1)
+    t["GPR_순위%"] = _pct_rank(t["GPR"]).round(1)
+    t["순위차"] = (t["봉수_순위%"] - t["GPR_순위%"]).round(1)
+    return t
+
+
+def gpr_stats(scenario="기본", data_dir=DATA_DIR, gpr_path=None) -> pd.DataFrame:
+    """(화면) 봉수 vs GPR 요약 — 항목·값: 비교 기간 · 달 수 · 피어슨 상관 · 순위 상관(스피어만 = 순위의 피어슨)."""
+    t = gpr_compare(scenario, data_dir, gpr_path)
+    pearson = t["봉수_T평균"].corr(t["GPR"])
+    spearman = t["봉수_T평균"].rank().corr(t["GPR"].rank())
+    return pd.DataFrame({"항목": ["비교 기간", "달 수", "피어슨 상관", "순위 상관"],
+                         "값": [f"{t['연월'].iloc[0]} ~ {t['연월'].iloc[-1]}", str(len(t)), f"{pearson:.2f}", f"{spearman:.2f}"]})
+
+
+def half_life_table(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
+    """(화면) 반감기 민감도 — 반감기_민감도.csv의 그 시나리오(반감기 7·14·21·30일 행, 열은 summary.half_life_table)."""
+    return _by_scenario("반감기_민감도.csv", scenario, data_dir)
+
+
+def month_events(month, scenario="기본", top=3, data_dir=DATA_DIR) -> pd.DataFrame:
+    """(화면) 그달 주요 사건 — month = 'YYYY-MM'. 그달 사건을 점수 S 큰 순으로 top건(같으면 늦은 날 먼저).
+
+    열 = 날짜 · 사건ID · 요소 · 묶음 · 구분(상승 / 완화(할인) / 하한 대상 / 표시만) · S · 주체국 · 사건명.
+    과거 유사 시기 카드의 "주요 사건"(개발 계획 2.3, 사용자 10-29)용. 사건표에 출처 열은 없다.
+    """
+    _check(scenario)
+    events, _ = tio.load_events(Path(data_dir) / f"events_{scenario}.csv")
+    ev = events[events["date"].dt.strftime("%Y-%m") == str(month)].copy()
+    bundles = list(SCENARIOS[scenario])
+    ev["구분"] = ev["묶음"].map(lambda b: "상승" if b in bundles else KIND.get(b, "그 밖"))
+    actors = _actor_map()
+    ev["주체국"] = ev["사건ID"].map(lambda k: actors.get(k, UNKNOWN_ACTOR))
+    ev = ev.sort_values(["S", "date"], ascending=[False, False]).head(top)
+    ev = ev.rename(columns={"date": "날짜"})[["날짜", "사건ID", "요소", "묶음", "구분", "S", "주체국", "사건명"]]
+    return ev.reset_index(drop=True)
+
+
+def normalization_figure(scenario="기본", data_dir=DATA_DIR):
+    """(화면) 묶음 정규화 효과 그림 — charts.normalization_figure(주 지수 vs T_basic, 7일 평균)."""
+    from utils.tension import charts
+    return charts.normalization_figure(basic_line(scenario, data_dir))
+
+
+def gpr_figure(scenario="기본", data_dir=DATA_DIR, gpr_path=None):
+    """(화면) GPR 비교 그림 — charts.gpr_figure(순위% 두 선)."""
+    from utils.tension import charts
+    return charts.gpr_figure(gpr_compare(scenario, data_dir, gpr_path))

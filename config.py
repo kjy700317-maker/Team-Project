@@ -85,3 +85,5 @@ CRISIS_LIST = (                                  # 내부 위기 목록 10건(�
 CRISIS_WINDOW_DAYS = 14                          # 위기 단계·게이지 눈금 = 위기일부터 14일 안 최댓값
 TENSION_DATA_DIR = "data/tension"                # 결과 CSV 폴더(커밋)
 TYPE4_TABLE_PATH = "data/tension/물리사건_유형판정표.csv"   # 유형판정표 사본(F1에서 복사, 커밋)
+HALF_LIFE_SENSITIVITY = (7, 14, 21, 30)          # ADR-006 1번 — 반감기 민감도(공개용 표, 단계 판정은 HALF_LIFE_DAYS). 하한 감쇠는 그대로
+GPR_PATH = "data/tension/GPR_한국_월별.csv"        # ADR-002 GPR 한국(GPRC_KOR) 월별 — 비교 지수만. 채점_v0 입력 그대로 복사(F6)

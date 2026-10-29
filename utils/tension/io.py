@@ -14,6 +14,7 @@ TYPE4_COLUMNS = ("사건ID", "date", "요소", "S", "사건명", "판정유형",
 
 DATE_FORMAT = "%Y-%m-%d"
 TYPE4_ELEMENTS = ("A3", "A7")
+GPR_COLUMNS = ("month", "GPRC_KOR", "GPRHC_KOR")   # 채점_v0 입력_GPR_한국_월별.csv 그대로(F6)
 
 
 def read_csv_kr(path, **kwargs) -> pd.DataFrame:
@@ -117,3 +118,23 @@ def check_type4_against_events(table, events) -> pd.DataFrame:
         if r["요소"] not in TYPE4_ELEMENTS:
             problems.append((eid, "요소가 A3·A7 아님"))
     return pd.DataFrame(problems, columns=["사건ID", "문제"])
+
+
+def load_gpr_monthly(path) -> pd.DataFrame:
+    """GPR 한국 월별(F6)을 읽고 검증한다. 반환 = 열 `연월`(YYYY-MM 글자)·`GPR`(GPRC_KOR, 기사 비율 %), 연월 순.
+
+    비교 지수로만 쓴다(ADR-002). 열 이름·순서가 다르거나, 연월 형식·중복·빈 값·숫자 아님이 있으면 ValueError(빈 달을 0으로 두지 않음).
+    """
+    raw = read_csv_kr(path, dtype=str, keep_default_na=False)
+    _check_columns(raw, GPR_COLUMNS, path)
+    month = raw["month"].str.strip()
+    bad = ~month.str.fullmatch(r"\d{4}-(0[1-9]|1[0-2])")
+    if bad.any():
+        raise ValueError(f"{path}: month 형식(YYYY-MM)이 아님 — {list(month[bad][:10])}")
+    if month.duplicated().any():
+        raise ValueError(f"{path}: month 중복 — {sorted(set(month[month.duplicated()]))[:10]}")
+    value = pd.to_numeric(raw["GPRC_KOR"].str.strip(), errors="coerce")
+    if value.isna().any():
+        raise ValueError(f"{path}: GPRC_KOR 빈 값·숫자 아님 — {list(month[value.isna()][:10])}")
+    out = pd.DataFrame({"연월": month, "GPR": value.astype("float64")})
+    return out.sort_values("연월", kind="mergesort").reset_index(drop=True)

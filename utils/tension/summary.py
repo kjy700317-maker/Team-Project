@@ -12,6 +12,8 @@ from utils.tension import core
 PERIOD_COLUMNS = ("일수", "T_평균", "T표시_최고", "원점수_평균", "단계_최고", "단계_평균",
                   "1거일", "2거일", "3거일", "4거일", "5거일")
 SUMMARY_NOTE = "A2 자료 {end}까지 — 그 뒤 미사일·ICBM 사건 하한 없음"
+HALF_LIFE_COLUMNS = ("반감기", "T구간(2·3·4·5거 시작)", "1거%", "2거%", "3거%", "4거%", "5거%", "T원값 최대",
+                     "기준 반감기와 단계 같은 날%", "한 단계 안%")   # + 위기 10건 단계 + 현재 (F6)
 
 
 def stage_streak(L, min_stage=4) -> pd.Series:
@@ -97,3 +99,28 @@ def summary_table(columns) -> pd.DataFrame:
     out = pd.DataFrame(rows).set_index("시나리오").T
     out.columns.name = None
     return out
+
+
+def half_life_table(runs, ref, crises=config.CRISIS_LIST) -> pd.DataFrame:
+    """(집계) 반감기 민감도(F6) — runs = {반감기(일): (일별 표, info)}(순서 유지), ref = 기준 반감기(14).
+
+    행 = 반감기 하나. 열 = HALF_LIFE_COLUMNS + 위기 10건(14일 안 최고 단계) + `현재`(마지막 날 화면 단계 문구).
+    T 구간은 반감기마다 같은 규칙(⑨)으로 다시 뽑은 값이다. 하한(물리·E5)의 감쇠는 바꾸지 않는다(ADR-006 2번).
+    """
+    if ref not in runs:
+        raise ValueError(f"기준 반감기 {ref}일이 runs에 없음: {list(runs)}")
+    L_ref = runs[ref][0]["단계_최종"].astype("int64")
+    rows = []
+    for h, (daily, info) in runs.items():
+        L = daily["단계_최종"].astype("int64")
+        if not L.index.equals(L_ref.index):
+            raise ValueError(f"반감기 {h}일 결과의 날짜가 기준과 다름")
+        stages = core.crisis_window_max(L, crises)
+        rows.append({"반감기": int(h), "T구간(2·3·4·5거 시작)": "/".join(f"{x:g}" for x in info["cuts"]),
+                     **{f"{k}거%": round((L == k).mean() * 100, 1) for k in range(1, 6)},
+                     "T원값 최대": round(float(daily["T_원값"].max())),
+                     "기준 반감기와 단계 같은 날%": round((L == L_ref).mean() * 100, 1),
+                     "한 단계 안%": round(((L - L_ref).abs() <= 1).mean() * 100, 1),
+                     **{name: int(stages[name]) for name, _, _ in crises},
+                     "현재": daily["화면_단계문구"].iloc[-1]})
+    return pd.DataFrame(rows)

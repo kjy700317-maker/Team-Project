@@ -84,3 +84,45 @@ def load_tension_contrib(day=None, scenario="기본", top=10):  # 점수 구성 
 @st.cache_data
 def load_tension_figure(scenario="기본"):  # 추이 그림(Plotly) — st.plotly_chart(load_tension_figure())
     return tension_screen.figure(scenario)
+
+
+# ===== [F6 추가 · 긴장도 담당] 비교선 T_basic · GPR 비교 · 반감기 민감도 · 유사 시기 주요 사건 (utils/tension/screen.py) =====
+# 위 함수는 그대로 둔다. 화면에 붙이는 일은 화면 담당자께 요청(docs/dev/requests/F6_화면요청.md).
+@st.cache_data
+def load_tension_basic(scenario="기본"):  # 비교선 — 날짜·T_원값·T_표시7일·T_basic·T_basic_표시7일·차이_표시7일(설명 자리용)
+    return tension_screen.basic_line(scenario)
+
+
+@st.cache_data
+def load_tension_basic_stats(scenario="기본"):  # 비교선 요약 — 항목·값(상관·차이·상승 묶음 평소값)
+    return tension_screen.basic_stats(scenario)
+
+
+@st.cache_data
+def load_tension_normalization_figure(scenario="기본"):  # 묶음 정규화 효과 그림(Plotly)
+    return tension_screen.normalization_figure(scenario)
+
+
+@st.cache_data
+def load_tension_gpr(scenario="기본"):  # 봉수 vs GPR 월별 — 연월·봉수_T평균·GPR·봉수_순위%·GPR_순위%·순위차
+    return tension_screen.gpr_compare(scenario)
+
+
+@st.cache_data
+def load_tension_gpr_stats(scenario="기본"):  # GPR 비교 요약 — 항목·값(비교 기간·달 수·피어슨·순위 상관)
+    return tension_screen.gpr_stats(scenario)
+
+
+@st.cache_data
+def load_tension_gpr_figure(scenario="기본"):  # GPR 비교 그림(Plotly, 순위% 두 선)
+    return tension_screen.gpr_figure(scenario)
+
+
+@st.cache_data
+def load_tension_half_life(scenario="기본"):  # 반감기 민감도 — 반감기 7·14·21·30일 행(T 구간·1~5거%·같은 날%·위기 10건·현재)
+    return tension_screen.half_life_table(scenario)
+
+
+@st.cache_data
+def load_tension_month_events(month, scenario="기본", top=3):  # 그달 주요 사건(유사 시기 카드) — month = "YYYY-MM"
+    return tension_screen.month_events(month, scenario, top)
