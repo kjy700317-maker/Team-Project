@@ -1,6 +1,6 @@
-"""v0.1.4 회귀(F3) — 로컬 사건표로 계산한 일별·요약이 tests/fixtures의 v0.1.4 기준과 같은지.
+"""v0.1.4 회귀(F3·F4) — 사건표로 계산한 일별·요약·연도별이 tests/fixtures의 v0.1.4 기준과 같은지.
 
-사건표(data/tension/events_*.csv)는 깃에 올리지 않으므로 없는 PC에서는 **실패**한다(사용자 10-29) — 실패 메시지에 만드는 법을 적는다.
+사건표(data/tension/events_기본·확장.csv)는 F4부터 커밋한다(사용자 10-29). 그래도 없으면 **실패**한다 — 실패 메시지에 만드는 법을 적는다.
 """
 import subprocess
 import sys
@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 import config
-from utils.tension import core, io as tio
+from utils.tension import core, io as tio, summary as sm
 
 pytestmark = pytest.mark.regression
 
@@ -36,7 +36,7 @@ def _missing():
 def _missing_message(missing):
     raw = "있음" if RAW_DIR.exists() else "없음 — 팀 드라이브에서 받아 이 위치에 둔다"
     return (f"회귀 테스트 입력 사건표가 없다: {missing}\n"
-            f"  사건표는 깃에 올리지 않는다(D1). 원자료 {RAW_DIR.relative_to(ROOT).as_posix()}/ : {raw}\n"
+            f"  사건표는 커밋된다(F4) — git pull로 받거나 원자료로 만든다. 원자료 {RAW_DIR.relative_to(ROOT).as_posix()}/ : {raw}\n"
             f"  만들기: python scripts/build_events.py --end {END}  → 그다음 pytest 다시\n"
             f"  회귀만 빼고 돌리기: python -m pytest -m \"not regression\"")
 
@@ -62,11 +62,6 @@ def computed():
     return {"days": days, "type4": type4, "res": out}
 
 
-@pytest.fixture(scope="module")
-def summary():
-    return tio.read_csv_kr(FIX / "v014_요약.csv", index_col=0)
-
-
 def _ref_daily(name):
     return tio.read_csv_kr(FIX / f"v014_일별_{name}.csv", index_col=0, parse_dates=True)
 
@@ -90,41 +85,21 @@ def _diff_cells(new, ref, tol=0.001):
     return bad
 
 
-def _summary_values(daily, info, days):
-    """요약_v014.csv와 같은 이름의 값(F4 요약 함수가 생기기 전까지 테스트 안에서 계산)."""
-    L = daily["단계_최종"]
-    bm = core.base_mask(days)
-    last = daily.iloc[-1]
-    v = {"T구간(2·3·4·5거 시작)": "/".join(f"{x:g}" for x in info["cuts"]),
-         "T구간_반올림전": "/".join(f"{x:.2f}" for x in info["quantiles_raw"]),
-         "경계_x.5_주의": str(info["half_warning"]),
-         **{f"B_{b}": round(float(x), 3) for b, x in info["B"].items()},
-         **{f"{k}거%": round((L == k).mean() * 100, 1) for k in range(1, 6)},
-         "바뀜/년": round((L.diff().fillna(0) != 0).sum() / (len(days) / 365.25), 1),
-         "2018 평균단계": round(L.loc["2018"].mean(), 2), "2018 3거이상일": int((L.loc["2018"] >= 3).sum()),
-         "2021 평균단계": round(L.loc["2021"].mean(), 2), "2023 4거이상%": round((L.loc["2023"] >= 4).mean() * 100, 0),
-         "2023 5거%": round((L.loc["2023"] == 5).mean() * 100, 0), "현재(10-27)": int(L.iloc[-1]),
-         "사건하한 날 수": int((daily["하한_사건"] == 3).sum()), "물리 4거유형 사건일 수": int(daily["물리_4거유형일"].sum()),
-         "E5하한 3거↑ 날": int((daily["하한_E5"] >= 3).sum()),
-         "E5가 판정을 올린 날": int((daily["하한_E5"] > daily[["단계_T", "하한_물리", "하한_사건"]].max(axis=1)).sum()),
-         "물리하한 3거↑ 날": int((daily["하한_물리"] >= 3).sum()), "물리하한 4거↑ 날": int((daily["하한_물리"] >= 4).sum()),
-         "물리하한 5거 날": int((daily["하한_물리"] == 5).sum()),
-         "완화 상한에 붙은 날": int((info["components"]["delta"] >= config.RELIEF_CAP - 1e-12).sum()),
-         "원점수 기준기간 평균": round(daily["원점수_게이지"][bm].mean(), 2),
-         "T원값 최대": round(daily["T_원값"].max()), "표시선 최대": round(daily["T_표시7일"].max()),
-         "현재 표시(잠정)": round(last["T_표시7일"], 1), "현재 그날까지 상위%": round(last["그날까지_상위%"], 1),
-         "현재 원점수": round(last["원점수_게이지"], 1), "현재 14일 변화": round(last["변화14_표시"], 1),
-         "현재 화면 단계": last["화면_단계문구"]}
-    stages = core.crisis_window_max(L)
-    marks = core.crisis_window_max(daily["원점수_게이지"])
-    for name, _, _ in config.CRISIS_LIST:
-        v[name] = int(stages[name])
-        v[f"게이지_{name}"] = round(float(marks[name]), 1)
-    return v
+def _summary_csv(computed, tmp_path, input_names=None):
+    """summary.py로 만든 요약을 CSV로 쓰고 문자열로 다시 읽는다(기준 파일과 글자 그대로 비교)."""
+    cols = {}
+    for name, (label, bundles) in SCEN.items():
+        r = computed["res"][name]
+        inp = (input_names or {}).get(name, f"events_{name}.csv")
+        cols[label] = sm.summary_values(r["daily"], r["info"], computed["days"], bundles, input_name=inp,
+                                        n_type4=len(computed["type4"]))
+    out = tmp_path / "요약.csv"
+    tio.write_csv(sm.summary_table(cols), out, index=True)
+    return out
 
 
-def _same(new, ref):
-    return new == ref if isinstance(new, str) else float(new) == float(ref)
+def _read_str(path):
+    return tio.read_csv_kr(path, index_col=0, dtype=str, keep_default_na=False)
 
 
 @pytest.mark.parametrize("name", list(SCEN), ids=["base", "ext"])
@@ -156,13 +131,32 @@ def test_completion_criteria(computed, name):
     assert float((daily["T_원값"] - ref["T_원값"]).abs().max()) < 0.001
 
 
+def test_summary_matches_v014(computed, tmp_path):
+    """요약 = v0.1.4 요약과 행 이름·순서·값이 글자 그대로 같다(입력 행만 파일 이름이 다름)."""
+    got = _read_str(_summary_csv(computed, tmp_path))
+    ref = _read_str(FIX / "v014_요약.csv")
+    assert list(got.index) == list(ref.index) and list(got.columns) == list(ref.columns)
+    diff = got.drop(index="입력").compare(ref.drop(index="입력"))
+    assert diff.empty, f"요약이 다름:\n{diff}"
+    assert list(got.loc["입력"]) == ["events_기본.csv", "events_확장.csv"]
+
+
+def test_summary_bytes_match_v014(computed, tmp_path):
+    """입력 이름을 v0.1.4와 같게 주면 요약 CSV가 바이트까지 같다(인코딩·줄바꿈·숫자 표기)."""
+    out = _summary_csv(computed, tmp_path, {"기본": "사건표_v014_기본.csv", "확장": "사건표_v014_확장.csv"})
+    assert out.read_bytes() == (FIX / "v014_요약.csv").read_bytes()
+
+
 @pytest.mark.parametrize("name", list(SCEN), ids=["base", "ext"])
-def test_summary_matches_v014(computed, summary, name):
-    r = computed["res"][name]
-    got = _summary_values(r["daily"], r["info"], computed["days"])
-    ref = summary[SCEN[name][0]]
-    wrong = {k: (v, ref[k]) for k, v in got.items() if not _same(v, ref[k])}
-    assert not wrong, f"요약 값이 다름(새 값, 기준): {wrong}"
+def test_yearly_matches_v014(computed, name):
+    """연도별 = v0.1.4 연도별_v014(T원값_평균·평균단계·사거이상일·오거일)."""
+    y = sm.period_table(computed["res"][name]["daily"], "연")
+    ref = tio.read_csv_kr(FIX / f"v014_연도별_{name}.csv")
+    assert y["연도"].tolist() == ref["연도"].tolist()
+    assert float((y["T_평균"] - ref["T원값_평균"]).abs().max()) <= 0.0051   # 기준은 2자리, 새 값은 3자리
+    assert y["단계_평균"].tolist() == ref["평균단계"].tolist()
+    assert (y["4거일"] + y["5거일"]).tolist() == ref["사거이상일"].tolist()
+    assert y["5거일"].tolist() == ref["오거일"].tolist()
 
 
 @pytest.mark.parametrize("name", list(SCEN), ids=["base", "ext"])
@@ -173,13 +167,19 @@ def test_end_extension_keeps_past(computed, name):
     assert int((longer.loc[days, "잠정"] != r["daily"]["잠정"]).sum()) == config.PROVISIONAL_DAYS
 
 
-def test_run_tension_output_matches_v014(computed):
-    p = subprocess.run([sys.executable, str(ROOT / "scripts" / "run_tension.py"), "--end", END], cwd=ROOT, capture_output=True)
+def test_run_tension_output_matches_v014(computed, tmp_path):
+    """run_tension.py --end 2026-10-27 --out <임시> → 일별 2개·요약·월별·연도별이 v0.1.4와 맞는다."""
+    p = subprocess.run([sys.executable, str(ROOT / "scripts" / "run_tension.py"), "--end", END, "--out", str(tmp_path)],
+                       cwd=ROOT, capture_output=True)
     assert p.returncode == 0, p.stderr.decode("utf-8", "replace")
     for name in SCEN:
-        out = ROOT / config.TENSION_DATA_DIR / "_check" / f"일별_{name}.csv"
+        out = tmp_path / f"일별_{name}.csv"
         raw = out.read_bytes()
         assert raw.startswith(b"\xef\xbb\xbf") and b"\r\n" not in raw
-        got = tio.read_csv_kr(out, index_col=0, parse_dates=True)
-        assert list(got.columns) == list(_ref_daily(name).columns)
-        assert not _diff_cells(got, _ref_daily(name), tol=0.001 + 1e-9)
+        assert raw == (FIX / f"v014_일별_{name}.csv").read_bytes()
+    got, ref = _read_str(tmp_path / "요약.csv"), _read_str(FIX / "v014_요약.csv")
+    assert got.drop(index="입력").equals(ref.drop(index="입력"))
+    for fname, n in (("월별.csv", 2 * 202), ("연도별.csv", 2 * 17)):
+        t = tio.read_csv_kr(tmp_path / fname)
+        assert list(t.columns) == ["시나리오", "연월" if fname == "월별.csv" else "연도", *sm.PERIOD_COLUMNS]
+        assert len(t) == n and t.groupby("시나리오")["일수"].sum().to_dict() == {"기본": 6144, "확장": 6144}
