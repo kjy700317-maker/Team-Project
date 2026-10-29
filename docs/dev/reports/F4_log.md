@@ -61,7 +61,7 @@ feature/tension-core 병합됨
 feature/tension-tests 병합됨
 ```
 
-삭제 명령(`git push origin --delete …` · `git branch -d …`)은 Claude Code 자동 모드 권한 분류기가 "Git Destructive"로 거부해 실행되지 않음. 원격·로컬 4개 모두 남아 있음(아래 L1-3 첫 부분).
+삭제 명령은 처음에 Claude Code 자동 모드 권한 분류기가 "Git Destructive"로 거부(이때 원격·로컬 4개가 남은 모습이 아래 L1-3 첫 부분). 사용자 승인 뒤 L9에서 삭제.
 
 ## L1-3 되살리기·브랜치
 ```text
@@ -333,4 +333,21 @@ branch 'feature/tension-output' set up to track 'origin/feature/tension-output'.
 Warning: 1 uncommitted change
 https://github.com/kjy700317-maker/Team-Project/pull/23
 OK
+```
+
+## L9 옛 브랜치 삭제(사용자 승인 뒤, 보고서 첫 커밋 834f001 다음)
+```text
+$ git push origin --delete feature/tension-scaffold feature/tension-io feature/tension-core feature/tension-tests
+To https://github.com/kjy700317-maker/Team-Project.git
+ - [deleted]         feature/tension-core
+ - [deleted]         feature/tension-io
+ - [deleted]         feature/tension-scaffold
+ - [deleted]         feature/tension-tests
+$ git branch -d (4개)
+Deleted branch feature/tension-scaffold (was 3aed027).
+Deleted branch feature/tension-io (was 631a41e).
+Deleted branch feature/tension-core (was 385f176).
+Deleted branch feature/tension-tests (was f5ee4cd).
+$ git branch -a | grep -E 'tension-(scaffold|io|core|tests)' || echo "옛 브랜치 없음"
+옛 브랜치 없음
 ```
