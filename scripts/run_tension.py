@@ -1,6 +1,7 @@
-"""긴장도 계산(F4) — 사건표 → 결과 CSV(일별·요약·월별·연도별) + 추이 그림(선택).
+"""긴장도 계산(F4·F6) — 사건표 → 결과 CSV(일별·요약·월별·연도별·비교선·반감기 민감도) + 추이 그림(선택).
 
 기본: data/tension/events_기본.csv·_확장.csv → data/tension/일별_기본.csv·일별_확장.csv·요약.csv·월별.csv·연도별.csv
++ 비교선_일별.csv(⑮′ T_basic, F6) · 반감기_민감도.csv(config.HALF_LIFE_SENSITIVITY, F6)
 (결과 CSV는 커밋 — D1). 끝날 기본값은 config.END_DATE(None = 실행일, U3). 회귀 검산은 --end 2026-10-27.
 
 사용: python scripts/run_tension.py [--end YYYY-MM-DD] [--events-dir DIR] [--out DIR] [--scenario 기본 확장] [--figure DIR]
@@ -14,6 +15,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+
+import pandas as pd  # noqa: E402
 
 import config  # noqa: E402
 from utils.tension import core  # noqa: E402
@@ -44,6 +47,7 @@ def _run(end, events_dir, out_dir, names, figure_dir) -> None:
     days = core.calc_days(config.CALC_START_DATE, end)
     print(f"계산 기간 {days[0]:%Y-%m-%d} ~ {days[-1]:%Y-%m-%d} · {len(days)}일 · 모델 {config.TENSION_MODEL_VERSION}")
     results = []
+    extras = {}   # F6: 시나리오 → (비교선 T_basic Series, 반감기 민감도 표)
     for name in names:
         label, bundles = SCENARIOS[name]
         path = events_dir / f"events_{name}.csv"
@@ -57,6 +61,12 @@ def _run(end, events_dir, out_dir, names, figure_dir) -> None:
         daily, info = core.daily_table(events, days, bundles, type4)
         vals = sm.summary_values(daily, info, days, bundles, input_name=path.name, n_type4=len(type4))
         results.append((name, label, events, excluded, daily, info, vals))
+        basic = core.basic_index(info["components"], bundles, core.base_mask(days))
+        runs = {config.HALF_LIFE_DAYS: (daily, info)}
+        for h in config.HALF_LIFE_SENSITIVITY:   # 반감기만 바꾼 계산 — config는 그대로, params로(F2-3)
+            if h != config.HALF_LIFE_DAYS:
+                runs[h] = core.daily_table(events, days, bundles, type4, {"half_life": h})
+        extras[name] = (basic, sm.half_life_table(dict(sorted(runs.items())), config.HALF_LIFE_DAYS))
     # 모든 시나리오가 계산된 뒤에만 쓴다(중간에 멈추면 아무 파일도 바꾸지 않음)
     for name, label, events, excluded, daily, info, vals in results:
         out = out_dir / f"일별_{name}.csv"
@@ -71,6 +81,15 @@ def _run(end, events_dir, out_dir, names, figure_dir) -> None:
     tio.write_csv(sm.period_tables(dailies, "월"), out_dir / "월별.csv")
     tio.write_csv(sm.period_tables(dailies, "연"), out_dir / "연도별.csv")
     print(f"  쓴 파일: {out_dir / '요약.csv'} · 월별.csv · 연도별.csv")
+    lines = [pd.DataFrame({"시나리오": name, "날짜": basic.index.strftime("%Y-%m-%d"),
+                           "T_basic": basic.round(3).to_numpy(),
+                           "T_basic_표시7일": core.display_ma(basic).round(3).to_numpy()})
+             for name, (basic, _) in extras.items()]
+    tio.write_csv(pd.concat(lines, ignore_index=True), out_dir / "비교선_일별.csv")
+    sens = [t.assign(시나리오=name) for name, (_, t) in extras.items()]
+    sens = pd.concat(sens, ignore_index=True)
+    tio.write_csv(sens[["시나리오", *[c for c in sens.columns if c != "시나리오"]]], out_dir / "반감기_민감도.csv")
+    print(f"  쓴 파일: {out_dir / '비교선_일별.csv'} · 반감기_민감도.csv(반감기 {list(config.HALF_LIFE_SENSITIVITY)}일)")
     if figure_dir is not None:
         from utils.tension import charts   # 그림을 원할 때만 plotly를 읽는다
         for name, label, _, _, daily, info, _ in results:

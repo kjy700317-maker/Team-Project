@@ -1,6 +1,6 @@
 """긴장도 계산 코어 — 산출식 ①~⑰(docs/tension/산출식_정리.md 1A.2절). 순수 함수: DataFrame·Series → DataFrame·Series.
 
-F2-1 = ②~⑧·⑩, F2-2 = ⑨·⑪~⑰. 입력 사건표는 io.load_events()가 돌려준 표(date datetime64·S float64),
+F2-1 = ②~⑧·⑩, F2-2 = ⑨·⑪~⑰, F6 = ⑮′(비교선 T_basic). 입력 사건표는 io.load_events()가 돌려준 표(date datetime64·S float64),
 반환 Series·DataFrame의 인덱스는 calc_days()의 날짜. config 값은 인자 기본값으로만 쓴다.
 """
 import bisect
@@ -242,6 +242,19 @@ def cumulative_top_pct(T_bar) -> pd.Series:
 def raw_gauge(comp, bundles) -> pd.Series:
     """⑮ 원점수 게이지 R^합 — 상승 묶음 R_g의 합(확장이면 제재·압박 포함)."""
     return sum(comp[f"R_{b}"] for b in bundles)
+
+
+def basic_index(comp, bundles, mask) -> pd.Series:
+    """⑮′ 비교선 T_basic — 상승 묶음 R의 합 ÷ 기준기간 평균 × 100 × (1 − δ). 묶음별 ÷B_g(정규화)만 뺀 T(사용자 10-29).
+
+    comp = tension_components()의 표(R_<묶음>·delta), mask = base_mask(days). 완화 할인 δ와 묶음 구성은 주 지수와 같다.
+    기준기간 평균이 0 이하이면 멈춘다(ValueError — 자료 이상, F2-3과 같은 규칙).
+    """
+    R = raw_gauge(comp, bundles)
+    base = float(R[mask].mean())
+    if not base > 0:
+        raise ValueError(f"비교선 T_basic: 기준기간 상승 묶음 R 합의 평균이 {base:g} - 0 이하(기준기간 사건 없음)")
+    return 100 * R / base * (1 - comp["delta"])
 
 
 def crisis_window_max(x, crises=config.CRISIS_LIST, window_days=config.CRISIS_WINDOW_DAYS) -> pd.Series:
