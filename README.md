@@ -12,15 +12,9 @@
 | 이름 | 담당 역할 | 주요 기여 내용 |
 | :---: | :---: | :--- |
 | **박성인** | TA | GitHub·협업 환경 구축, Streamlit 대시보드 화면 구현 |
-<<<<<<< HEAD
-| **이원희** | AA | :--- |
-| **고현진** | AA | 가중치 설계, 지수 산출 방법론, 데이터 점수 산출·검증, 기존 업무 현황 분석, KPI 사전 측정 결과 정리 |
-| **남석현** | DA | 전처리 규칙 수립, ERD 설계, 통합 데이터 관리 (정제본 버전·DB 적재) |
-=======
-| **이원희** | AA | 긴장도 산출식 설계, D~F 세부 기준·상대 점수 설계 (수정예정) |
+| **이원희** | AA | 긴장도 산출식 설계·확정(v0.1.4), D~F 세부 기준·상대 점수 설계, 긴장도 검증(위기 포착·견고성·외부 지수 대조), 긴장도 계산 코드화(utils/tension) |
 | **고현진** | AA | 가중치 설계, 지수 산출 방법론, 데이터 점수 산출·검증, 기존 업무 현황 분석, KPI 사전 측정 결과 정리 |
 | **남석현** | DA | 전처리 규칙 수립, 팀 전처리 총괄·검수, ERD 설계, DB 구축·저장소 적재 |
->>>>>>> 7b102e74a7441e16773712bdaac859e8d133cf5f
 
 ---
 
@@ -48,29 +42,18 @@
 ## 4. 프로젝트 폴더 구조 (Directory Structure)
 ```text
 Team-Project/
-<<<<<<< HEAD
-├── .vscode/                     # VS Code 에디터 설정 (settings.json) (개인별 환경유지를 위해 인식을 막아둠)
-│   └── settings.json            # 
-=======
 ├── .vscode/                     # VS Code 에디터 설정
 │   └── settings.json               # 개인별 환경 유지를 위해 깃 제외 (로컬 전용)
 │   └── settings.default.json       # 팀 공유용 기본 설정 템플릿
->>>>>>> 7b102e74a7441e16773712bdaac859e8d133cf5f
 ├── .github/                     # 이슈 및 PR 템플릿
 │   └── ISSUE_TEMPLATE              # 이슈 양식 폴더
 │        └── feature.md                # 기능 이슈 양식 ([FEAT])
 │   └── pull_request_template.md    # PR 양식
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
-<<<<<<< HEAD
-│   └── processed                # 정제 데이터 폴터
+│   └── processed                   # 전처리 완료 CSV (A~F 카테고리 폴더 + 공통_국가코드,단위,참여국)
 ├── db/
-│   └── schema.sql
-=======
-│   └── processed                   # 정제 데이터 폴터
-├── db/
-│   └── schema.sql                  # ERD v4 기준 SQLite 테이블 
->>>>>>> 7b102e74a7441e16773712bdaac859e8d133cf5f
+│   └── schema.sql                  # ERD v4 테이블 정의 (기준T, 데이터T, 보조T | FK, CHECK 포함)
 ├── docs/                        # 프로젝트 문서화 폴더
 │   └── decisions.md               # 설정값(가중치·기준선·기준기간 등)을 정한 근거 기록
 ├── pages/                       # 멀티페이지 화면 (파일명 앞 숫자 = 메뉴 순서)
@@ -79,25 +62,14 @@ Team-Project/
 │   └── 3_월별_연별.py              # 월별·연별 추이와 대표 사건 TOP5
 │   └── 4_보고서.py                 # 기준일을 골라 요약 보고서 보기·워드(.docx) 내려받기
 ├── utils/                       # 공통 함수 및 전처리 모듈
-<<<<<<< HEAD
-│   └── build_db.py
-│   └── build_erd.py
-│   └── dummy.py
-│   └── helpers.py               # 데이터 로드, 전처리, 공통 UI 함수 모음
-│   └── loader.py
-│   └── README.md
-│   └── real.py
-│   └── ui.py
-=======
-│   └── build_db.py                 # CSV를 읽어 SQLite DB를 만드는 스크립트
-│   └── build_erd.py                # ERD 그림을 만드는 스크립트
+│   └── build_db.py                 # 1단계: processed CSV -> bongsu.db 통합 표 (사건, 수치, 참여국 등) + 검증
+│   └── build_erd.py                # 2단계: 통합 표 -> ERD v4 테이블 (사건_일단위, 지표값, 상세 13개) + 검증
 │   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
 │   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
 │   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용)
 │   └── README.md                   # utils 폴더 설명
 │   └── real.py                     # 실제 사건 CSV → 원점수·평소대비·단계 계산 (결과_일별·월별·연별)
 │   └── ui.py                       # 공통 화면 조각 (5단계 눈금 stage_scale)
->>>>>>> 7b102e74a7441e16773712bdaac859e8d133cf5f
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
 ├── 홈.py                        # 메인 실행 파일
 ├── SOURCES.md                   # 데이터·참고 자료 출처

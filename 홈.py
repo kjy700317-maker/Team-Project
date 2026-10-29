@@ -33,7 +33,7 @@ band = (f"<div style='background:{color}; color:white; padding:18px 22px; border
         f"<div style='font-size:40px; font-weight:700;'>{stage}단계 {config.STAGE_NAMES[stage]}</div>"
         f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.0f}"
         + (f" · 4단계 이상 {int(latest['지속일수'])}일째" if latest["지속일수"] > 0 else "") + "</div></div>")
-st.markdown(f"<div style='display:grid; grid-template-columns:1fr 160px; gap:8px;'>{band}{stage_scale_grid(stage)}</div>",   # [수정] 2칸 격자: 띠 = 남는 폭 전부(1fr), 눈금 = 80px
+st.markdown(f"<div style='display:grid; grid-template-columns:1fr 160px; gap:8px;'>{band}{stage_scale_grid(stage)}</div>",   # [수정] 2칸 격자: 띠 = 남는 폭 전부(1fr), 눈금 = 160px
             unsafe_allow_html=True)
 st.write("")
 
@@ -53,10 +53,10 @@ for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i =
     url = "/" + path.split("/")[1][2:-3] # pages, .py 제거
     with cols[i % 2]: # i % 2: 2로 나눈 나머지 → 0,1,0,1 → 왼쪽·오른쪽 번갈아
         # with st.container(border=True):
-        #     st.page_link(path, label=f"**{title}**", icon=icon)z
+        #     st.page_link(path, label=f"**{title}**", icon=icon)
         #     st.caption(desc)
-        st.markdown(f"<a href='{url}' target='_self' calss='home-card' style='{card_style}'>"
-                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px;'>{icon}{title}</span>"
+        st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style}'>"
+                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px;'>{icon} {title}</span>"
                     f"<span style='display:block; font-size:16px; color:#666;'>{desc}</span></a>",
                     unsafe_allow_html=True)
 # ===== 데이터 안내 =====

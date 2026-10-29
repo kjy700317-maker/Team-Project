@@ -1,0 +1,38 @@
+사건ID,date,요소,S,사건명,판정유형,4거유형,봉수원뜻,판정근거(팀 요약 원문 문구),비고
+A7-0095,2010-01-27,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired about 30 artillery rounds into the West Sea toward NLL; South Korea responded with 100 warning shots","NLL 남쪽 낙탄 언급 없음, 남측은 경고사격 → 교전·침범 아님"
+A7-0096,2010-01-28,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired artillery rounds near NLL",
+A7-0097,2010-01-29,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired artillery rounds near NLL",
+A7-0098,2010-03-26,A7,7.2,Sinking of the ROKS Cheonan,사망·침몰,Y,교전(5거),"corvette Cheonan sank ... after an explosion","ADR-007 사람 판정 5거(당일)"
+A7-0099,2010-08-09,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired artillery rounds near NLL",
+A7-0100,2010-11-23,A7,7.2,Shelling of Yeonpyeong Island,사망·침몰,Y,교전(5거),"Two ROK Marines and two civilians were killed, 16 ... injured","ADR-007 사람 판정 5거(당일)"
+A7-0101,2014-03-31,A7,6.45,NLL Exchange of Fire,교전(쌍방 사격)+침범,Y,경계 침범(4거),"several artillery shells fell south of the NLL; South Korea responded by firing rounds from K-9","NLL 남쪽 낙탄 = 경계 침범"
+A7-0102,2014-05-22,A7,6.45,NLL Exchange of Fire,교전(쌍방 사격),Y,경계 침범(4거),"fired artillery near a South Korean warship ... responded by firing several shells into North Korean waters",
+A7-0103,2014-10-07,A7,6.0,NLL Exchange of Fire,교전(쌍방 사격)+침범,Y,경계 침범(4거),"patrol boats briefly exchanged fire ... following the North Korean vessel's violation of the NLL",
+A7-0104,2014-10-10,A7,6.0,DMZ Exchange of Fire,교전(쌍방 사격),Y,경계 침범(4거),"South and North Korea exchanged fire across their border",
+A7-0105,2014-10-19,A7,6.0,DMZ Exchange of Fire,교전(쌍방 사격),Y,경계 침범(4거),"South Korea fired towards 10 North Korean soldiers ... The North Koreans fired back",
+A7-0106,2015-08-04,A7,7.2,Land Mine Explosion,사상자(부상)+침범,Y,경계 침범(4거),"landmines, presumably buried by the North Koreans, exploded South of the DMZ, injuring two South Korean soldiers","목함지뢰"
+A7-0107,2015-08-20,A7,6.45,DMZ Exchange of Fire,교전(쌍방 사격),Y,경계 침범(4거),"North and South Korea exchanged artillery fire near Yeoncheon",
+A7-0108,2020-06-16,A7,6.9,Exchange at the inter-Korean Joint Liaison Office,폭파(경계 밖),N,경계 접근(3거),"set off an explosion at the inter-Korean joint liaison office in Kaesong","북측 지역 시설 폭파, 경계 넘음 없음 — 판단 지점"
+A7-0109,2022-03-20,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired four suspected shots from multiple rocket launchers ... fell into the sea between Korea and China",
+A7-0110,2022-06-12,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired artillery shots, presumably from multiple rocket launchers",
+A7-0111,2022-07-10,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired artillery shots, presumably from multiple rocket launchers",
+A7-0112,2022-10-14,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired 130 rounds ... from the west coast ... 40 rounds ... east coast","완충구역 사격(9·19 합의 위반) — 경계 넘음 없음"
+A7-0113,2022-10-18,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired around 100 artillery rounds into the western buffer zones north of the NLL","완충구역(NLL 북쪽)"
+A7-0114,2022-10-19,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"shells landed into the western buffer zone north of the NLL","완충구역(NLL 북쪽)"
+A7-0115,2022-12-06,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired about 90 artillery rounds ... toward the sea between Korea and Japan",
+A3-0028,2022-12-26,A3,4.84,Drones (UAVs),침범(영공),Y,경계 침범(4거),"Five North Korean drones intruded across the inter-Korean border with one of them having flown over northern Seoul","무인기 영공 침범"
+A7-0116,2024-01-05,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired some 200 artillery shots into the waters off the western coast ... emergency evacuation order","주민 대피령 — 경계 넘음 언급 없음"
+A7-0117,2024-01-06,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"shells splashed into the maritime buffer zone north of the NLL",
+A7-0118,2024-01-07,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"shells splashed into the maritime buffer zone north of the NLL",
+A7-0119,2024-03-08,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"live-fire artillery exercises toward the Yellow Sea","훈련 사격"
+A3-0033,2024-06-11,A3,3.88,DMZ Enroachment,침범(MDL),Y,경계 침범(4거),"About 20 North Korean soldiers ... encroached on the Military Demarcation Line ... after the South Korean military fired warning shots","작업 병력 일시 침범 — 판단 지점"
+A3-0034,2024-06-18,A3,3.88,DMZ Enroachment,침범(MDL),Y,경계 침범(4거),"crossed the Military Demarcation Line ... fired warning shots","작업 병력 일시 침범"
+A3-0035,2024-06-21,A3,4.24,DMZ Enroachment,침범(MDL),Y,경계 침범(4거),"crossed the Military Demarcation Line ... third border violation by the North this month","작업 병력 일시 침범"
+A7-0120,2024-10-15,A7,6.9,Explosion,폭파(경계 밖),N,경계 접근(3거),"detonations ... in areas just 10 meters away from the MDL","경의·동해선 도로 폭파, MDL 북측 — 판단 지점. A3-0059 대표"
+A7-0121,2025-06-19,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"launched approximately 10 rounds of artillery rockets (MLRS) ... from the Sunan area",
+A3-0064,2025-10-23,A3,3.88,DMZ Enroachment,침범(MDL),Y,경계 침범(4거),"approximately 20 North Korean soldiers briefly crossed the MDL on October 19","요약상 실제 날짜 10-19, 사건표 10-23 — 팀 확인 필요"
+A7-0122,2025-11-01,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired over 10 artillery rockets into the Yellow Sea",
+A7-0123,2025-11-03,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired 4 artillery rockets ... toward the northern part of the sea between Korea and Japan",
+A3-0065,2025-11-19,A3,4.24,DMZ Enroachment,침범(MDL),Y,경계 침범(4거),"North Korean soldiers briefly crossed the inter-Korean border ... fired warning shots","작업 병력 일시 침범"
+A7-0124,2025-12-09,A7,6.45,Artillery Fire,일방 사격,N,경계 접근(3거),"fired more than 10 artillery rockets toward the Yellow Sea ... routine winter military training",
+A7-0125,2026-09-21,A7,7.2,Land Mine Explosion,사상자(부상),Y,경계 침범(4거),"Three South Korean soldiers were seriously injured in a suspected landmine explosion ... in the Demilitarized Zone","DMZ 지뢰. 출처 기입 필요(팀)"
