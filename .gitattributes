@@ -1,0 +1,3 @@
+# 긴장도 코드화(F2-1, 2026-10-29): 결과·기준 CSV 줄바꿈을 LF로 고정 — core.autocrlf=true PC에서도 바이트 비교가 같게
+data/tension/*.csv text eol=lf
+tests/fixtures/*.csv text eol=lf
