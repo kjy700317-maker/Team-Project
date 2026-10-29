@@ -22,5 +22,5 @@ def stage_scale_grid(stage):   # 지금 단계 번호를 받아 세로 눈금 5�
         else:
             bg, text, weight = config.STAGE_COLORS[no] + "40", "#555", 400
         scale += (f"<div style='display:grid; place-items:center; background:{bg}; color:{text}; "
-                  f"font-weight:{weight}; font-size:18px; border-radius:4px;'>{no} {name}</div>")   # place-items:center → 글자를 칸 가운데로
+                  f"font-weight:{weight}; font-size:18px; border-radius:4px;'>{no}거 {name}</div>")   # place-items:center → 글자를 칸 가운데로
     return f"<div style='display:grid; grid-template-rows:repeat(5, 1fr); gap:3px;'>{scale}</div>"   # 5줄을 같은 높이(1fr)로
