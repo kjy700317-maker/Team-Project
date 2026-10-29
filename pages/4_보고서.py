@@ -183,7 +183,7 @@ def bar(table, name):   # [수정] 기여도 가로 막대 (올린 건 빨강, �
     t = table.sort_values("점수")                                # 작은 것부터 → 큰 게 맨 위
     t["방향"] = t["점수"].map(lambda v: "올림" if v > 0 else "내림")
     fig = px.bar(t, x="점수", y=t.columns[0], orientation="h", color="방향", title=name,
-                 color_discrete_map={"올림": "#C0392B", "내림": "#2E6DB4"}, height=max(220, 40 * len(t) + 80))
+                 color_discrete_map={"올림": "#F87171", "내림": "#60A5FA"}, height=max(220, 40 * len(t) + 80))
     fig.update_layout(showlegend=False, yaxis_title=None, margin=dict(l=0, r=0, t=40, b=0))
     return fig
 
