@@ -143,3 +143,45 @@ def floor_event(events, days, icbm_s=config.EVENT_FLOOR_ICBM_S, stage=config.EVE
     key = events.loc[(el == "A1") | ((el == "A2") & (events["S"] >= icbm_s)), "date"].unique()
     fs = np.where(days.isin(key), stage, 1)
     return pd.Series(fs.astype("int64"), index=days)
+
+
+# ---- F2-2: ⑨·⑪~⑰ · 일별 결과 조립 ----
+
+def stage_cuts(T, mask, quantiles=config.STAGE_QUANTILES) -> tuple[np.ndarray, np.ndarray]:
+    """⑨ T 구간 — 기준기간 T의 70·90·95·98분위를 반올림한 정수 문턱 θ와 반올림 전 분위."""
+    # np.quantile 기본(linear) · np.round 짝수 반올림 그대로(compute_v014.compute — 대응표 ⑨)
+    q = np.quantile(T[mask], quantiles)
+    return np.round(q, 0), q
+
+
+def cuts_half_warning(q) -> bool:
+    """⑨ 반올림 경계 — 반올림 전 분위 중 하나라도 정확히 x.5면 True(짝수 반올림 주의, 1A.5)."""
+    return bool(any(abs(v - np.floor(v) - 0.5) < 1e-9 for v in q))
+
+
+def stage_from_index(T, cuts) -> pd.Series:
+    """⑨ T 구간 단계 L^T — 1 + #{j : T ≥ θ_j} (1~5거)."""
+    c1, c2, c3, c4 = cuts
+    return pd.Series(np.select([T >= c4, T >= c3, T >= c2, T >= c1], [5, 4, 3, 2], 1).astype("int64"), index=T.index)
+
+
+def judge(*levels) -> pd.Series:
+    """⑪ 판정 J — 단계_T와 하한들 중 가장 높은 단계."""
+    return pd.concat(levels, axis=1).max(axis=1).astype("int64")
+
+
+def step_down(J, n=config.STEP_DOWN_DAYS) -> pd.Series:
+    """⑫ 최종 단계 L — 판정이 같거나 높으면 즉시 따라가고, 낮은 날이 n일 쌓이면 한 단계 내림(첫날 L = J)."""
+    # 기준 구현(s3_core.step_down)과 같은 파이썬 루프 — 벡터화하지 않는다(대응표 ⑫)
+    out = np.empty(len(J), dtype="int64")
+    cur = J.iloc[0]
+    below = 0
+    for i, r in enumerate(J.to_numpy()):
+        if r >= cur:
+            cur, below = r, 0
+        else:
+            below += 1
+            if below >= n:
+                cur, below = cur - 1, 0
+        out[i] = cur
+    return pd.Series(out, index=J.index)
