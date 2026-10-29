@@ -3,6 +3,8 @@
 F2-1 = ②~⑧·⑩, F2-2 = ⑨·⑪~⑰. 입력 사건표는 io.load_events()가 돌려준 표(date datetime64·S float64),
 반환 Series·DataFrame의 인덱스는 calc_days()의 날짜. config 값은 인자 기본값으로만 쓴다.
 """
+import bisect
+
 import numpy as np
 import pandas as pd
 
@@ -147,6 +149,11 @@ def floor_event(events, days, icbm_s=config.EVENT_FLOOR_ICBM_S, stage=config.EVE
 
 # ---- F2-2: ⑨·⑪~⑰ · 일별 결과 조립 ----
 
+A2_NOTE = "A2 자료 없음({end}까지)"  # 일별 CSV A2자료 열 문구 — compute_v014.py
+DAILY_HEAD = ("T_원값", "T_표시7일", "잠정")
+DAILY_TAIL = ("완화할인", "원점수_게이지", "단계_T", "하한_물리", "물리_4거유형일", "하한_E5", "하한_사건", "단계_판정",
+              "단계_최종", "그날까지_상위%", "A2자료", "화면_단계문구", "변화14_표시", "변화율14_표시")
+
 def stage_cuts(T, mask, quantiles=config.STAGE_QUANTILES) -> tuple[np.ndarray, np.ndarray]:
     """⑨ T 구간 — 기준기간 T의 70·90·95·98분위를 반올림한 정수 문턱 θ와 반올림 전 분위."""
     # np.quantile 기본(linear) · np.round 짝수 반올림 그대로(compute_v014.compute — 대응표 ⑨)
@@ -185,3 +192,98 @@ def step_down(J, n=config.STEP_DOWN_DAYS) -> pd.Series:
                 cur, below = cur - 1, 0
         out[i] = cur
     return pd.Series(out, index=J.index)
+
+
+def display_ma(T, window=config.DISPLAY_MA_DAYS) -> pd.Series:
+    """⑬ 표시선 T̄ — 7일 후행 이동평균(처음 6일은 있는 날만 평균)."""
+    return T.rolling(window, min_periods=1).mean()
+
+
+def cumulative_top_pct(T_bar) -> pd.Series:
+    """⑭ 그날까지 상위% — 100 − 100 · #{s ≤ t : T̄_s ≤ T̄_t} / #{s ≤ t}."""
+    # 기준 구현(compute_v014.compute)과 같은 bisect 누적 — 벡터화 rank로 바꾸지 않는다(동점 처리, 대응표 ⑭)
+    srt, pe = [], []
+    for v in T_bar.to_numpy(float):
+        bisect.insort(srt, v)
+        pe.append(bisect.bisect_right(srt, v) / len(srt) * 100)
+    return pd.Series(100 - np.array(pe), index=T_bar.index)
+
+
+def raw_gauge(comp, bundles) -> pd.Series:
+    """⑮ 원점수 게이지 R^합 — 상승 묶음 R_g의 합(확장이면 제재·압박 포함)."""
+    return sum(comp[f"R_{b}"] for b in bundles)
+
+
+def crisis_window_max(x, crises=config.CRISIS_LIST, window_days=config.CRISIS_WINDOW_DAYS) -> pd.Series:
+    """⑮ 위기 눈금 — 위기일 t_c부터 t_c + 14일까지 x의 최댓값(x = 원점수_게이지면 게이지 눈금, 단계_최종이면 위기 단계)."""
+    out = {}
+    for name, date, _ in crises:
+        t = pd.Timestamp(date)
+        out[name] = x.loc[t:t + pd.Timedelta(days=window_days)].max()
+    return pd.Series(out)
+
+
+def trend(T_bar, days=config.TREND_DAYS, pct_min=config.TREND_PCT_MIN) -> pd.DataFrame:
+    """⑯ 추세 — Δ = T̄_t − T̄_t−14, 변화율 = 100 · Δ / T̄_t−14 (T̄_t−14 ≥ 50일 때만, 그 밖 NaN)."""
+    prev = T_bar.shift(days)
+    chg = T_bar - prev
+    pct = np.where(prev >= pct_min, chg / prev * 100, np.nan)
+    return pd.DataFrame({"변화14_표시": chg, "변화율14_표시": pct}, index=T_bar.index)
+
+
+def stage_label(L, J) -> pd.Series:
+    """⑰ 단계 카드 문구 — L > J면 "L거 · 하강 중(판정 J거)", 그 밖 "L거"."""
+    return pd.Series([f"{l}거 · 하강 중(판정 {j}거)" if j < l else f"{l}거" for l, j in zip(L, J)], index=L.index)
+
+
+def provisional(days, n=config.PROVISIONAL_DAYS) -> pd.Series:
+    """(보조) 잠정 — 마지막 날 − n일보다 뒤인 날(최근 6일) True."""
+    return pd.Series(days > days[-1] - pd.Timedelta(days=n), index=days)
+
+
+def a2_note(days, a2_end=config.A2_DATA_END) -> pd.Series:
+    """(보조) A2자료 — a2_end보다 뒤인 날 "A2 자료 없음(a2_end까지)", 그 밖 빈 문자열."""
+    return pd.Series(np.where(days > pd.Timestamp(a2_end), A2_NOTE.format(end=a2_end), ""), index=days)
+
+
+def relief_display(T, Tg) -> pd.Series:
+    """(보조) 완화할인 열 — 1 − T / mean(T_g), mean = 0인 날 0 (δ와 다름 — 대응표 2절)."""
+    # 기준 구현 정의 그대로: T⁺ = 0인 날은 δ > 0이어도 0(회귀 일치를 위해 이식 — 대응표 2절 완화할인)
+    return (1 - T / Tg.mean(axis=1).replace(0, np.nan)).fillna(0)
+
+
+def daily_columns(bundles) -> list[str]:
+    """(보조) 일별 CSV 열 순서 — 인덱스(날짜) 빼고 기본 20열·확장 21열."""
+    return [*DAILY_HEAD, *[f"Tg_{b}" for b in bundles], *DAILY_TAIL]
+
+
+def daily_table(events, days, bundles, type4_ids) -> tuple[pd.DataFrame, dict]:
+    """②~⑰ 일별 결과 — 사건표에서 일별 CSV의 모든 열(반올림 전)과 계산 정보를 한 번에.
+
+    파라미터는 각 함수의 config 기본값. 반올림하지 않는다(쓸 때 round(3)).
+    info = {"B": 평소값, "cuts": 문턱, "quantiles_raw": 반올림 전 분위, "half_warning": x.5 경고, "components": comp}.
+    """
+    bundles = list(bundles)
+    comp, B = tension_components(events, days, bundles)
+    T = comp["T"]
+    Tg = comp[[f"Tg_{b}" for b in bundles]]
+    # T는 한 번만 계산 — 구간과 무관(대응표 ⑨)
+    cuts, q = stage_cuts(T, base_mask(days))
+    LT = stage_from_index(T, cuts)
+    fp = floor_physical(events, days, type4_ids)
+    fe = floor_e5(events, days)
+    fs = floor_event(events, days)
+    J = judge(LT, fp, fe, fs)
+    L = step_down(J)
+    T_bar = display_ma(T)
+    tr = trend(T_bar)
+    cols = {"T_원값": T, "T_표시7일": T_bar, "잠정": provisional(days),
+            **{f"Tg_{b}": Tg[f"Tg_{b}"] for b in bundles},
+            "완화할인": relief_display(T, Tg), "원점수_게이지": raw_gauge(comp, bundles), "단계_T": LT,
+            "하한_물리": fp, "물리_4거유형일": type4_days(events, days, type4_ids), "하한_E5": fe, "하한_사건": fs,
+            "단계_판정": J, "단계_최종": L, "그날까지_상위%": cumulative_top_pct(T_bar), "A2자료": a2_note(days),
+            "화면_단계문구": stage_label(L, J), "변화14_표시": tr["변화14_표시"], "변화율14_표시": tr["변화율14_표시"]}
+    daily = pd.DataFrame(cols, index=days)[daily_columns(bundles)]
+    daily.index.name = "날짜"
+    info = {"B": B, "cuts": cuts, "quantiles_raw": q, "half_warning": cuts_half_warning(q), "components": comp}
+    return daily, info
