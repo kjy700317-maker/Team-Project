@@ -26,6 +26,26 @@ def base_mask(days, base_period=config.BASE_PERIOD) -> np.ndarray:
     return (days.year >= a) & (days.year <= b)
 
 
+def _require_full_base(days, base_period) -> None:
+    """(보조) 계산 기간이 기준기간 전체를 담는지 — 아니면 ValueError(사용자 10-29: 이른 END는 막는다)."""
+    a, b = base_period
+    first, last = pd.Timestamp(f"{a}-01-01"), pd.Timestamp(f"{b}-12-31")
+    if len(days) == 0 or days[0] > first or days[-1] < last:
+        span = f"{days[0]:%Y-%m-%d}~{days[-1]:%Y-%m-%d}" if len(days) else "빈 기간"
+        raise ValueError(f"계산 기간 {span}이 기준기간 {first:%Y-%m-%d}~{last:%Y-%m-%d}을 다 담지 않음 - 끝날짜는 {last:%Y-%m-%d} 이후로")
+
+
+def _require_ids(events, ids, what) -> list:
+    """(보조) ids가 사건ID 모음이고 모두 사건표에 있는지 — 아니면 TypeError·ValueError(사용자 10-29: 자료 이상은 멈춤)."""
+    if isinstance(ids, str):
+        raise TypeError(f"{what}: 문자열 하나가 아니라 사건ID 모음(set·tuple·list)으로 넘긴다")
+    ids = list(ids)
+    missing = sorted(set(ids) - set(events["사건ID"]))
+    if missing:
+        raise ValueError(f"{what}: 사건표에 없는 사건ID {missing[:10]}")
+    return ids
+
+
 def _day_sum(rows, days) -> pd.Series:
     """(보조) 행들의 그날 S 합, 사건 없는 날 0 — 기간 밖 날짜는 버린다(s3_core.load)."""
     return rows.groupby("date")["S"].sum().reindex(days, fill_value=0.0)
@@ -65,7 +85,10 @@ def rising_index(Tg) -> pd.Series:
 
 
 def relief_discount(R_relief, B_relief, c=config.RELIEF_C, cap=config.RELIEF_CAP) -> pd.Series:
-    """⑦ 완화 할인 — δ = min(c · R완 / B완, κ)."""
+    """⑦ 완화 할인 — δ = min(c · R완 / B완, κ).
+
+    완화 사건의 S에는 분야 보정 φ(ADR-015)가 사건표를 만들 때 이미 곱해져 있다(build_events) — core는 φ를 모른다.
+    """
     return pd.Series(np.minimum(c * R_relief / B_relief, cap), index=R_relief.index)
 
 
@@ -84,9 +107,13 @@ def tension_components(events, days, bundles, base_period=config.BASE_PERIOD, ha
     """
     bundles = list(bundles)
     targets = bundles + [relief_bundle]
+    _require_full_base(days, base_period)
     D = daily_sums(events, days, targets)
     R = pd.DataFrame({b: decay_cumulative(D[b], half_life) for b in targets}, index=days)
     B = baseline_means(R, base_mask(days, base_period))
+    bad = [b for b in targets if not B[b] > 0]
+    if bad:
+        raise ValueError(f"기준기간 평소값 B가 0 이하이거나 없음(기준기간 사건 0건): {bad}")
     Tg = relative_index(R[bundles], B[bundles])
     T_plus = rising_index(Tg)
     delta = relief_discount(R[relief_bundle], B[relief_bundle], relief_c, relief_cap)
@@ -107,33 +134,36 @@ def half_gauss_window(d, sigma=config.HALF_GAUSS_SIGMA, window=config.FLOOR_WIND
 def type4_days(events, days, type4_ids) -> pd.Series:
     """⑩ 물리 4거 유형 사건일 — 판정표 Y 사건의 사건표 날짜면 True."""
     # 날짜는 사건표에서 가져온다(판정표 date 아님 — 대응표 ⑩-b)
-    t4 = events.loc[events["사건ID"].isin(list(type4_ids)), "date"].unique()
+    ids = _require_ids(events, type4_ids, "4거 유형 사건(판정표 Y)")
+    t4 = events.loc[events["사건ID"].isin(ids), "date"].unique()
     return pd.Series(days.isin(t4), index=days)
 
 
 def floor_physical(events, days, type4_ids, kill_ids=config.KILL_EVENTS, thresholds=config.PHYS_FLOOR,
                    type4_stage=config.TYPE4_FLOOR_STAGE, kill_stage=config.KILL_FLOOR_STAGE,
-                   bundle=config.BUNDLE_PHYS) -> pd.Series:
+                   bundle=config.BUNDLE_PHYS, sigma=config.HALF_GAUSS_SIGMA, window=config.FLOOR_WINDOW) -> pd.Series:
     """⑩ 물리 하한 F^물 — 풍선 뺀 A3·A7 ρ≥3→3·≥7→4, 풍선 ρ≥6→3, 4거 유형일 ≥4, 사망·침몰일 5.
 
     순서 그대로(s3_core.floors_s1 + compute_v014.floors_v014): ① 반가우스 판정 → ② 4거 유형일 max → ③ 사망·침몰일 덮어씀.
     """
     ph = events[events["묶음"] == bundle]
     balloon = ph["요소"].eq("A3") & ph["사건명"].astype(str).str.contains(BALLOON_KEYWORD, case=False, na=False)
-    rho_o = half_gauss_window(_day_sum(ph[~balloon], days)).to_numpy()
-    rho_b = half_gauss_window(_day_sum(ph[balloon], days)).to_numpy()
+    rho_o = half_gauss_window(_day_sum(ph[~balloon], days), sigma, window).to_numpy()
+    rho_b = half_gauss_window(_day_sum(ph[balloon], days), sigma, window).to_numpy()
     th = thresholds
     fp = np.select([rho_o >= th["4거"], rho_o >= th["3거"], rho_b >= th["풍선3거"]], [4, 3, 3], 1)
     t4 = type4_days(events, days, type4_ids).to_numpy()
     fp[t4] = np.maximum(fp[t4], type4_stage)
-    kill = events.loc[events["사건ID"].isin(list(kill_ids)), "date"]
+    kill_ids = _require_ids(events, kill_ids, "사망·침몰 사건(KILL_EVENTS)")
+    kill = events.loc[events["사건ID"].isin(kill_ids), "date"]
     fp[days.isin(kill)] = kill_stage
     return pd.Series(fp.astype("int64"), index=days)
 
 
-def floor_e5(events, days, thresholds=config.E5_FLOOR, bundle=config.BUNDLE_E5) -> pd.Series:
+def floor_e5(events, days, thresholds=config.E5_FLOOR, bundle=config.BUNDLE_E5, sigma=config.HALF_GAUSS_SIGMA,
+             window=config.FLOOR_WINDOW) -> pd.Series:
     """⑩ E5 하한 F^E5 — 북러 밀착 ρ≥4→3, ≥10→4."""
-    rho = half_gauss_window(_day_sum(events[events["묶음"] == bundle], days)).to_numpy()
+    rho = half_gauss_window(_day_sum(events[events["묶음"] == bundle], days), sigma, window).to_numpy()
     th = thresholds
     fe = np.select([rho >= th["4거"], rho >= th["3거"]], [4, 3], 1)
     return pd.Series(fe.astype("int64"), index=days)
@@ -257,33 +287,58 @@ def daily_columns(bundles) -> list[str]:
     return [*DAILY_HEAD, *[f"Tg_{b}" for b in bundles], *DAILY_TAIL]
 
 
-def daily_table(events, days, bundles, type4_ids) -> tuple[pd.DataFrame, dict]:
+# daily_table params 키 — 값을 바꾼 계산(민감도·비교선)은 config를 고치지 말고 이 키로 넘긴다(사용자 10-29)
+PARAM_KEYS = ("base_period", "half_life", "relief_c", "relief_cap", "quantiles", "sigma", "window",
+              "phys_thresholds", "type4_stage", "kill_ids", "kill_stage", "e5_thresholds", "icbm_s", "event_stage",
+              "step_days", "ma_days", "provisional_days", "trend_days", "trend_pct_min", "a2_end")
+
+
+def _pick(params, **argmap) -> dict:
+    """(보조) params에서 이 함수 인자에 해당하는 키만 골라 {인자: 값}."""
+    return {arg: params[key] for arg, key in argmap.items() if key in params}
+
+
+def daily_table(events, days, bundles, type4_ids, params=None) -> tuple[pd.DataFrame, dict]:
     """②~⑰ 일별 결과 — 사건표에서 일별 CSV의 모든 열(반올림 전)과 계산 정보를 한 번에.
 
-    파라미터는 각 함수의 config 기본값. 반올림하지 않는다(쓸 때 round(3)).
-    info = {"B": 평소값, "cuts": 문턱, "quantiles_raw": 반올림 전 분위, "half_warning": x.5 경고, "components": comp}.
+    params = PARAM_KEYS 중 바꿀 것만 담은 dict. 없는 키는 각 함수의 기본값(config). config 값은 import 때
+    함수 기본값으로 묶이므로 실행 중 config를 바꿔도 반영되지 않는다 — 바꾼 계산은 params로 넘긴다.
+    열 이름은 고정(trend_days를 바꿔도 `변화14_표시` 그대로). 반올림하지 않는다(쓸 때 round(3)).
+    기준기간이 다 들어 있지 않거나, 평소값 B ≤ 0, 첫 문턱 θ₁ ≤ 0, 판정표·사망 사건ID가 사건표에 없으면 멈춘다(ValueError).
+    info = {"B", "cuts", "quantiles_raw", "half_warning", "components", "params"(넘긴 params)}.
     """
+    p = dict(params or {})
+    unknown = sorted(set(p) - set(PARAM_KEYS))
+    if unknown:
+        raise ValueError(f"params에 모르는 키 {unknown} — 쓸 수 있는 키: {list(PARAM_KEYS)}")
     bundles = list(bundles)
-    comp, B = tension_components(events, days, bundles)
+    comp, B = tension_components(events, days, bundles, **_pick(p, base_period="base_period", half_life="half_life",
+                                                                 relief_c="relief_c", relief_cap="relief_cap"))
     T = comp["T"]
     Tg = comp[[f"Tg_{b}" for b in bundles]]
     # T는 한 번만 계산 — 구간과 무관(대응표 ⑨)
-    cuts, q = stage_cuts(T, base_mask(days))
+    cuts, q = stage_cuts(T, base_mask(days, **_pick(p, base_period="base_period")), **_pick(p, quantiles="quantiles"))
+    if not cuts[0] > 0:
+        raise ValueError(f"T 구간 첫 문턱(2거 시작)이 {cuts[0]:g} - 0 이하(기준기간 T가 대부분 0, 자료 부족)")
     LT = stage_from_index(T, cuts)
-    fp = floor_physical(events, days, type4_ids)
-    fe = floor_e5(events, days)
-    fs = floor_event(events, days)
+    gauss = _pick(p, sigma="sigma", window="window")
+    fp = floor_physical(events, days, type4_ids, **_pick(p, kill_ids="kill_ids", thresholds="phys_thresholds",
+                                                         type4_stage="type4_stage", kill_stage="kill_stage"), **gauss)
+    fe = floor_e5(events, days, **_pick(p, thresholds="e5_thresholds"), **gauss)
+    fs = floor_event(events, days, **_pick(p, icbm_s="icbm_s", stage="event_stage"))
     J = judge(LT, fp, fe, fs)
-    L = step_down(J)
-    T_bar = display_ma(T)
-    tr = trend(T_bar)
-    cols = {"T_원값": T, "T_표시7일": T_bar, "잠정": provisional(days),
+    L = step_down(J, **_pick(p, n="step_days"))
+    T_bar = display_ma(T, **_pick(p, window="ma_days"))
+    tr = trend(T_bar, **_pick(p, days="trend_days", pct_min="trend_pct_min"))
+    cols = {"T_원값": T, "T_표시7일": T_bar, "잠정": provisional(days, **_pick(p, n="provisional_days")),
             **{f"Tg_{b}": Tg[f"Tg_{b}"] for b in bundles},
             "완화할인": relief_display(T, Tg), "원점수_게이지": raw_gauge(comp, bundles), "단계_T": LT,
             "하한_물리": fp, "물리_4거유형일": type4_days(events, days, type4_ids), "하한_E5": fe, "하한_사건": fs,
-            "단계_판정": J, "단계_최종": L, "그날까지_상위%": cumulative_top_pct(T_bar), "A2자료": a2_note(days),
+            "단계_판정": J, "단계_최종": L, "그날까지_상위%": cumulative_top_pct(T_bar),
+            "A2자료": a2_note(days, **_pick(p, a2_end="a2_end")),
             "화면_단계문구": stage_label(L, J), "변화14_표시": tr["변화14_표시"], "변화율14_표시": tr["변화율14_표시"]}
     daily = pd.DataFrame(cols, index=days)[daily_columns(bundles)]
     daily.index.name = "날짜"
-    info = {"B": B, "cuts": cuts, "quantiles_raw": q, "half_warning": cuts_half_warning(q), "components": comp}
+    info = {"B": B, "cuts": cuts, "quantiles_raw": q, "half_warning": cuts_half_warning(q), "components": comp,
+            "params": p}
     return daily, info
