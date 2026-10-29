@@ -25,7 +25,7 @@ utils/tension/
 scripts/                  # build_events.py(로컬 원자료 → 사건표), run_tension.py(사건표 → 결과 CSV)
 tests/                    # pytest. fixtures/ = v0.1.4 기준값·작은 합성 사건표
 data/raw/                 # 로컬 원자료 — 깃 제외, 읽기만
-data/tension/             # 결과 CSV·유형판정표 사본·GPR 월별 — 커밋. 사건표(events_*.csv)는 깃 제외
+data/tension/             # 결과 CSV·유형판정표 사본·GPR 월별·사건표(events_기본·확장.csv, F4~) — 커밋. 제외기록·입력파일 기록은 깃 제외
 docs/decisions.md         # ADR — 구현 메인 소유
 docs/tension/             # 산출식·결정 문서 — 구현 메인 소유
 docs/dev/tasks/           # 작업 프롬프트(구현 메인이 씀) / docs/dev/reports/ 보고서(Claude Code가 씀)
