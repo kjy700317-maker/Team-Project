@@ -90,4 +90,4 @@ def make_recent_elements(day=None): # [수정] day: 기준일 (안 주면 None �
     recent = recent.groupby(["카테고리코드", "주체국", "가중치"])[["건수", "점수"]].sum().reset_index() # 30일 동안 같은 요소 같은 나라는 하나로 합침 / 북한 미사일 등이 3일에 걸쳐 있으면 한줄로 함
     recent["요소명"] = recent["카테고리코드"].map(config.ELEMENT_NAMES)
     recent = recent.rename(columns={"카테고리코드": "요소코드"}) # 칸이름을 변경 - 화면 코드가 요소코드이기에 통일함
-    return recent[["요소코드", "요소명", "주체국", "가중치", "건수", "점수"]]
+    return recent[["요소코드", "요소명", "주체국", "가중치", "건수", "점수"]]

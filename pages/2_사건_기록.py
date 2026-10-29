@@ -18,8 +18,7 @@ events = load_events() # 사건_일단위 표
 events = events.sort_values("시작일", ascending=False) # 최신 사건이 맨 위
 events["요소명"] = events["카테고리코드"].map(config.ELEMENT_NAMES)  # A2 → 미사일 발사
 events["시작일"] = events["시작일"].dt.date # 시,분,초 떼고 날짜만
-GROUPS = {"A": "군사행동", "B": "군비·능력", "C": "선언·외교", "E": "남북관계", "F": "남북관계"}   # [수정] 카테고리 첫 글자 → 큰 분류
-events["분류"] = events["카테고리코드"].str[0].map(GROUPS)   # "A2"[0] → "A" → "군사행동"
+events["분류"] = events["카테고리코드"].str[0].map(config.GROUPS)   # [수정] 분류표는 config.GROUPS로 옮김 (보고서도 같이 씀) / "A2"[0] → "A" → "군사행동"
 events["대상국"] = events["대상국"].fillna("")   # [수정] 빈 칸(None)을 빈 글자로
 events = events[["시작일", "분류", "요소명", "주체국", "대상국", "사건명"]]   # [수정] 카테고리코드·사건ID는 화면에서 뺌   # 칸 순서 정하기 /  칸을 고르면서 순서도 정함
 
