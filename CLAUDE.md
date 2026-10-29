@@ -56,6 +56,7 @@ docs/dev/진행기록.md       # 단계 6 진행 기록 — 구현 메인 소유
 ## 6. 깃
 - 브랜치 `feature/<이름>`(프롬프트가 지정). PR 대상 `develop`.
 - 커밋 말머리(팀 README): `feat` `fix` `docs` `refactor` `style` `test` `chore` + `: ` + 한국어 요약 50자 이내. 한 커밋 한 목적.
+- **AI 표기 금지(10-29 사용자, 절대):** 커밋 메시지·PR·이슈·코멘트 어디에도 `Co-Authored-By: Claude…`·`Generated with Claude Code`·`🤖`·claude.ai 세션 링크를 넣지 않는다. 로컬 `commit-msg` 훅이 커밋에서 지우고, 푸시·PR 전 검사로 다시 확인한다.
 - 커밋 전 `git diff --cached --stat`로 `data/raw`·`진행 현황 및 계획 정리`·`.env`·`*.json`이 없는지 확인.
 - 구현 메인이 바꾼 문서(`docs/dev/tasks/F<n>_*.md`·`docs/dev/진행기록.md`·`docs/dev/식_함수_대응표.md`·`docs/decisions.md`·`docs/tension/**`)가 작업트리에 변경으로 있으면, 그 기능 브랜치의 **첫 커밋** `docs: F<n> 작업 프롬프트·설계 문서 반영`으로 내용을 고치지 않고 커밋한다(U2). `.vscode/`는 스테이징하지 않는다.
 - PR 전 동기화(README 5절): `git fetch origin` → `git merge origin/develop` → 테스트 다시. 충돌 나면 `git merge --abort` 하고 멈추고 보고(직접 해결 금지).
