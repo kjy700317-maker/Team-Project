@@ -3,6 +3,7 @@ import config
 from utils.loader import load_events # 정리된 사건 표 통로
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그레프
+import pandas as pd
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
@@ -20,7 +21,10 @@ events["요소명"] = events["카테고리코드"].map(config.ELEMENT_NAMES)  # 
 events["시작일"] = events["시작일"].dt.date # 시,분,초 떼고 날짜만
 events["분류"] = events["카테고리코드"].str[0].map(config.GROUPS)   # [수정] 분류표는 config.GROUPS로 옮김 (보고서도 같이 씀) / "A2"[0] → "A" → "군사행동"
 events["대상국"] = events["대상국"].fillna("")   # [수정] 빈 칸(None)을 빈 글자로
-events = events[["시작일", "분류", "요소명", "주체국", "대상국", "사건명"]]   # [수정] 카테고리코드·사건ID는 화면에서 뺌   # 칸 순서 정하기 /  칸을 고르면서 순서도 정함
+index_events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")   # [수정] 지수에 들어간 사건표 (사건ID·묶음·S) / [임시] load 함수 요청
+events = events.merge(index_events[["사건ID", "묶음", "S"]], on="사건ID", how="left")   # [수정] 사건ID로 짝 맞추기, 없으면 빈 칸(NaN)
+events["지수 반영"] = [f"{b} · S {v:.1f}" if pd.notna(v) else "지수 밖" for b, v in zip(events["묶음"], events["S"])]   # [수정] "핵·미사일 · S 12.5" / 없으면 "지수 밖"
+events = events[["시작일", "분류", "요소명", "주체국", "대상국", "사건명", "지수 반영"]]   # [수정] 마지막에 "지수 반영" 칸 추가
 
 # ===== 사이드바 필터 =====
 st.sidebar.header("필터") # st.sidebar. = 왼쪽 메뉴 영역에 그리기 , 위젯을 왼쪽 메뉴 아래에 그림
@@ -32,14 +36,18 @@ kinds = st.sidebar.multiselect("사건 종류 (비우면 전체)", list(config.E
 actors = st.sidebar.multiselect("주체국 (비우면 전체)", sorted(events["주체국"].unique())) # unique: 중복 없이, sorted: 가나다순
 word = st.sidebar.text_input("사건명 검색") # 글자 입력칸
 
+
 events = events[(events["시작일"] >= start) & (events["시작일"] <= end)] # 기간 안의 사건만
+only_index = st.sidebar.checkbox("지수에 들어간 사건만")   # [수정] 체크하면 "지수 밖" 사건을 숨김
 if kinds: # 하나라도 골랐으면
     events = events[events["요소명"].isin(kinds)] # isin: 고른 목록 안에 있는 줄만
 if actors:
     events = events[events["주체국"].isin(actors)]
 if word: # 검색어를 썼으면
     events = events[events["사건명"].str.contains(word, na=False)] # 사건명에 그 글자가 들어간 줄만
-
+if only_index:
+    events = events[events["지수 반영"] != "지수 밖"]   # [수정] 지수에 들어간 사건만
+    
 # ===== 요약 카드, 종류별 막대그래프, 표 =====
 if len(events) == 0: # 필터 결과가 0건이면
     st.warning("조건에 맞는 사건이 없습니다.") # 노란 안내 상자
@@ -47,6 +55,7 @@ if len(events) == 0: # 필터 결과가 0건이면
 
 col1, col2, col3 = st.columns(3)
 col1.metric("사건 수", f"{len(events)}건")
+col1.caption(f"그중 지수에 들어간 사건 {(events['지수 반영'] != '지수 밖').sum()}건")   # [수정] True 개수 = sum
 col2.metric("가장 많은 종류", events["요소명"].value_counts().index[0]) # 건수 1등의 이름
 col3.metric("가장 많은 주체국", events["주체국"].value_counts().index[0])
 
