@@ -6,7 +6,7 @@ USE_DUMMY = False   # True 더미 데이터 / False 실제 사건 CSV(data/proce
 RAM_CUTS = [40, 60, 90, 120]
 RATIO_CUTS = [100, 150, 200, 300]
 STAGE_NAMES = {1: "평온", 2: "관심", 3: "주의", 4: "경계", 5: "심각"}
-STAGE_COLORS = {1: "#4CAF50", 2: "#2196F3", 3: "#FBC02D", 4: "#FB8C00", 5: "#E53935"}
+STAGE_COLORS = {1: "#81C784", 2: "#26A69A", 3: "#FBC02D", 4: "#FB8C00", 5: "#E53935"}
 SIMILAR_N = 3
 SIMILAR_EXCLUDE_MONTHS = 12
 
