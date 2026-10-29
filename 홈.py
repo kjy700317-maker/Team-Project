@@ -1,6 +1,7 @@
 import streamlit as st
 import config
-from utils.loader import load_daily, load_events
+import pandas as pd
+from utils.loader import load_tension_daily   # [수정] 산출식 v0.1.4 결과 (load_daily → load_tension_daily)
 from utils.ui import stage_scale_grid   # [수정] 세로 눈금 (Grid)
 
 
@@ -8,8 +9,8 @@ from utils.ui import stage_scale_grid   # [수정] 세로 눈금 (Grid)
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
 
 # ===== 데이터 불러오기 (홈에도 지금 단계를 보여 주기 위해) =====
-df = load_daily()                                   # 결과_일별 표
-events = load_events()                              # 사건_일단위 표
+df = load_tension_daily()                           # [수정] 일별 결과 (2010-01-01 ~ 계산일)
+events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")   # [수정] 지수에 들어간 사건표 (720건) / [임시] 이원희 님께 load 함수 요청
 latest = df.iloc[-1]                                # 가장 최근 날
 stage = int(latest["최종단계"])
 color = config.STAGE_COLORS[stage]                  # 지금 단계 색
@@ -18,21 +19,14 @@ color = config.STAGE_COLORS[stage]                  # 지금 단계 색
 st.title("🛡️ 한반도 군사 긴장도 대시보드")
 st.caption("사건 데이터를 점수로 바꿔, 지금 한반도의 군사 긴장이 평소보다 얼마나 높은지 보여 줍니다.")
 
-# # ===== 지금 단계 띠 =====
-# st.markdown(
-#     f"<div style='background:{color}; color:white; padding:18px 22px; border-radius:12px;'>"
-#     f"<div style='font-size:14px; opacity:0.9;'>{latest['날짜']:%Y-%m-%d} 기준 현재 단계</div>"
-#     f"<div style='font-size:30px; font-weight:700;'>{stage}단계 {config.STAGE_NAMES[stage]}</div>"
-#     f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.0f}"
-#     + (f" · 4단계 이상 {int(latest['지속일수'])}일째" if latest["지속일수"] > 0 else "") + "</div></div>",   # [수정] 지속일수는 4단계 이상일 때만 (1·4페이지와 같게)
-#     unsafe_allow_html=True)   # 글 안의 HTML(색 상자)을 그대로 그리게 허락
-
-# ===== 5단계 눈금 (지금 단계만 진하게) =====
+# ===== 지금 단계 띠 + 세로 눈금 =====
+top = "—" if pd.isna(latest["상위%_표시"]) else f"그날까지 상위 {latest['상위%_표시']:.1f}%"   # [수정] 2010년은 NaN → "—"
+note = " (잠정)" if latest["잠정"] else ""                                                    # [수정] 최근 6일은 잠정
 band = (f"<div style='background:{color}; color:white; padding:18px 22px; border-radius:12px;'>"   # [수정] 폭은 바깥 격자가 정함
-        f"<div style='font-size:14px; opacity:0.9;'>{latest['날짜']:%Y-%m-%d} 기준 현재 단계</div>"
-        f"<div style='font-size:40px; font-weight:700;'>{stage}단계 {config.STAGE_NAMES[stage]}</div>"
-        f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.0f}"
-        + (f" · 4단계 이상 {int(latest['지속일수'])}일째" if latest["지속일수"] > 0 else "") + "</div></div>")
+        f"<div style='font-size:14px; opacity:0.9;'>{latest['날짜']:%Y-%m-%d} 기준 현재 단계{note}</div>"
+        f"<div style='font-size:40px; font-weight:700;'>{latest['화면_단계문구']} · {latest['단계이름']}</div>"   # [수정] 예: "2거 · 하강 중(판정 1거) · 관심"
+        f"<div style='font-size:15px;'>평소대비 {latest['평소대비']:.1f} · {top}"                   # [수정] 평소대비 = 7일 표시값
+        + (f" · 4거 이상 {int(latest['지속일수'])}일째" if latest["지속일수"] > 0 else "") + "</div></div>")   # [수정] 0이면 숨김
 st.markdown(f"<div style='display:grid; grid-template-columns:1fr 160px; gap:8px;'>{band}{stage_scale_grid(stage)}</div>",   # [수정] 2칸 격자: 띠 = 남는 폭 전부(1fr), 눈금 = 160px
             unsafe_allow_html=True)
 st.write("")
@@ -60,6 +54,5 @@ for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i =
                     f"<span style='display:block; font-size:16px; color:#666;'>{desc}</span></a>",
                     unsafe_allow_html=True)
 # ===== 데이터 안내 =====
-st.divider()                                        # 가는 가로줄
-st.caption(f"사건 {len(events):,}건 · {events['시작일'].min():%Y-%m-%d} ~ {events['시작일'].max():%Y-%m-%d} · "
-           "가중치·기준선은 현재 진행도 기준 임시값이며 추후 결정됩니다.")   # :, → 천 단위 쉼표 (3,860)
+st.caption(f"지수에 들어간 사건 {len(events):,}건 ({config.CALC_START_DATE[:4]}년~) · "
+           f"계산 끝날 {df['날짜'].max():%Y-%m-%d} · A2 미사일 자료 {config.A2_DATA_END}까지")   # [수정] 자료 한계 표시, 임시값 문구 삭제

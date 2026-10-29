@@ -9,7 +9,7 @@ def stage_scale(stage):   # 지금 단계 번호를 받아 눈금 5칸 HTML을 �
         else:                                           # 나머지: 연한 색(뒤에 "40" = 투명도 25%) + 회색 글씨
             bg, text, weight = config.STAGE_COLORS[no] + "40", "#555", 400
         scale += (f"<div style='flex:1; background:{bg}; color:{text}; font-weight:{weight}; "
-                  f"text-align:center; padding:6px 0; font-size:13px; border-radius:6px;'>{no} {name}</div>")
+                  f"text-align:center; padding:6px 0; font-size:13px; border-radius:6px;'>{no}거 {name}</div>")
     return f"<div style='display:flex; gap:4px; margin-top:8px;'>{scale}</div>"   # flex: 칸을 가로로 나란히
 
 # ===== [수정] 5단계 눈금 세로판 (Grid: 5줄 격자, 5단계가 맨 위) =====
