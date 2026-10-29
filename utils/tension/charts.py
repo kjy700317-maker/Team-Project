@@ -11,7 +11,7 @@ from plotly.subplots import make_subplots
 
 import config
 
-# 화면 브랜치(feature/tension-dashboard) config.STAGE_COLORS·STAGE_NAMES와 같은 값 — F5에서 config 한 곳으로 합칠지 정한다
+# 단계 색·이름은 화면 설정 config.STAGE_COLORS·STAGE_NAMES를 그릴 때 읽는다(사용자 10-29 — 색을 한 곳에서). 아래는 config에 없을 때만 쓰는 값
 STAGE_COLORS = {1: "#4CAF50", 2: "#2196F3", 3: "#FBC02D", 4: "#FB8C00", 5: "#E53935"}
 STAGE_NAMES = {1: "평온", 2: "관심", 3: "주의", 4: "경계", 5: "심각"}
 LINE_MAIN, LINE_RAW, LINE_COMPARE, INK = "#26215C", "#7F77DD", "#B3541E", "#444441"
@@ -27,8 +27,13 @@ def _stage_colorscale(colors):
 
 
 def trend_figure(daily, cuts, *, compare=None, compare_name="확장(C5 포함) 7일 평균", crises=config.CRISIS_LIST,
-                 a2_end=config.A2_DATA_END, colors=STAGE_COLORS, names=STAGE_NAMES, title=None, height=620) -> go.Figure:
-    """(그림) 추이 — daily = 일별 표(날짜 인덱스), cuts = T 구간 4개(2·3·4·5거 시작), compare = 비교할 다른 일별 표(선택)."""
+                 a2_end=config.A2_DATA_END, colors=None, names=None, title=None, height=620) -> go.Figure:
+    """(그림) 추이 — daily = 일별 표(날짜 인덱스), cuts = T 구간 4개(2·3·4·5거 시작), compare = 비교할 다른 일별 표(선택).
+
+    colors·names를 주지 않으면 config.STAGE_COLORS·STAGE_NAMES(없으면 이 모듈의 기본값).
+    """
+    colors = colors or getattr(config, "STAGE_COLORS", STAGE_COLORS)
+    names = names or getattr(config, "STAGE_NAMES", STAGE_NAMES)
     cuts = [float(c) for c in cuts]
     x = daily.index
     top = max(float(daily["T_원값"].max()), cuts[-1]) * 1.08
