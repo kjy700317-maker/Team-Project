@@ -126,3 +126,8 @@ def load_tension_half_life(scenario="기본"):  # 반감기 민감도 — 반감
 @st.cache_data
 def load_tension_month_events(month, scenario="기본", top=3):  # 그달 주요 사건(유사 시기 카드) — month = "YYYY-MM"
     return tension_screen.month_events(month, scenario, top)
+
+
+@st.cache_data
+def load_tension_events(scenario="기본"):  # 사건표 — 사건ID·date(날짜형)·요소·묶음·S·사건명 (지수에 들어간 사건 전부, 기본 720건·확장 941건)
+    return tension_screen.events_table(scenario)

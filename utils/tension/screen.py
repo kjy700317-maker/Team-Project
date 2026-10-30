@@ -101,7 +101,7 @@ def daily(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
     d["지속일수"] = sm.stage_streak(d["최종단계"]).to_numpy()
     top = d["그날까지_상위%"].astype(float).copy()
     top.iloc[:TOP_PCT_HIDE_DAYS] = np.nan
-    d["상위%_표시"] = top
+    d["상위%_표시"] = np.round(top, 1)   # 사용자 10-30: 요약.csv·그림 hover와 같은 반올림(np.round) — 화면 :.1f는 x.x5에서 달랐음(43.15 → 43.1)
     d["완화할인_δ"] = relief_delta(scenario, raw.index, data_dir).round(3).to_numpy()
     return d
 
@@ -302,6 +302,16 @@ def month_events(month, scenario="기본", top=3, data_dir=DATA_DIR) -> pd.DataF
     ev = ev.sort_values(["S", "date"], ascending=[False, False]).head(top)
     ev = ev.rename(columns={"date": "날짜"})[["날짜", "사건ID", "요소", "묶음", "구분", "S", "주체국", "사건명"]]
     return ev.reset_index(drop=True)
+
+
+def events_table(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
+    """(화면) 사건표 — 지수 계산에 들어간 사건 전부(기본 720건 · 확장 941건). 박성인 님 요청서 10-30 ①.
+
+    열 = 사건ID · date(날짜형) · 요소 · 묶음 · S · 사건명 — CSV 열 이름 그대로(화면 이름 열은 더하지 않는다). CSV 순서 그대로.
+    """
+    _check(scenario)
+    events, _ = tio.load_events(Path(data_dir) / f"events_{scenario}.csv")
+    return events.reset_index(drop=True)
 
 
 def normalization_figure(scenario="기본", data_dir=DATA_DIR):
