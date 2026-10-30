@@ -25,3 +25,7 @@
 - 93ccb33 fix: 단계별 사례 날짜를 새 결과 기준으로 교체
 - 6bdda43 test: 사건표 함수·사례 단계·상위% 반올림 테스트
 - 각 커밋 전 금지경로 검사 OK · 커밋 메시지 AI 표기 검사 OK
+
+## L4 푸시·PR
+- 작성자 목록: 5커밋 모두 money2082 · merge origin/develop: Already up to date · 117 passed
+- push 완료, PR #31 draft: https://github.com/kjy700317-maker/Team-Project/pull/31 (AI 표기 검사 OK)

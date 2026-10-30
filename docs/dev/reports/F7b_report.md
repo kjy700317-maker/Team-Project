@@ -1,6 +1,6 @@
 # F7b 보고서 — 화면 통로 보완 (박성인 님 요청서 10-30 ①②③)
 - 결과: 완료
-- 2026-10-30 · feature/tension-screen-pass · 이슈 #30 · 커밋 80cb6c4 docs / 602385d feat / 93ccb33 fix / 6bdda43 test (+ 보고서 커밋) · PR: draft(아래 log·채팅 참조)
+- 2026-10-30 · feature/tension-screen-pass · 이슈 #30 · 커밋 80cb6c4 docs / 602385d feat / 93ccb33 fix / 6bdda43 test (+ 보고서 커밋) · PR: https://github.com/kjy700317-maker/Team-Project/pull/31 (draft)
 - 환경: python 3.11.17 / numpy 2.4.6 / pandas 3.0.6
 
 ## 1. 완료 조건
