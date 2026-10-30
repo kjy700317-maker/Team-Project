@@ -31,3 +31,7 @@ True True (115, 256, 315, 378) 100.0
 4463759 docs: README 6절에 앱 안 재계산 예외 한 줄
 ```
 매 커밋 전 금지 경로 검사 OK · 커밋 메시지 AI 표기 검사 OK.
+
+## L4 병합·푸시·PR
+- `git merge origin/develop`: Already up to date · pytest 137 passed · 작성자 전부 money2082 · 커밋 메시지·PR 본문 AI 표기 검사 OK
+- PR: https://github.com/kjy700317-maker/Team-Project/pull/37 (draft, base develop, 라벨 feat)

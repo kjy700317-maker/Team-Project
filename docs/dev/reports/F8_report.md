@@ -1,6 +1,6 @@
 # F8 보고서 — 가정 바꿔 보기(슬라이더 재계산): 묶음 비중 ω + 재계산 통로
 - 결과: 완료
-- 날짜 2026-10-30 · 브랜치 feature/tension-slider · 이슈 #36 · 커밋 9400887 docs 문서 반영 / 0985f75 feat 재계산 통로 / 783283c test / 4463759 docs README (+ 보고서 커밋) · PR: draft(아래 채팅 요약 참조)
+- 날짜 2026-10-30 · 브랜치 feature/tension-slider · 이슈 #36 · 커밋 9400887 docs 문서 반영 / 0985f75 feat 재계산 통로 / 783283c test / 4463759 docs README (+ 보고서 커밋) · PR: https://github.com/kjy700317-maker/Team-Project/pull/37 (draft)
 - 환경: python 3.11.17 / numpy 2.4.6 / pandas 3.0.6
 
 ## 1. 완료 조건
