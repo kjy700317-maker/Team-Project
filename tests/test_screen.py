@@ -93,7 +93,8 @@ def test_loader_functions_match_screen():
     t1, e1 = loader.load_tension_contrib("2026-10-29")
     t2, e2 = screen.contributions("2026-10-29")
     assert t1.equals(t2) and e1.equals(e2)
-    assert callable(loader.load_daily) and callable(loader.load_monthly)                # 기존 함수 그대로
+    assert callable(loader.load_events)                                                 # 2페이지 사건 기록 통로는 남김
+    assert not any(hasattr(loader, f) for f in ("load_daily", "load_monthly", "load_elements", "load_yearly"))  # F7c: 옛 임시 통로 지움
 
 
 def test_top_pct_display_matches_summary():
