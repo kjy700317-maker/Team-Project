@@ -1,4 +1,5 @@
 import config
+import pandas as pd 
 
 # ===== [수정] 5단계 눈금 (홈·보고서가 같이 씀, 두 곳에 있던 코드를 여기로 모음) =====
 def stage_scale(stage):   # 지금 단계 번호를 받아 눈금 5칸 HTML을 돌려줌

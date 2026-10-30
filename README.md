@@ -69,11 +69,10 @@ Team-Project/
 ├── utils/                       # 공통 함수 및 전처리 모듈
 │   └── build_db.py                 # 1단계: processed CSV -> bongsu.db 통합 표 (사건, 수치, 참여국 등) + 검증
 │   └── build_erd.py                # 2단계: 통합 표 -> ERD v4 테이블 (사건_일단위, 지표값, 상세 13개) + 검증
-│   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
 │   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
-│   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용) · 긴장도 실제 결과는 `load_tension_*`
+│   └── loader.py                   # 데이터 통로(캐시 적용): 사건 표 `load_events` · 긴장도 결과 `load_tension_*`
 │   └── README.md                   # utils 폴더 설명
-│   └── real.py                     # 실제 사건 CSV → 원점수·평소대비·단계 계산 (결과_일별·월별·연별)
+│   └── real.py                     # 실제 사건 CSV 17종 → 사건 표 (2페이지 사건 기록)
 │   └── tension/                    # 긴장도 계산 (io·core·summary·screen·charts)
 │   └── ui.py                       # 공통 화면 조각 (5단계 눈금 stage_scale)
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
@@ -154,7 +153,7 @@ Team-Project/
 - **인증키 및 환경변수 (`.env`, `secrets/`)**: BigQuery 서비스 계정 JSON 키 및 API 비밀키는 절대 업로드하지 않으며, 배포 시 Streamlit `st.secrets`를 활용합니다. - 필요시 생성 예정 -
 
 ### 1. 수집과 화면 코드 분리
-- BigQuery 및 외부 API 호출은 별도 수집 스크립트에서만 수행하고, Streamlit(`홈.py`)은 SQLite 데이터와 `data/tension/` 결과 CSV만 읽어 성능을 보장합니다. 긴장도 계산은 `scripts/run_tension.py`로 로컬에서 돌려 결과 CSV를 커밋합니다.
+- BigQuery 및 외부 API 호출은 별도 수집 스크립트에서만 수행하고, Streamlit(`홈.py`)은 SQLite 데이터와 `data/tension/` 결과 CSV만 읽어 성능을 보장합니다. 긴장도 계산은 `scripts/run_tension.py`로 로컬에서 돌려 결과 CSV를 커밋합니다. 예외는 긴장도 "가정 바꿔 보기"(슬라이더) 한 곳으로, 커밋된 사건표로 앱 안에서 다시 계산하고 "공식 결과가 아님"으로 표시합니다(`docs/decisions.md` ADR-019).
 
 ### 2. 보안 및 인증키 관리
 - BigQuery 서비스 계정 JSON 키 및 API 비밀키는 절대 깃허브에 업로드하지 않습니다 (`.gitignore` 필수 등록 및 Streamlit Cloud 배포 시 `st.secrets` 활용).
