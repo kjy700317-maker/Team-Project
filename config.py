@@ -58,6 +58,7 @@ F2_FIELD_FACTOR = {"정치·군사": 1.0, "경제·인도": 0.2, "사회문화":
 HALF_GAUSS_SIGMA = 10                            # ADR-006·014 전용 하한 원점수 exp(-k²/(2σ²))
 FLOOR_WINDOW = 30                                # ADR-006·014 전용 하한 창(일)
 PHYS_FLOOR = {"3거": 3, "4거": 7, "풍선3거": 6}   # ADR-007 풍선 뺀 A3·A7: ρ≥3 → 3거, ρ≥7 → 4거 / 오물풍선(A3, 사건명 Balloon): ρ≥6 → 3거
+BALLOON_KEYWORD = "Balloon"                   # ADR-007 2 오물풍선 = 물리 충돌의 A3 중 사건명에 이 단어(대소문자 무시)가 든 행
 TYPE4_FLOOR_STAGE = 4                            # ADR-007 1-1 4거 유형 사건 당일
 KILL_EVENTS = ("A7-0098", "A7-0100")             # ADR-007 사망·침몰 당일 5거(천안함·연평도)
 KILL_FLOOR_STAGE = 5
@@ -70,6 +71,7 @@ PROVISIONAL_DAYS = 6                             # ADR-006 최근 6일 "잠정"
 TREND_DAYS = 14                                  # U11 10-28 확정 — 14일 변화
 TREND_PCT_MIN = 50                               # U11 10-28 확정 — 14일 전 표시값 50 미만이면 % 숨김
 A2_DATA_END = "2024-11-05"                       # ADR-011a(A2 항목) 안 10-27 사용자 결정 — A2 자료 마지막 날(이후 "자료 없음" 표시)
+A2_NOTE = "A2 자료 없음({end}까지)"               # 일별 CSV `A2자료` 열 문구({end} = A2_DATA_END) — compute_v014.py와 같은 글자
 CRISIS_LIST = (                                  # 내부 위기 목록 10건(검산·게이지 눈금용) — s3_core.py 9~11행 CR과 같음 [확인]
     ("천안함", "2010-03-26", "물리"),
     ("연평도", "2010-11-23", "물리"),

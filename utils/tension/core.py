@@ -10,8 +10,6 @@ import pandas as pd
 
 import config
 
-BALLOON_KEYWORD = "Balloon"  # ADR-007 2 — 오물풍선 = A3 중 사건명에 Balloon
-
 
 def calc_days(start=config.CALC_START_DATE, end=config.END_DATE) -> pd.DatetimeIndex:
     """(보조) 𝒯 계산 기간 — start~end 하루 간격, end가 None이면 오늘."""
@@ -147,7 +145,7 @@ def floor_physical(events, days, type4_ids, kill_ids=config.KILL_EVENTS, thresho
     순서 그대로(s3_core.floors_s1 + compute_v014.floors_v014): ① 반가우스 판정 → ② 4거 유형일 max → ③ 사망·침몰일 덮어씀.
     """
     ph = events[events["묶음"] == bundle]
-    balloon = ph["요소"].eq("A3") & ph["사건명"].astype(str).str.contains(BALLOON_KEYWORD, case=False, na=False)
+    balloon = ph["요소"].eq("A3") & ph["사건명"].astype(str).str.contains(config.BALLOON_KEYWORD, case=False, na=False)
     rho_o = half_gauss_window(_day_sum(ph[~balloon], days), sigma, window).to_numpy()
     rho_b = half_gauss_window(_day_sum(ph[balloon], days), sigma, window).to_numpy()
     th = thresholds
@@ -179,14 +177,20 @@ def floor_event(events, days, icbm_s=config.EVENT_FLOOR_ICBM_S, stage=config.EVE
 
 # ---- F2-2: ⑨·⑪~⑰ · 일별 결과 조립 ----
 
-A2_NOTE = "A2 자료 없음({end}까지)"  # 일별 CSV A2자료 열 문구 — compute_v014.py
 DAILY_HEAD = ("T_원값", "T_표시7일", "잠정")
 DAILY_TAIL = ("완화할인", "원점수_게이지", "단계_T", "하한_물리", "물리_4거유형일", "하한_E5", "하한_사건", "단계_판정",
               "단계_최종", "그날까지_상위%", "A2자료", "화면_단계문구", "변화14_표시", "변화율14_표시")
 
+def _require_four_cuts(values, what) -> None:
+    """(보조) T 구간 문턱·분위는 정확히 4개(2·3·4·5거 시작) — 아니면 ValueError(F2 검토 발견 10, 자료 이상은 멈춤)."""
+    if len(values) != 4:
+        raise ValueError(f"{what}은 2·3·4·5거 시작 4개여야 함: {len(values)}개")
+
+
 def stage_cuts(T, mask, quantiles=config.STAGE_QUANTILES) -> tuple[np.ndarray, np.ndarray]:
     """⑨ T 구간 — 기준기간 T의 70·90·95·98분위를 반올림한 정수 문턱 θ와 반올림 전 분위."""
     # np.quantile 기본(linear) · np.round 짝수 반올림 그대로(compute_v014.compute — 대응표 ⑨)
+    _require_four_cuts(quantiles, "T 구간 분위")
     q = np.quantile(T[mask], quantiles)
     return np.round(q, 0), q
 
@@ -198,6 +202,7 @@ def cuts_half_warning(q) -> bool:
 
 def stage_from_index(T, cuts) -> pd.Series:
     """⑨ T 구간 단계 L^T — 1 + #{j : T ≥ θ_j} (1~5거)."""
+    _require_four_cuts(cuts, "T 구간 문턱")
     c1, c2, c3, c4 = cuts
     return pd.Series(np.select([T >= c4, T >= c3, T >= c2, T >= c1], [5, 4, 3, 2], 1).astype("int64"), index=T.index)
 
@@ -286,7 +291,7 @@ def provisional(days, n=config.PROVISIONAL_DAYS) -> pd.Series:
 
 def a2_note(days, a2_end=config.A2_DATA_END) -> pd.Series:
     """(보조) A2자료 — a2_end보다 뒤인 날 "A2 자료 없음(a2_end까지)", 그 밖 빈 문자열."""
-    return pd.Series(np.where(days > pd.Timestamp(a2_end), A2_NOTE.format(end=a2_end), ""), index=days)
+    return pd.Series(np.where(days > pd.Timestamp(a2_end), config.A2_NOTE.format(end=a2_end), ""), index=days)
 
 
 def relief_display(T, Tg) -> pd.Series:

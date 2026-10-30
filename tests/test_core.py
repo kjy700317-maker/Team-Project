@@ -253,3 +253,32 @@ def test_params_none_empty_and_unknown():
 
 def test_calc_days_end_none_is_today():
     assert core.calc_days("2026-01-01", None)[-1] == pd.Timestamp.today().normalize()
+
+
+# F7(F2 검토 발견 10) — 오물풍선 단어·A2 문구는 config, T 구간 문턱은 4개
+@pytest.mark.parametrize("n", [0, 3, 5])
+def test_stage_from_index_needs_four_cuts(n):
+    with pytest.raises(ValueError, match="4개"):
+        core.stage_from_index(pd.Series([1.0, 2.0]), tuple(range(1, n + 1)))
+
+
+@pytest.mark.parametrize("n", [3, 5])
+def test_stage_cuts_needs_four_quantiles(n):
+    with pytest.raises(ValueError, match="4개"):
+        core.stage_cuts(pd.Series([1.0, 2.0, 3.0]), np.array([True] * 3), quantiles=tuple(np.linspace(0.1, 0.9, n)))
+
+
+def test_daily_table_three_quantiles_stops():
+    e, days = base_events(), core.calc_days("2010-01-01", "2020-12-31")
+    with pytest.raises(ValueError, match="4개"):
+        core.daily_table(e, days, B3, set(), {**NOKILL, "quantiles": (0.7, 0.9, 0.95)})
+
+
+def test_balloon_keyword_and_a2_note_come_from_config(monkeypatch):
+    days = pd.date_range("2020-01-25", "2020-02-10")
+    e = ev([("A3-3", "2020-02-01", "A3", PHYS, 3.4, "Balloon launch")])
+    assert core.floor_physical(e, days, set(), kill_ids=())["2020-02-01"] == 1       # 풍선 1건 3.4 < 6
+    monkeypatch.setattr(config, "BALLOON_KEYWORD", "Kite")
+    assert core.floor_physical(e, days, set(), kill_ids=())["2020-02-01"] == 3       # 풍선으로 안 보면 일반 물리 ρ 3.4 ≥ 3
+    monkeypatch.setattr(config, "A2_NOTE", "자료 끝({end})")
+    assert core.a2_note(pd.DatetimeIndex(["2024-11-06"])).tolist() == ["자료 끝(2024-11-05)"]
