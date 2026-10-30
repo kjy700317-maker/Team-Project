@@ -1,16 +1,15 @@
 import streamlit as st
 import config
 import pandas as pd
-from utils.loader import load_tension_daily   # [수정] 산출식 v0.1.4 결과 (load_daily → load_tension_daily)
+from utils.loader import load_tension_daily, load_tension_events   # [수정] 산출식 v0.1.4 결과 (load_daily → load_tension_daily)
 from utils.ui import stage_scale_grid   # [수정] 세로 눈금 (Grid)
-
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
 
 # ===== 데이터 불러오기 (홈에도 지금 단계를 보여 주기 위해) =====
 df = load_tension_daily()                           # [수정] 일별 결과 (2010-01-01 ~ 계산일)
-events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")   # [수정] 지수에 들어간 사건표 (720건) / [임시] 이원희 님께 load 함수 요청
+events = load_tension_events()
 latest = df.iloc[-1]                                # 가장 최근 날
 stage = int(latest["최종단계"])
 color = config.STAGE_COLORS[stage]                  # 지금 단계 색

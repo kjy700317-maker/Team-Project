@@ -13,14 +13,13 @@ from docx.shared import Pt, RGBColor, Cm        # 글자 크기(Pt), 글자 색(
 from docx.enum.text import WD_ALIGN_PARAGRAPH   # 문단 정렬(가운데, 오른쪽)
 from docx.oxml.ns import qn                     # 한글 글꼴 지정용 이름표
 from docx.oxml import OxmlElement               # 워드 표 칸 배경색·쪽번호 지정용
-import load_tension_events
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 
 # ===== 화면: 제목 =====
 st.title("긴장도 브리핑")
-t
+
 # ===== 데이터 불러오기 =====
 df = load_tension_daily()           # [수정] 결과_일별 표
 monthly = load_tension_monthly()    # [수정] 결과_월별 표
