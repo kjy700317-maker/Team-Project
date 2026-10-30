@@ -69,11 +69,10 @@ Team-Project/
 ├── utils/                       # 공통 함수 및 전처리 모듈
 │   └── build_db.py                 # 1단계: processed CSV -> bongsu.db 통합 표 (사건, 수치, 참여국 등) + 검증
 │   └── build_erd.py                # 2단계: 통합 표 -> ERD v4 테이블 (사건_일단위, 지표값, 상세 13개) + 검증
-│   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
 │   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
-│   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용) · 긴장도 실제 결과는 `load_tension_*`
+│   └── loader.py                   # 데이터 통로(캐시 적용): 사건 표 `load_events` · 긴장도 결과 `load_tension_*`
 │   └── README.md                   # utils 폴더 설명
-│   └── real.py                     # 실제 사건 CSV → 원점수·평소대비·단계 계산 (결과_일별·월별·연별)
+│   └── real.py                     # 실제 사건 CSV 17종 → 사건 표 (2페이지 사건 기록)
 │   └── tension/                    # 긴장도 계산 (io·core·summary·screen·charts)
 │   └── ui.py                       # 공통 화면 조각 (5단계 눈금 stage_scale)
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
