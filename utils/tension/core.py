@@ -76,10 +76,31 @@ def relative_index(R, B) -> pd.DataFrame:
     return pd.DataFrame({c: R[c] / B[c] * 100 for c in R.columns}, index=R.index)
 
 
-def rising_index(Tg) -> pd.Series:
-    """⑥ 상승 지수 — 상승 묶음 T_g의 평균(동일 가중)."""
-    # 기준 구현 sum(Tg.values()) / len(bundles) — 열 순서대로 더한 뒤 나눈다(mean(axis=1) 아님)
-    return sum(Tg[c] for c in Tg.columns) / len(Tg.columns)
+def bundle_weight_map(weights, bundles):
+    """(보조) ⑥ 묶음 비중(ADR-019) — {묶음: 배수} 검사. 빠진 묶음 = 1배. 배수가 모두 같으면 None(= 동일 가중, 지금 경로).
+
+    모르는 묶음·0 이하·숫자 아님은 멈춘다(ValueError). 슬라이더 범위(config.SLIDER_WEIGHT)는 화면 통로(screen)가 본다.
+    """
+    if weights is None:
+        return None
+    bundles = list(bundles)
+    unknown = sorted(set(weights) - set(bundles))
+    if unknown:
+        raise ValueError(f"bundle_weights에 상승 묶음이 아닌 키 {unknown} — 쓸 수 있는 묶음: {bundles}")
+    w = {b: float(weights.get(b, 1.0)) for b in bundles}
+    bad = [b for b, v in w.items() if not (np.isfinite(v) and v > 0)]
+    if bad:
+        raise ValueError(f"bundle_weights 배수는 0보다 큰 수여야 함: {bad}")
+    return None if len(set(w.values())) == 1 else w
+
+
+def rising_index(Tg, weights=None) -> pd.Series:
+    """⑥ 상승 지수 — 상승 묶음 T_g의 평균(동일 가중). weights = {묶음: 배수}면 가중 평균 Σ(배수·T_g) ÷ Σ배수(ADR-019)."""
+    w = bundle_weight_map(weights, Tg.columns)
+    if w is None:
+        # 기준 구현 sum(Tg.values()) / len(bundles) — 열 순서대로 더한 뒤 나눈다(mean(axis=1) 아님)
+        return sum(Tg[c] for c in Tg.columns) / len(Tg.columns)
+    return sum(Tg[c] * w[c] for c in Tg.columns) / sum(w[c] for c in Tg.columns)
 
 
 def relief_discount(R_relief, B_relief, c=config.RELIEF_C, cap=config.RELIEF_CAP) -> pd.Series:
@@ -97,10 +118,11 @@ def tension_index(T_plus, delta) -> pd.Series:
 
 def tension_components(events, days, bundles, base_period=config.BASE_PERIOD, half_life=config.HALF_LIFE_DAYS,
                        relief_c=config.RELIEF_C, relief_cap=config.RELIEF_CAP,
-                       relief_bundle=config.BUNDLE_RELIEF) -> tuple[pd.DataFrame, pd.Series]:
+                       relief_bundle=config.BUNDLE_RELIEF, bundle_weights=None) -> tuple[pd.DataFrame, pd.Series]:
     """②~⑧ 묶음 — 사건표에서 R·B·T_g·T⁺·δ·T를 한 번에.
 
     반환 = (열 R_<대상>·Tg_<묶음>·T_plus·delta·T 인 DataFrame, 평소값 B Series). 대상 = bundles + relief_bundle.
+    bundle_weights = {묶음: 배수}(ADR-019 — 앱의 가정 바꿔 보기). None이거나 모두 같으면 동일 가중.
     기준 구현은 run을 두 번 부르지만 T는 단계 구간과 무관하므로 한 번만 계산한다.
     """
     bundles = list(bundles)
@@ -113,7 +135,7 @@ def tension_components(events, days, bundles, base_period=config.BASE_PERIOD, ha
     if bad:
         raise ValueError(f"기준기간 평소값 B가 0 이하이거나 없음(기준기간 사건 0건): {bad}")
     Tg = relative_index(R[bundles], B[bundles])
-    T_plus = rising_index(Tg)
+    T_plus = rising_index(Tg, bundle_weights)
     delta = relief_discount(R[relief_bundle], B[relief_bundle], relief_c, relief_cap)
     T = tension_index(T_plus, delta)
     comp = pd.concat([R.add_prefix("R_"), Tg.add_prefix("Tg_")], axis=1)
@@ -294,10 +316,11 @@ def a2_note(days, a2_end=config.A2_DATA_END) -> pd.Series:
     return pd.Series(np.where(days > pd.Timestamp(a2_end), config.A2_NOTE.format(end=a2_end), ""), index=days)
 
 
-def relief_display(T, Tg) -> pd.Series:
-    """(보조) 완화할인 열 — 1 − T / mean(T_g), mean = 0인 날 0 (δ와 다름 — 대응표 2절)."""
+def relief_display(T, Tg, T_plus=None) -> pd.Series:
+    """(보조) 완화할인 열 — 1 − T / mean(T_g), mean = 0인 날 0 (δ와 다름 — 대응표 2절). 묶음 비중을 바꾼 계산은 T_plus(가중 T⁺)로."""
     # 기준 구현 정의 그대로: T⁺ = 0인 날은 δ > 0이어도 0(회귀 일치를 위해 이식 — 대응표 2절 완화할인)
-    return (1 - T / Tg.mean(axis=1).replace(0, np.nan)).fillna(0)
+    denom = Tg.mean(axis=1) if T_plus is None else T_plus   # ADR-019: 동일 가중이면 지금 식 그대로(바이트 동일)
+    return (1 - T / denom.replace(0, np.nan)).fillna(0)
 
 
 def daily_columns(bundles) -> list[str]:
@@ -308,7 +331,8 @@ def daily_columns(bundles) -> list[str]:
 # daily_table params 키 — 값을 바꾼 계산(민감도·비교선)은 config를 고치지 말고 이 키로 넘긴다(사용자 10-29)
 PARAM_KEYS = ("base_period", "half_life", "relief_c", "relief_cap", "quantiles", "sigma", "window",
               "phys_thresholds", "type4_stage", "kill_ids", "kill_stage", "e5_thresholds", "icbm_s", "event_stage",
-              "step_days", "ma_days", "provisional_days", "trend_days", "trend_pct_min", "a2_end")
+              "step_days", "ma_days", "provisional_days", "trend_days", "trend_pct_min", "a2_end",
+              "bundle_weights")   # F8(ADR-019): 묶음 비중 {묶음: 배수} — 앱의 가정 바꿔 보기만 씀
 
 
 def _pick(params, **argmap) -> dict:
@@ -330,8 +354,10 @@ def daily_table(events, days, bundles, type4_ids, params=None) -> tuple[pd.DataF
     if unknown:
         raise ValueError(f"params에 모르는 키 {unknown} — 쓸 수 있는 키: {list(PARAM_KEYS)}")
     bundles = list(bundles)
+    weighted = bundle_weight_map(p.get("bundle_weights"), bundles) is not None   # 모르는 묶음·0 이하는 여기서 멈춤
     comp, B = tension_components(events, days, bundles, **_pick(p, base_period="base_period", half_life="half_life",
-                                                                 relief_c="relief_c", relief_cap="relief_cap"))
+                                                                 relief_c="relief_c", relief_cap="relief_cap",
+                                                                 bundle_weights="bundle_weights"))
     T = comp["T"]
     Tg = comp[[f"Tg_{b}" for b in bundles]]
     # T는 한 번만 계산 — 구간과 무관(대응표 ⑨)
@@ -350,7 +376,7 @@ def daily_table(events, days, bundles, type4_ids, params=None) -> tuple[pd.DataF
     tr = trend(T_bar, **_pick(p, days="trend_days", pct_min="trend_pct_min"))
     cols = {"T_원값": T, "T_표시7일": T_bar, "잠정": provisional(days, **_pick(p, n="provisional_days")),
             **{f"Tg_{b}": Tg[f"Tg_{b}"] for b in bundles},
-            "완화할인": relief_display(T, Tg), "원점수_게이지": raw_gauge(comp, bundles), "단계_T": LT,
+            "완화할인": relief_display(T, Tg, comp["T_plus"] if weighted else None), "원점수_게이지": raw_gauge(comp, bundles), "단계_T": LT,
             "하한_물리": fp, "물리_4거유형일": type4_days(events, days, type4_ids), "하한_E5": fe, "하한_사건": fs,
             "단계_판정": J, "단계_최종": L, "그날까지_상위%": cumulative_top_pct(T_bar),
             "A2자료": a2_note(days, **_pick(p, a2_end="a2_end")),
