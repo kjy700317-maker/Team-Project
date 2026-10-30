@@ -37,7 +37,7 @@ col1, col2, col3 = st.columns(3) # 3칸으로 나누기
 with col1:
     color = config.STAGE_COLORS[stage]   # [수정] 단계 색
     st.markdown(f"<div style='font-size:14px;'>단계</div><div style='background:{color}; color:white; font-size:30px; font-weight:700; "
-                f"padding:4px 14px; border-radius:8px; display:inline-block;'>{latest['화면_단계문구']} {latest['단계이름']}</div>",
+                f"padding:4px 14px; border-radius:8px; display:inline-block;'>{latest['화면_단계문구']} · {latest['단계이름']}</div>",
                 unsafe_allow_html=True)   # [수정] "N단계" → 화면_단계문구 ("2거 · 하강 중(판정 1거)")
     st.caption(f"T 구간 {int(latest['단계_T'])}거 · 하한(물리 {int(latest['하한_물리'])} / E5 {int(latest['하한_E5'])} / 사건 {int(latest['하한_사건'])}) "
                f"→ 판정 {int(latest['단계_판정'])}거 → 최종 {stage}거" + (f" · 4거 이상 {days}일째" if days > 0 else ""))   # [수정] 판정 근거 한 줄 / 지속일수는 4거 이상일 때만 / caption: 화살표 없는 작은 회색 글씨
@@ -97,7 +97,7 @@ for i in range(len(similar)):   # SIMILAR_N → len(similar): 3개보다 적을 
     past_stage = int(row["최종단계"]) # 그달의 단계 번호
     with cols[i]: # 1번째 칸안에 그리기
         st.metric(row["연월"], round(row["평소대비"]))   # 큰 숫자 = 그달 평소대비 평균
-        st.caption(f"그달 최고 {past_stage}거 {config.STAGE_NAMES[past_stage]}")   # max로 구한 단계라 "최고"를 붙임 / [수정] 단계 → 거
+        st.caption(f"그달 최고 {past_stage}거 · {config.STAGE_NAMES[past_stage]}")   # max로 구한 단계라 "최고"를 붙임 / [수정] 단계 → 거
         top3 = load_tension_month_events(row["연월"], top=3)   # [수정] 그달 주요 사건 (S 큰 순 3건)
         st.caption("<br>".join(f"· {r['사건명']} (S {r['S']:.1f})" for _, r in top3.iterrows()) if len(top3) else "기록된 사건 없음", unsafe_allow_html=True)
 # ===== [수정] 지금 점수에 남은 사건 + 주체별·묶음별 기여도 =====

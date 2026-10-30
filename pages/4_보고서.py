@@ -46,7 +46,7 @@ monthly = monthly[monthly["연월"] <= month]                 # 기준일이 든
 day = latest["날짜"].strftime("%Y-%m-%d")             # 날짜 → "2026-09-30" 글자
 stage = int(latest["최종단계"])
 stage_name = config.STAGE_NAMES[stage]                # 4 → 경계
-stage_text = f"{latest['화면_단계문구']} {stage_name}"  # [수정] "2거 · 하강 중(판정 1거) 관심" (홈과 같은 문구)
+stage_text = f"{latest['화면_단계문구']} · {stage_name}"  # [수정] "2거 · 하강 중(판정 1거) 관심" (홈과 같은 문구)
 color = config.STAGE_COLORS[stage]                    # 단계 색 ("#FB8C00")
 days = int(latest["지속일수"])
 ratio = latest["평소대비"]                            # 7일 표시값
@@ -113,12 +113,12 @@ for ym in similar["연월"]:
 similar_table = pd.DataFrame({                                 # 과거 유사 시기 표
     "연월": similar["연월"],
     "월평균 평소대비": similar["평소대비"].round(0).astype(int),   # 그날 값이 아니라 그달 평균
-    "최고 단계": similar["최종단계"].astype(int).map(lambda s: f"{s}거 {config.STAGE_NAMES[s]}"),   # lambda: 한 줄짜리 작은 함수 / [수정] 단계 → 거
+    "최고 단계": similar["최종단계"].astype(int).map(lambda s: f"{s}거 · {config.STAGE_NAMES[s]}"),   # lambda: 한 줄짜리 작은 함수 / [수정] 단계 → 거
     "다음 달 월평균": next_ratio,                              # 그 뒤 어떻게 됐는지 (참고)
     "주요 사건": main_event})                                  # [수정] F6 권장
 change_table = pd.DataFrame({                                  # 변화 표
     "항목": ["평소대비 (7일 평균)", "원점수 게이지", f"최근 {RECENT}일 지수 사건"],   # [수정] 이름
-    "지금": [f"{ratio:.0f}", f"{raw:.1f}", f"{len(recent)}건"],
+    "지금": [f"{ratio:.1f}", f"{raw:.1f}", f"{len(recent)}건"],
     "7일 전 대비": [fmt(d7), fmt(r7), "-"],
     "30일 전 대비": [fmt(d30), fmt(r30), fmt(ev_diff, "건")]})
 half_life = load_tension_half_life()                           # [수정] 반감기 민감도 표 (7·14·21·30일)
@@ -140,9 +140,9 @@ if d7 is None:
 elif round(d7) == 0:                                           # 변화가 없으면 "같습니다"
     trend_text = "평소대비가 7일 전과 같습니다."
 else:
-    trend_text = f"7일 전보다 평소대비가 {abs(d7):.0f} {'올랐' if d7 > 0 else '내렸'}습니다."
+    trend_text = f"7일 전보다 평소대비가 {abs(d7):.1f} {'올랐' if d7 > 0 else '내렸'}습니다."
 if d30 is not None and round(d30) != 0:                        # [수정] 30일 변화도 같이
-    trend_text += f" 30일 전보다는 {abs(d30):.0f} {'높' if d30 > 0 else '낮'}습니다."
+    trend_text += f" 30일 전보다는 {abs(d30):.1f} {'높' if d30 > 0 else '낮'}습니다."
 if s30:                                                        # 0이나 None이면 건너뜀
     trend_text += f" 30일 전보다 단계가 {abs(s30)}칸 {'높아졌' if s30 > 0 else '낮아졌'}습니다."
 if "하강 중" in latest["화면_단계문구"]:                        # [수정] 7일 유예 중인지
@@ -176,7 +176,7 @@ st.markdown(
 # ===== 화면: 단계 띠 + 5단계 눈금 =====
 st.markdown(
     f"<div style='background:{color}; color:white; padding:16px 20px; border-radius:10px; font-size:22px;'>"
-    f"<b>{stage_text}</b> &nbsp;·&nbsp; 평소대비 {ratio:.0f}"
+    f"<b>{stage_text}</b> &nbsp;·&nbsp; 평소대비 {ratio:.1f}"
     + (f" &nbsp;·&nbsp; 4거 이상 {days}일째" if days > 0 else "") + "</div>",
     unsafe_allow_html=True)   # [수정] 단계 문구 = 홈과 같게
 st.markdown(stage_scale(stage), unsafe_allow_html=True)
@@ -191,7 +191,7 @@ st.write("")
 
 # ===== 화면: 숫자 카드 (7일 전 대비 변화) =====
 col1, col2, col3 = st.columns(3)
-col1.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.0f}", delta=None if d7 is None else f"{d7:+.0f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
+col1.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.1f}", delta=None if d7 is None else f"{d7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
 col1.caption(f"30일 전 대비 {fmt(d30)}")                       # delta_color="inverse": 오르면 빨강 (긴장이 오른 거라)
 col2.metric("원점수 게이지", f"{raw:.1f}", delta=None if r7 is None else f"{r7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 30일 합 → 게이지
 col2.caption(f"30일 전 대비 {fmt(r30)} · 단계 판정에는 안 씀")
