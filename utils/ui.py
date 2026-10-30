@@ -24,3 +24,11 @@ def stage_scale_grid(stage):   # 지금 단계 번호를 받아 세로 눈금 5�
         scale += (f"<div style='display:grid; place-items:center; background:{bg}; color:{text}; "
                   f"font-weight:{weight}; font-size:18px; border-radius:4px;'>{no}거 {name}</div>")   # place-items:center → 글자를 칸 가운데로
     return f"<div style='display:grid; grid-template-rows:repeat(5, 1fr); gap:3px;'>{scale}</div>"   # 5줄을 같은 높이(1fr)로
+
+# ===== [추가] 사건의 지수 반영 표시 (2페이지 "지수 반영" 열) =====
+def index_mark(b, v):                                   # 묶음(b)·S(v) → 화면 글자
+    if pd.isna(v):                                      # 지수 사건표에 없음
+        return "지수 밖"
+    if b in (config.BUNDLE_PHYS, config.BUNDLE_E5):     # 하한 전용 묶음 (이름은 config에서)
+        return f"{b} · <하한만>"
+    return f"{b} · S {v:.1f}"                           # 예: "핵·미사일 · S 12.5"
