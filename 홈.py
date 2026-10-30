@@ -1,7 +1,7 @@
 import streamlit as st
 import config
 import pandas as pd
-from utils.loader import load_tension_daily, load_tension_events   # [수정] 산출식 v0.1.4 결과 (load_daily → load_tension_daily)
+from utils.loader import load_tension_daily, load_tension_events   # [수정] 산출식 v0.1.4 결과
 from utils.ui import stage_scale_grid   # [수정] 세로 눈금 (Grid)
 
 # ===== 페이지 설정 =====

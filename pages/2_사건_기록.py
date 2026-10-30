@@ -4,6 +4,7 @@ from utils.loader import load_events, load_tension_events # 정리된 사건 표
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그레프
 import pandas as pd
+from utils.ui import index_mark
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
@@ -23,7 +24,7 @@ events["분류"] = events["카테고리코드"].str[0].map(config.GROUPS)   # [�
 events["대상국"] = events["대상국"].fillna("")   # [수정] 빈 칸(None)을 빈 글자로
 index_events = load_tension_events()
 events = events.merge(index_events[["사건ID", "묶음", "S"]], on="사건ID", how="left")   # [수정] 사건ID로 짝 맞추기, 없으면 빈 칸(NaN)
-events["지수 반영"] = [f"{b} · S {v:.1f}" if pd.notna(v) else "지수 밖" for b, v in zip(events["묶음"], events["S"])]   # [수정] "핵·미사일 · S 12.5" / 없으면 "지수 밖"
+events["지수 반영"] = [index_mark(b, v) for b, v in zip(events["묶음"], events["S"])]   # [수정] 표시 규칙은 utils/ui.py
 events = events[["시작일", "분류", "요소명", "주체국", "대상국", "사건명", "지수 반영"]]   # [수정] 마지막에 "지수 반영" 칸 추가
 
 # ===== 사이드바 필터 =====
@@ -68,6 +69,6 @@ fig.update_layout(yaxis_title=None)   # 세로축 제목 "요소명" 숨기기
 st.plotly_chart(fig)
 
 st.subheader("사건 목록")
-st.dataframe(events, hide_index=True, use_container_width=True,
+st.dataframe(events, hide_index=True, width="stretch",
              column_config={"시작일": "날짜", "요소명": "종류", "사건명": st.column_config.TextColumn("사건명", width="large")})
 # [수정] column_config: 칸 이름 바꾸기·사건명 칸 넓게

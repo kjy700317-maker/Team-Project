@@ -46,7 +46,7 @@ monthly = monthly[monthly["연월"] <= month]                 # 기준일이 든
 day = latest["날짜"].strftime("%Y-%m-%d")             # 날짜 → "2026-09-30" 글자
 stage = int(latest["최종단계"])
 stage_name = config.STAGE_NAMES[stage]                # 4 → 경계
-stage_text = f"{latest['화면_단계문구']} {stage_name}"  # [수정] "2거 · 하강 중(판정 1거) 관심" (홈과 같은 문구)
+stage_text = f"{latest['화면_단계문구']} · {stage_name}"  # [수정] "2거 · 하강 중(판정 1거) 관심" (홈과 같은 문구)
 color = config.STAGE_COLORS[stage]                    # 단계 색 ("#FB8C00")
 days = int(latest["지속일수"])
 ratio = latest["평소대비"]                            # 7일 표시값
@@ -113,12 +113,12 @@ for ym in similar["연월"]:
 similar_table = pd.DataFrame({                                 # 과거 유사 시기 표
     "연월": similar["연월"],
     "월평균 평소대비": similar["평소대비"].round(0).astype(int),   # 그날 값이 아니라 그달 평균
-    "최고 단계": similar["최종단계"].astype(int).map(lambda s: f"{s}거 {config.STAGE_NAMES[s]}"),   # lambda: 한 줄짜리 작은 함수 / [수정] 단계 → 거
+    "최고 단계": similar["최종단계"].astype(int).map(lambda s: f"{s}거 · {config.STAGE_NAMES[s]}"),   # lambda: 한 줄짜리 작은 함수 / [수정] 단계 → 거
     "다음 달 월평균": next_ratio,                              # 그 뒤 어떻게 됐는지 (참고)
     "주요 사건": main_event})                                  # [수정] F6 권장
 change_table = pd.DataFrame({                                  # 변화 표
     "항목": ["평소대비 (7일 평균)", "원점수 게이지", f"최근 {RECENT}일 지수 사건"],   # [수정] 이름
-    "지금": [f"{ratio:.0f}", f"{raw:.1f}", f"{len(recent)}건"],
+    "지금": [f"{ratio:.1f}", f"{raw:.1f}", f"{len(recent)}건"],
     "7일 전 대비": [fmt(d7), fmt(r7), "-"],
     "30일 전 대비": [fmt(d30), fmt(r30), fmt(ev_diff, "건")]})
 half_life = load_tension_half_life()                           # [수정] 반감기 민감도 표 (7·14·21·30일)
@@ -140,9 +140,9 @@ if d7 is None:
 elif round(d7) == 0:                                           # 변화가 없으면 "같습니다"
     trend_text = "평소대비가 7일 전과 같습니다."
 else:
-    trend_text = f"7일 전보다 평소대비가 {abs(d7):.0f} {'올랐' if d7 > 0 else '내렸'}습니다."
+    trend_text = f"7일 전보다 평소대비가 {abs(d7):.1f} {'올랐' if d7 > 0 else '내렸'}습니다."
 if d30 is not None and round(d30) != 0:                        # [수정] 30일 변화도 같이
-    trend_text += f" 30일 전보다는 {abs(d30):.0f} {'높' if d30 > 0 else '낮'}습니다."
+    trend_text += f" 30일 전보다는 {abs(d30):.1f} {'높' if d30 > 0 else '낮'}습니다."
 if s30:                                                        # 0이나 None이면 건너뜀
     trend_text += f" 30일 전보다 단계가 {abs(s30)}칸 {'높아졌' if s30 > 0 else '낮아졌'}습니다."
 if "하강 중" in latest["화면_단계문구"]:                        # [수정] 7일 유예 중인지
@@ -176,7 +176,7 @@ st.markdown(
 # ===== 화면: 단계 띠 + 5단계 눈금 =====
 st.markdown(
     f"<div style='background:{color}; color:white; padding:16px 20px; border-radius:10px; font-size:22px;'>"
-    f"<b>{stage_text}</b> &nbsp;·&nbsp; 평소대비 {ratio:.0f}"
+    f"<b>{stage_text}</b> &nbsp;·&nbsp; 평소대비 {ratio:.1f}"
     + (f" &nbsp;·&nbsp; 4거 이상 {days}일째" if days > 0 else "") + "</div>",
     unsafe_allow_html=True)   # [수정] 단계 문구 = 홈과 같게
 st.markdown(stage_scale(stage), unsafe_allow_html=True)
@@ -191,7 +191,7 @@ st.write("")
 
 # ===== 화면: 숫자 카드 (7일 전 대비 변화) =====
 col1, col2, col3 = st.columns(3)
-col1.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.0f}", delta=None if d7 is None else f"{d7:+.0f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
+col1.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.1f}", delta=None if d7 is None else f"{d7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
 col1.caption(f"30일 전 대비 {fmt(d30)}")                       # delta_color="inverse": 오르면 빨강 (긴장이 오른 거라)
 col2.metric("원점수 게이지", f"{raw:.1f}", delta=None if r7 is None else f"{r7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 30일 합 → 게이지
 col2.caption(f"30일 전 대비 {fmt(r30)} · 단계 판정에는 안 씀")
@@ -236,9 +236,9 @@ with tab1:   # 요약: 90일 추이 + 주요 요인
     st.plotly_chart(fig)
     left, right = st.columns(2)
     left.markdown("**주요 요인 (남은 점수 상위 3건)**")   # [수정]
-    left.dataframe(factor_table, hide_index=True, use_container_width=True)
+    left.dataframe(factor_table, hide_index=True, width="stretch")
     right.markdown("**변화**")
-    right.dataframe(change_table, hide_index=True, use_container_width=True)
+    right.dataframe(change_table, hide_index=True, width="stretch")
 
 with tab2:   # 원인 분석: 무엇이 점수를 올렸나
     if len(up_ev) == 0:
@@ -250,7 +250,7 @@ with tab2:   # 원인 분석: 무엇이 점수를 올렸나
         c.plotly_chart(bar(by_elem, "요소별"))
         st.caption(f"점수 = 기준일에 남은 점수 (S × 반감기 {config.HALF_LIFE_DAYS}일 감쇠). "
                    f"남북 회담은 점수를 빼지 않고 T 전체를 할인합니다 — 지금 완화 할인 {delta * 100:.0f}%")   # [수정] 내린 점수 → 완화 할인 δ
-    st.dataframe(bundle_table, hide_index=True, use_container_width=True)   # [수정] 묶음별 평소 대비 → T⁺ → 할인 → T
+    st.dataframe(bundle_table, hide_index=True, width="stretch")   # [수정] 묶음별 평소 대비 → T⁺ → 할인 → T
 
 with tab3:   # 사건: 최근 30일 사건 점 그래프 + 전체 목록
     if len(all_events) == 0:
@@ -260,7 +260,7 @@ with tab3:   # 사건: 최근 30일 사건 점 그래프 + 전체 목록
                          color_discrete_map=KIND_COLORS, title=f"최근 {RECENT}일 사건 (점 크기 = S)")   # [수정] 크기 = S, 색 = 구분
         fig.update_layout(yaxis_title=None, xaxis_title=None, margin=dict(l=0, r=0, t=40, b=0))
         st.plotly_chart(fig)
-        st.dataframe(all_events.style.apply(paint_event, axis=1), hide_index=True, use_container_width=True)
+        st.dataframe(all_events.style.apply(paint_event, axis=1), hide_index=True, width="stretch")
         st.caption("'하한 대상'은 T에 더하지 않고 단계 하한에만 씁니다.")
         
 
@@ -269,7 +269,7 @@ with tab4:   # 과거 비교: 유사 시기 표 + 겹친 선
     if len(similar) == 0:
         st.info("비교할 과거 자료가 없습니다.")
     else:
-        st.dataframe(similar_table.style.apply(paint_similar, axis=1), hide_index=True, use_container_width=True)
+        st.dataframe(similar_table.style.apply(paint_similar, axis=1), hide_index=True, width="stretch")
         lines_df = []                                                 # 겹쳐 그릴 선들을 모을 목록
         cur = df[(df["날짜"] > latest["날짜"] - pd.Timedelta(days=60)) & (df["날짜"] <= latest["날짜"])].copy()
         cur["며칠"] = (cur["날짜"] - latest["날짜"]).dt.days           # 기준일 = 0, 하루 전 = -1
@@ -299,9 +299,9 @@ with tab5:   # [수정] 산출 방법 (F5·F6)
     for text in HALF_LIFE_NOTE:                                     # 4문단 그대로 (문구 바꾸지 않기)
         st.write(text)
     st.markdown("**반감기를 바꾸면 (민감도)**")
-    st.dataframe(hl_table.style.apply(paint_half_life, axis=1).format(precision=1), hide_index=True, use_container_width=True)   # 14일 행 강조 / 소수 한 자리
+    st.dataframe(hl_table.style.apply(paint_half_life, axis=1).format(precision=1), hide_index=True, width="stretch")   # 14일 행 강조 / 소수 한 자리
     with st.expander("위기 10건 단계 · 현재 (반감기별)"):
-        st.dataframe(half_life.drop(columns=HL_COLS[1:]), hide_index=True, use_container_width=True)   # 반감기 + 나머지 열
+        st.dataframe(half_life.drop(columns=HL_COLS[1:]), hide_index=True, width="stretch")   # 반감기 + 나머지 열
     st.markdown("**묶음 정규화 효과**")
     st.plotly_chart(load_tension_normalization_figure())
     st.caption(NORMALIZATION_NOTE)
