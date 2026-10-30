@@ -97,3 +97,10 @@ def load_tension_month_events(month, scenario="기본", top=3):  # 그달 주요
 @st.cache_data
 def load_tension_events(scenario="기본"):  # 사건표 — 사건ID·date(날짜형)·요소·묶음·S·사건명 (지수에 들어간 사건 전부, 기본 720건·확장 941건)
     return tension_screen.events_table(scenario)
+
+
+# ===== [F8 추가 · 긴장도 담당] 가정 바꿔 보기(슬라이더 재계산) — 공식 결과 아님, 모두 기본값이면 공식과 같음(ADR-019) =====
+# 화면에 붙이는 일은 화면 담당자께 요청(docs/dev/requests/F8_화면요청.md). 범위·기본값 = config.SLIDER_* · HALF_LIFE_DAYS · RELIEF_C · RELIEF_CAP.
+@st.cache_data
+def load_tension_recompute(half_life=None, relief_c=None, relief_cap=None, weights=None, scenario="기본"):  # (일별 표, 비교 표, 정보 dict) — None = 기본값, weights = {묶음: 배수}, 범위 밖이면 ValueError
+    return tension_screen.recompute(half_life, relief_c, relief_cap, weights, scenario)

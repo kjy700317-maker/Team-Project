@@ -6,7 +6,10 @@
 주체국을 못 붙이면 "미상" · 완화 할인은 실제 δ · 시나리오는 기본이 주, 확장은 추이 그림 점선.
 F6(10-29 사용자): 비교선 T_basic(⑮′ — 정규화 효과만, 설명 자리용) · GPR 한국 월별 비교(순위% 두 선) · 반감기 민감도 표 ·
 반감기 설명 문구 · 유사 시기 그달 주요 사건.
+F8(10-30 사용자, ADR-019): 가정 바꿔 보기 — 반감기·완화 c·κ·묶음 비중을 바꿔 사건표에서 다시 계산(`recompute`). 공식 결과는 여전히
+결과 CSV이고, 이 함수만 앱 안에서 계산한다(모두 기본값이면 공식 결과와 같음 — 테스트로 고정).
 """
+import io
 from functools import lru_cache
 from pathlib import Path
 
@@ -92,6 +95,11 @@ def daily(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
     단계이름 · 지속일수(4거 이상 며칠째) · 상위%_표시(첫 365일 NaN) · 완화할인_δ.
     """
     raw = daily_raw(scenario, data_dir)
+    return _screen_view(raw, relief_delta(scenario, raw.index, data_dir))
+
+
+def _screen_view(raw, delta) -> pd.DataFrame:
+    """(보조) 일별 결과 표(날짜 인덱스, 결과 CSV와 같은 모양) + 완화 할인 δ → 화면 일별 표(daily()와 같은 열)."""
     d = raw.reset_index()
     d["평소대비"] = d["T_표시7일"]
     d["평소대비_원값"] = d["T_원값"]
@@ -102,7 +110,7 @@ def daily(scenario="기본", data_dir=DATA_DIR) -> pd.DataFrame:
     top = d["그날까지_상위%"].astype(float).copy()
     top.iloc[:TOP_PCT_HIDE_DAYS] = np.nan
     d["상위%_표시"] = np.round(top, 1)   # 사용자 10-30: 요약.csv·그림 hover와 같은 반올림(np.round) — 화면 :.1f는 x.x5에서 달랐음(43.15 → 43.1)
-    d["완화할인_δ"] = relief_delta(scenario, raw.index, data_dir).round(3).to_numpy()
+    d["완화할인_δ"] = pd.Series(delta).round(3).to_numpy()
     return d
 
 
@@ -324,3 +332,82 @@ def gpr_figure(scenario="기본", data_dir=DATA_DIR, gpr_path=None):
     """(화면) GPR 비교 그림 — charts.gpr_figure(순위% 두 선)."""
     from utils.tension import charts
     return charts.gpr_figure(gpr_compare(scenario, data_dir, gpr_path))
+
+
+# ===== F8 가정 바꿔 보기(슬라이더 재계산, ADR-019) =====
+@lru_cache(maxsize=4)
+def _recompute_inputs(scenario, data_dir):
+    """(보조) 사건표·4거 유형 사건ID — 시나리오마다 한 번만 읽는다(함수 안에서 고치지 않음)."""
+    events, _ = tio.load_events(Path(data_dir) / f"events_{scenario}.csv")
+    type4 = tio.type4_event_ids(tio.load_type4_table(ROOT / config.TYPE4_TABLE_PATH))
+    return events, type4
+
+
+def _in_range(name, value, bounds):
+    lo, hi = bounds
+    if not (np.isfinite(float(value)) and lo <= float(value) <= hi):
+        raise ValueError(f"{name} {value}은(는) 범위 {lo:g}~{hi:g} 밖")
+
+
+def _csv_roundtrip(daily) -> pd.DataFrame:
+    """(보조) 일별 결과를 결과 CSV와 같은 글자로 썼다가 다시 읽는다 — 화면 표의 값·자료형을 공식 결과(daily_raw)와 같게."""
+    buf = io.StringIO()
+    daily.round(3).to_csv(buf, index=True, lineterminator="\n")
+    buf.seek(0)
+    return pd.read_csv(buf, index_col=0, parse_dates=True)
+
+
+def _stage_pct(L, k):
+    return round((L == k).mean() * 100, 1)
+
+
+def recompute(half_life=None, relief_c=None, relief_cap=None, weights=None, scenario="기본", data_dir=DATA_DIR):
+    """(화면) 가정 바꿔 보기(F8) — 반감기·완화 세기 c·완화 상한 κ·묶음 비중을 바꿔 사건표에서 다시 계산한다(공식 결과 아님).
+
+    None = 기본값(config). weights = {묶음: 배수}(빠진 묶음 1배). 범위 = config.SLIDER_*(밖이면 ValueError).
+    단계 구간은 같은 규칙(⑨ 기준기간 70·90·95·98분위)으로 다시 뽑는다. 하한·하강 7일·기준기간·사건 점수 S는 그대로.
+    반환 = (일별 표 — daily()와 같은 열, 비교 표 — 열 항목·공식·내 설정(글자), 정보 dict). 모두 기본값이면 공식 결과와 같다.
+    """
+    _check(scenario)
+    bundles = list(SCENARIOS[scenario])
+    h = config.HALF_LIFE_DAYS if half_life is None else half_life
+    c = config.RELIEF_C if relief_c is None else relief_c
+    cap = config.RELIEF_CAP if relief_cap is None else relief_cap
+    _in_range("반감기(일)", h, config.SLIDER_HALF_LIFE)
+    _in_range("완화 세기 c", c, config.SLIDER_RELIEF_C)
+    _in_range("완화 상한 κ", cap, config.SLIDER_RELIEF_CAP)
+    mult = {b: 1.0 for b in bundles}
+    unknown = sorted(set(weights or {}) - set(bundles))
+    if unknown:
+        raise ValueError(f"묶음 비중에 {scenario} 상승 묶음이 아닌 키 {unknown} — 쓸 수 있는 묶음: {bundles}")
+    for b, v in (weights or {}).items():
+        _in_range(f"묶음 비중({b})", v, config.SLIDER_WEIGHT)
+        mult[b] = float(v)
+    w = core.bundle_weight_map(mult, bundles)   # 모두 같은 배수면 None(동일 가중 = 공식과 같은 계산)
+    params = {"half_life": h, "relief_c": c, "relief_cap": cap}
+    if w is not None:
+        params["bundle_weights"] = w
+    raw_off = daily_raw(scenario, data_dir)
+    events, type4 = _recompute_inputs(scenario, Path(data_dir))
+    mine, info = core.daily_table(events, pd.DatetimeIndex(raw_off.index), bundles, type4, params)
+    view = _screen_view(_csv_roundtrip(mine), info["components"]["delta"])
+    same = (h == config.HALF_LIFE_DAYS and c == config.RELIEF_C and cap == config.RELIEF_CAP and w is None)
+    L_off = raw_off["단계_최종"].astype("int64")
+    L = view["최종단계"].set_axis(L_off.index)
+    cuts_off, cuts_mine = cuts(scenario, data_dir), tuple(int(x) for x in info["cuts"])
+    same_pct, near_pct = round((L == L_off).mean() * 100, 1), round(((L - L_off).abs() <= 1).mean() * 100, 1)
+    s_off, s_mine = core.crisis_window_max(L_off), core.crisis_window_max(L)
+    rows = [("현재 단계", raw_off["화면_단계문구"].iloc[-1], view["화면_단계문구"].iloc[-1]),
+            ("평소 대비(7일)", f"{np.round(raw_off['T_표시7일'].iloc[-1], 1):.1f}", f"{np.round(view['T_표시7일'].iloc[-1], 1):.1f}"),
+            ("단계 구간(2·3·4·5거 시작)", "/".join(map(str, cuts_off)), "/".join(map(str, cuts_mine))),
+            *[(f"{k}거 날 %", f"{_stage_pct(L_off, k):.1f}", f"{_stage_pct(L, k):.1f}") for k in range(1, 6)],
+            ("공식과 단계 같은 날 %", "100.0", f"{same_pct:.1f}"),
+            ("공식과 한 단계 안 %", "100.0", f"{near_pct:.1f}"),
+            *[(f"위기 · {name}({day})", f"{int(s_off[name])}거", f"{int(s_mine[name])}거") for name, day, _ in config.CRISIS_LIST]]
+    table = pd.DataFrame(rows, columns=["항목", "공식", "내 설정"])
+    total = sum(mult.values())
+    meta = {"공식과_같음": same,
+            "설정": {"반감기": h, "완화 세기 c": c, "완화 상한 κ": cap, "묶음 배수": dict(mult)},
+            "비중%": {b: round(m / total * 100, 1) for b, m in mult.items()},
+            "구간": cuts_mine, "공식_구간": cuts_off, "같은날%": same_pct, "한단계안%": near_pct}
+    return view, table, meta

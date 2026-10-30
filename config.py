@@ -79,3 +79,7 @@ TENSION_DATA_DIR = "data/tension"                # 결과 CSV 폴더(커밋)
 TYPE4_TABLE_PATH = "data/tension/물리사건_유형판정표.csv"   # 유형판정표 사본(F1에서 복사, 커밋)
 HALF_LIFE_SENSITIVITY = (7, 14, 21, 30)          # ADR-006 1번 — 반감기 민감도(공개용 표, 단계 판정은 HALF_LIFE_DAYS). 하한 감쇠는 그대로
 GPR_PATH = "data/tension/GPR_한국_월별.csv"        # ADR-002 GPR 한국(GPRC_KOR) 월별 — 비교 지수만. 채점_v0 입력 그대로 복사(F6)
+SLIDER_HALF_LIFE = (7, 30)                       # ADR-019 가정 바꿔 보기(F8) — 반감기(일) 슬라이더 범위(기본 = HALF_LIFE_DAYS)
+SLIDER_RELIEF_C = (0.0, 0.3)                     # ADR-019 완화 세기 c 범위(기본 = RELIEF_C)
+SLIDER_RELIEF_CAP = (0.0, 0.8)                   # ADR-019 완화 상한 κ 범위(기본 = RELIEF_CAP)
+SLIDER_WEIGHT = (0.5, 2.0)                       # ADR-019 묶음 비중 배수 범위(묶음마다, 기본 1배 = 동일 가중)
