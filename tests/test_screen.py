@@ -29,7 +29,7 @@ def test_streak_and_top_pct(d):
     i = int(np.argmax(on))                                                            # 처음 4거 이상인 날
     assert d["지속일수"].iloc[i] == 1
     assert d["상위%_표시"].iloc[:365].isna().all() and d["상위%_표시"].iloc[365:].notna().all()
-    assert d["상위%_표시"].iloc[365:].equals(d["그날까지_상위%"].iloc[365:].astype(float))
+    assert d["상위%_표시"].iloc[365:].equals(np.round(d["그날까지_상위%"].iloc[365:].astype(float), 1))   # 10-30: 요약·그림과 같은 반올림
 
 
 def test_relief_delta_matches_core(d):
@@ -94,3 +94,36 @@ def test_loader_functions_match_screen():
     t2, e2 = screen.contributions("2026-10-29")
     assert t1.equals(t2) and e1.equals(e2)
     assert callable(loader.load_daily) and callable(loader.load_monthly)                # 기존 함수 그대로
+
+
+def test_top_pct_display_matches_summary():
+    """상위%_표시 = 요약.csv·그림 hover와 같은 반올림 — 최신일 43.15는 화면에서 43.2(박성인 님 요청서 10-30 ③)."""
+    s = pd.read_csv(ROOT / "data" / "tension" / "요약.csv", encoding="utf-8-sig", index_col=0)
+    for scenario, col in (("기본", "기본"), ("확장", "확장(C5 포함)")):
+        d = screen.daily(scenario)
+        last = d["상위%_표시"].iloc[-1]
+        assert last == float(s.loc["현재 그날까지 상위%", col]) and f"{last:.1f}" == f"{float(s.loc['현재 그날까지 상위%', col]):.1f}"
+        assert (d["상위%_표시"].iloc[365:] == d["그날까지_상위%"].iloc[365:].astype(float).round(1)).all()
+    assert f"{screen.daily('기본')['상위%_표시'].iloc[-1]:.1f}" == "43.2"
+
+
+def test_events_table_and_loader():
+    from utils import loader
+    for scenario, n in (("기본", 720), ("확장", 941)):
+        ev = screen.events_table(scenario)
+        assert list(ev.columns) == ["사건ID", "date", "요소", "묶음", "S", "사건명"] and len(ev) == n
+        assert str(ev["date"].dtype).startswith("datetime64") and ev["사건ID"].is_unique
+        assert loader.load_tension_events(scenario).equals(ev)
+    assert loader.load_tension_events().equals(screen.events_table("기본"))
+    with pytest.raises(ValueError):
+        screen.events_table("다른것")
+
+
+def test_cases_match_stage_names():
+    """CASES 이름 첫 글자(몇 거) = 그날 최종 단계 — 기본·확장 모두(박성인 님 요청서 10-30 ②)."""
+    dates = [(k, v) for k, v in config.CASES.items() if v not in (None, "pick")]
+    assert [int(k[0]) for k, _ in dates] == [1, 2, 3, 4, 5]
+    for scenario in ("기본", "확장"):
+        d = screen.daily(scenario).set_index("날짜")
+        for name, day in dates:
+            assert int(d.loc[pd.Timestamp(day), "최종단계"]) == int(name[0]), (scenario, name)

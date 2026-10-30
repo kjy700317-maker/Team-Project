@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import config # 맨 위 폴더의 config.py를 불러온다. streamlit은  app.py가 있는 폴더를 기준으로 파일을 찾아서, pages 안에서도 이렇게 불러 올 수 있다.
 from utils.loader import (load_tension_daily, load_tension_monthly, load_tension_contrib, load_tension_stage_table,
-                          load_tension_crisis_marks, load_tension_figure, load_tension_month_events)   # [수정] 산출식 v0.1.4 결과
+                          load_tension_crisis_marks, load_tension_figure, load_tension_month_events, load_tension_events)   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import DATA_COVERAGE, FOOTNOTES, READING_NOTES   # [수정] 자료 충실도·각주·판독문 문구
 import plotly.express as px
 

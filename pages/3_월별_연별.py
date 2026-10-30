@@ -2,7 +2,7 @@ import streamlit as st
 import config
 import plotly.express as px
 import pandas as pd
-from utils.loader import load_tension_monthly, load_tension_yearly, load_tension_gpr, load_tension_gpr_stats, load_tension_gpr_figure   # [수정] 산출식 v0.1.4 결과
+from utils.loader import load_tension_monthly, load_tension_yearly, load_tension_gpr, load_tension_gpr_stats, load_tension_gpr_figure, load_tension_events   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import GPR_NOTES, GPR_SOURCE   # [수정] GPR 판독문·출처 문구
 
 # ===== 페이지 설정 =====
@@ -41,8 +41,7 @@ st.subheader(f"가장 긴장이 높았던 {unit[:1]} TOP 5") # "연별"[:1] → 
 top = data.nlargest(5, "평소대비") # nlargest(5, 칸): nsmallest의 반대 - 그 칸의 큰 순서로 5개
 
 # ===== [수정] TOP 5 카드 (표 대신 단계 색 카드 5장) =====
-events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")      # [수정] 지수에 들어간 사건표 / [임시] load 함수 요청
-events["시작일"] = pd.to_datetime(events["date"])                         # 글자 → 날짜
+events = load_tension_events().rename(columns={"date": "시작일"})                         # 글자 → 날짜
 events["종류"] = events["요소"].map(config.ELEMENT_NAMES)                 # A2 → 미사일 발사
 events["연도"] = events["시작일"].dt.year                                 # 2017
 events["연월"] = events["시작일"].dt.strftime("%Y-%m")                     # "2017-09"

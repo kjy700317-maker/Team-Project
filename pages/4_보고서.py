@@ -4,7 +4,7 @@ import plotly.express as px                     # 그래프
 import config
 from utils.loader import (load_tension_daily, load_tension_monthly, load_tension_contrib, load_tension_stage_table,
                           load_tension_month_events, load_tension_half_life, load_tension_normalization_figure,
-                          load_tension_basic_stats)   # [수정] 산출식 v0.1.4 결과
+                          load_tension_basic_stats, load_tension_events)   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import READING_NOTES, HALF_LIFE_NOTE, NORMALIZATION_NOTE   # [수정] 판독문·반감기 설명·정규화 설명 문구
 from utils.ui import stage_scale                # 5단계 눈금 (홈과 같이 씀)
 from io import BytesIO                          # 파일 대신 쓸 메모리 공간
@@ -13,18 +13,18 @@ from docx.shared import Pt, RGBColor, Cm        # 글자 크기(Pt), 글자 색(
 from docx.enum.text import WD_ALIGN_PARAGRAPH   # 문단 정렬(가운데, 오른쪽)
 from docx.oxml.ns import qn                     # 한글 글꼴 지정용 이름표
 from docx.oxml import OxmlElement               # 워드 표 칸 배경색·쪽번호 지정용
+import load_tension_events
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 
 # ===== 화면: 제목 =====
 st.title("긴장도 브리핑")
-
+t
 # ===== 데이터 불러오기 =====
 df = load_tension_daily()           # [수정] 결과_일별 표
 monthly = load_tension_monthly()    # [수정] 결과_월별 표
-events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")   # [수정] 지수에 들어간 사건표 / [임시] load 함수 요청
-events["시작일"] = pd.to_datetime(events["date"])                     # 글자 → 날짜
+events = load_tension_events().rename(columns={"date": "시작일"})     # 글자 → 날짜
 RECENT = 30                                                           # [수정] 최근 사건을 세는 기간(일) — 화면 표시용
 
 # ===== 기준일 고르기 (1페이지와 같은 사례 목록) =====

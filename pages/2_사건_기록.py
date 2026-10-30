@@ -1,6 +1,6 @@
 import streamlit as st
 import config
-from utils.loader import load_events # 정리된 사건 표 통로
+from utils.loader import load_events, load_tension_events # 정리된 사건 표 통로
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그레프
 import pandas as pd
@@ -21,7 +21,7 @@ events["요소명"] = events["카테고리코드"].map(config.ELEMENT_NAMES)  # 
 events["시작일"] = events["시작일"].dt.date # 시,분,초 떼고 날짜만
 events["분류"] = events["카테고리코드"].str[0].map(config.GROUPS)   # [수정] 분류표는 config.GROUPS로 옮김 (보고서도 같이 씀) / "A2"[0] → "A" → "군사행동"
 events["대상국"] = events["대상국"].fillna("")   # [수정] 빈 칸(None)을 빈 글자로
-index_events = pd.read_csv(f"{config.TENSION_DATA_DIR}/events_기본.csv")   # [수정] 지수에 들어간 사건표 (사건ID·묶음·S) / [임시] load 함수 요청
+index_events = load_tension_events()
 events = events.merge(index_events[["사건ID", "묶음", "S"]], on="사건ID", how="left")   # [수정] 사건ID로 짝 맞추기, 없으면 빈 칸(NaN)
 events["지수 반영"] = [f"{b} · S {v:.1f}" if pd.notna(v) else "지수 밖" for b, v in zip(events["묶음"], events["S"])]   # [수정] "핵·미사일 · S 12.5" / 없으면 "지수 밖"
 events = events[["시작일", "분류", "요소명", "주체국", "대상국", "사건명", "지수 반영"]]   # [수정] 마지막에 "지수 반영" 칸 추가

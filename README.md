@@ -12,7 +12,7 @@
 | 이름 | 담당 역할 | 주요 기여 내용 |
 | :---: | :---: | :--- |
 | **박성인** | TA | GitHub·협업 환경 구축, Streamlit 대시보드 화면 구현 |
-| **이원희** | AA | 긴장도 산출식 설계·확정(v0.1.4), D~F 세부 기준·상대 점수 설계, 긴장도 검증(위기 포착·견고성·외부 지수 대조), 긴장도 계산 코드화(utils/tension) |
+| **이원희** | AA | 긴장도 산출식 설계·확정, D~F 세부 기준·상대 점수 설계, 긴장도 검증, 긴장도 계산 코드화 |
 | **고현진** | AA | 가중치 설계, 지수 산출 방법론, 데이터 점수 산출·검증, 기존 업무 현황 분석, KPI 사전 측정 결과 정리 |
 | **남석현** | DA | 전처리 규칙 수립, 팀 전처리 총괄·검수, ERD 설계, DB 구축·저장소 적재 |
 
@@ -52,25 +52,34 @@ Team-Project/
 ├── .streamlit/                  # 스트림릿 디자인 및 설정 파일 (.toml)
 ├── data/                        # 원본 및 샘플 데이터 파일 (.csv, SQLite 등)
 │   └── processed                   # 전처리 완료 CSV (A~F 카테고리 폴더 + 공통_국가코드,단위,참여국)
+│   └── tension                     # 긴장도 결과 CSV(일별·요약·월별·연도별·비교선·반감기 민감도)·사건표·유형판정표·GPR 월별 (커밋)
 ├── db/
 │   └── schema.sql                  # ERD v4 테이블 정의 (기준T, 데이터T, 보조T | FK, CHECK 포함)
 ├── docs/                        # 프로젝트 문서화 폴더
 │   └── decisions.md               # 설정값(가중치·기준선·기준기간 등)을 정한 근거 기록
+│   └── tension                    # 긴장도 산출식·운영·결정 문서 (산출식.md·운영.md·산출식_변경이력.md 등)
+│   └── dev                        # 긴장도 코드화 작업 기록 (작업 프롬프트·보고서·화면 요청서·진행기록)
 ├── pages/                       # 멀티페이지 화면 (파일명 앞 숫자 = 메뉴 순서)
 │   └── 1_긴장도_지수.py            # 현재 단계·평소대비·기준선 카드, 추이 그래프, 과거 유사 시기, 점수 구성
 │   └── 2_사건_기록.py              # 요소·기간별 사건 목록 검색
 │   └── 3_월별_연별.py              # 월별·연별 추이와 대표 사건 TOP5
 │   └── 4_보고서.py                 # 기준일을 골라 요약 보고서 보기·워드(.docx) 내려받기
+├── scripts/                     # 긴장도 계산 실행: build_events.py(원자료 → 사건표) · run_tension.py(사건표 → 결과 CSV)
+├── tests/                       # pytest — 긴장도 계산·화면 통로·화면 AppTest (fixtures = v0.1.4 기준값)
 ├── utils/                       # 공통 함수 및 전처리 모듈
 │   └── build_db.py                 # 1단계: processed CSV -> bongsu.db 통합 표 (사건, 수치, 참여국 등) + 검증
 │   └── build_erd.py                # 2단계: 통합 표 -> ERD v4 테이블 (사건_일단위, 지표값, 상세 13개) + 검증
 │   └── dummy.py                    # 결과 테이블과 같은 모양의 연습용 더미 데이터
 │   └── helpers.py                  # 초기 예시 함수 (현재 화면에서 안 씀)
-│   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용)
+│   └── loader.py                   # 데이터 통로: USE_DUMMY에 따라 dummy 또는 real을 불러옴 (캐시 적용) · 긴장도 실제 결과는 `load_tension_*`
 │   └── README.md                   # utils 폴더 설명
 │   └── real.py                     # 실제 사건 CSV → 원점수·평소대비·단계 계산 (결과_일별·월별·연별)
+│   └── tension/                    # 긴장도 계산 (io·core·summary·screen·charts)
 │   └── ui.py                       # 공통 화면 조각 (5단계 눈금 stage_scale)
 ├── .gitignore                   # 깃 제외 파일 목록 (보안 키, 대용량 파일 차단)
+├── .gitattributes               # 결과·기준 CSV 줄바꿈 LF 고정
+├── CLAUDE.md                    # Claude Code 작업 규칙 (긴장도 계산 코드화 작업에만 적용)
+├── pytest.ini                   # pytest 설정 (regression 표시)
 ├── 홈.py                        # 메인 실행 파일
 ├── SOURCES.md                   # 데이터·참고 자료 출처
 ├── config.py                    # 프로젝트 전역 설정값 모음 (반감기, 기준 기간 등)
@@ -145,7 +154,7 @@ Team-Project/
 - **인증키 및 환경변수 (`.env`, `secrets/`)**: BigQuery 서비스 계정 JSON 키 및 API 비밀키는 절대 업로드하지 않으며, 배포 시 Streamlit `st.secrets`를 활용합니다. - 필요시 생성 예정 -
 
 ### 1. 수집과 화면 코드 분리
-- BigQuery 및 외부 API 호출은 별도 수집 스크립트에서만 수행하고, Streamlit(`app.py`)은 오직 SQLite 데이터만 읽어 성능을 보장합니다.
+- BigQuery 및 외부 API 호출은 별도 수집 스크립트에서만 수행하고, Streamlit(`홈.py`)은 SQLite 데이터와 `data/tension/` 결과 CSV만 읽어 성능을 보장합니다. 긴장도 계산은 `scripts/run_tension.py`로 로컬에서 돌려 결과 CSV를 커밋합니다.
 
 ### 2. 보안 및 인증키 관리
 - BigQuery 서비스 계정 JSON 키 및 API 비밀키는 절대 깃허브에 업로드하지 않습니다 (`.gitignore` 필수 등록 및 Streamlit Cloud 배포 시 `st.secrets` 활용).
