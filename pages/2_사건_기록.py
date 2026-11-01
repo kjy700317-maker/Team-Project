@@ -4,10 +4,11 @@ from utils.loader import load_events, load_tension_events # 정리된 사건 표
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그레프
 import pandas as pd
-from utils.ui import index_mark
+from utils.ui import index_mark, page_style, white_table
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
+page_style()   # 공통 디자인
 
 # ===== 페이지 제목 =====
 st.title("사건 기록") # 정리된 사건 표 창구
@@ -55,20 +56,25 @@ if len(events) == 0: # 필터 결과가 0건이면
     st.stop() # 아래 코드는 실행하지 않고 멈춤
 
 col1, col2, col3 = st.columns(3)
-col1.metric("사건 수", f"{len(events)}건")
-col1.caption(f"그중 지수에 들어간 사건 {(events['지수 반영'] != '지수 밖').sum()}건")   # [수정] True 개수 = sum
-col2.metric("가장 많은 종류", events["요소명"].value_counts().index[0]) # 건수 1등의 이름
-col3.metric("가장 많은 주체국", events["주체국"].value_counts().index[0])
+with col1.container(border=True, height="stretch", key="box_col1"):
+    st.metric("사건 수", f"{len(events)}건")
+    st.caption(f"그중 지수에 들어간 사건 {(events['지수 반영'] != '지수 밖').sum()}건")   # [수정] True 개수 = sum
+with col2.container(border=True, height="stretch", key="box_col2"):
+    st.metric("가장 많은 종류", events["요소명"].value_counts().index[0]) # 건수 1등의 이름
+with col3.container(border=True, height="stretch", key="box_col3"):
+    st.metric("가장 많은 주체국", events["주체국"].value_counts().index[0])
 
-counts = events.groupby(["분류", "요소명"]).size().reset_index(name="건수")   # [수정] 분류·요소명별 건수 (size: 줄 수 세기)
-counts = counts.sort_values("건수")   # 가로 막대는 아래부터 그려서, 작은 것부터 정렬하면 큰 게 맨 위
-fig = px.bar(counts, x="건수", y="요소명", color="분류", orientation="h", height=max(300, 28 * len(counts)),
-             color_discrete_sequence=px.colors.qualitative.Set2)   # [수정] 차분한 기본 색 묶음 (빨강은 단계 색과 헷갈려서 피함)
-# [수정] orientation="h": 가로 막대 (긴 이름이 기울지 않음) / color="분류": 큰 분류마다 색 / height: 막대 수에 맞춰 높이
-fig.update_layout(yaxis_title=None)   # 세로축 제목 "요소명" 숨기기
-st.plotly_chart(fig)
+with st.container(border=True, key="box_chart"):   # 종류별 막대그래프 상자
+    counts = events.groupby(["분류", "요소명"]).size().reset_index(name="건수")   # [수정] 분류·요소명별 건수 (size: 줄 수 세기)
+    counts = counts.sort_values("건수")   # 가로 막대는 아래부터 그려서, 작은 것부터 정렬하면 큰 게 맨 위
+    fig = px.bar(counts, x="건수", y="요소명", color="분류", orientation="h", height=max(300, 28 * len(counts)),
+                 color_discrete_sequence=px.colors.qualitative.Set2)   # [수정] 차분한 기본 색 묶음 (빨강은 단계 색과 헷갈려서 피함)
+    # [수정] orientation="h": 가로 막대 (긴 이름이 기울지 않음) / color="분류": 큰 분류마다 색 / height: 막대 수에 맞춰 높이
+    fig.update_layout(yaxis_title=None)   # 세로축 제목 "요소명" 숨기기
+    st.plotly_chart(fig)
 
-st.subheader("사건 목록")
-st.dataframe(events, hide_index=True, width="stretch",
-             column_config={"시작일": "날짜", "요소명": "종류", "사건명": st.column_config.TextColumn("사건명", width="large")})
+with st.container(border=True, key="box_list"):   # 사건 목록 상자
+    st.subheader("사건 목록")
+    st.dataframe(white_table(events), hide_index=True, width="stretch",
+                 column_config={"시작일": "날짜", "요소명": "종류", "사건명": st.column_config.TextColumn("사건명", width="large")})
 # [수정] column_config: 칸 이름 바꾸기·사건명 칸 넓게

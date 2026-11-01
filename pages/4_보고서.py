@@ -6,7 +6,7 @@ from utils.loader import (load_tension_daily, load_tension_monthly, load_tension
                           load_tension_month_events, load_tension_half_life, load_tension_normalization_figure,
                           load_tension_basic_stats, load_tension_events)   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import READING_NOTES, HALF_LIFE_NOTE, NORMALIZATION_NOTE   # [수정] 판독문·반감기 설명·정규화 설명 문구
-from utils.ui import stage_scale                # 5단계 눈금 (홈과 같이 씀)
+from utils.ui import stage_scale, page_style, white_table   # 5단계 눈금 (홈과 같이 씀), 공통 디자인
 from io import BytesIO                          # 파일 대신 쓸 메모리 공간
 from docx import Document                       # 워드 문서 만들기
 from docx.shared import Pt, RGBColor, Cm        # 글자 크기(Pt), 글자 색(RGB), 길이(Cm)
@@ -16,6 +16,7 @@ from docx.oxml import OxmlElement               # 워드 표 칸 배경색·쪽�
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
+page_style()   # 공통 디자인
 
 # ===== 화면: 제목 =====
 st.title("긴장도 브리핑")
@@ -191,11 +192,14 @@ st.write("")
 
 # ===== 화면: 숫자 카드 (7일 전 대비 변화) =====
 col1, col2, col3 = st.columns(3)
-col1.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.1f}", delta=None if d7 is None else f"{d7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
-col1.caption(f"30일 전 대비 {fmt(d30)}")                       # delta_color="inverse": 오르면 빨강 (긴장이 오른 거라)
-col2.metric("원점수 게이지", f"{raw:.1f}", delta=None if r7 is None else f"{r7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 30일 합 → 게이지
-col2.caption(f"30일 전 대비 {fmt(r30)} · 단계 판정에는 안 씀")
-col3.metric(f"최근 {RECENT}일 지수 사건", f"{len(recent)}건", delta=f"{ev_diff:+d}건 (그 전 {RECENT}일 대비)", delta_color="inverse")   # [수정] 지수에 들어간 사건 수
+with col1.container(border=True, height="stretch", key="box_col1"):
+    st.metric("평소 대비 (7일 평균, 평소 = 100)", f"{ratio:.1f}", delta=None if d7 is None else f"{d7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 이름
+    st.caption(f"30일 전 대비 {fmt(d30)}")                       # delta_color="inverse": 오르면 빨강 (긴장이 오른 거라)
+with col2.container(border=True, height="stretch", key="box_col2"):
+    st.metric("원점수 게이지", f"{raw:.1f}", delta=None if r7 is None else f"{r7:+.1f} (7일 전 대비)", delta_color="inverse")   # [수정] 30일 합 → 게이지
+    st.caption(f"30일 전 대비 {fmt(r30)} · 단계 판정에는 안 씀")
+with col3.container(border=True, height="stretch", key="box_col3"):
+    st.metric(f"최근 {RECENT}일 지수 사건", f"{len(recent)}건", delta=f"{ev_diff:+d}건 (그 전 {RECENT}일 대비)", delta_color="inverse")   # [수정] 지수에 들어간 사건 수
 
 # ===== 화면: 표 색칠 함수 =====
 KIND_COLORS = {"상승": "#C0392B", "완화(할인)": "#2E6DB4", "하한 대상": "#8E44AD", "표시만": "#7F8C8D"}   # [수정] 구분별 색
@@ -236,9 +240,9 @@ with tab1:   # 요약: 90일 추이 + 주요 요인
     st.plotly_chart(fig)
     left, right = st.columns(2)
     left.markdown("**주요 요인 (남은 점수 상위 3건)**")   # [수정]
-    left.dataframe(factor_table, hide_index=True, width="stretch")
+    left.dataframe(white_table(factor_table), hide_index=True, width="stretch")
     right.markdown("**변화**")
-    right.dataframe(change_table, hide_index=True, width="stretch")
+    right.dataframe(white_table(change_table), hide_index=True, width="stretch")
 
 with tab2:   # 원인 분석: 무엇이 점수를 올렸나
     if len(up_ev) == 0:
@@ -250,7 +254,7 @@ with tab2:   # 원인 분석: 무엇이 점수를 올렸나
         c.plotly_chart(bar(by_elem, "요소별"))
         st.caption(f"점수 = 기준일에 남은 점수 (S × 반감기 {config.HALF_LIFE_DAYS}일 감쇠). "
                    f"남북 회담은 점수를 빼지 않고 T 전체를 할인합니다 — 지금 완화 할인 {delta * 100:.0f}%")   # [수정] 내린 점수 → 완화 할인 δ
-    st.dataframe(bundle_table, hide_index=True, width="stretch")   # [수정] 묶음별 평소 대비 → T⁺ → 할인 → T
+    st.dataframe(white_table(bundle_table), hide_index=True, width="stretch")   # [수정] 묶음별 평소 대비 → T⁺ → 할인 → T
 
 with tab3:   # 사건: 최근 30일 사건 점 그래프 + 전체 목록
     if len(all_events) == 0:
@@ -260,7 +264,7 @@ with tab3:   # 사건: 최근 30일 사건 점 그래프 + 전체 목록
                          color_discrete_map=KIND_COLORS, title=f"최근 {RECENT}일 사건 (점 크기 = S)")   # [수정] 크기 = S, 색 = 구분
         fig.update_layout(yaxis_title=None, xaxis_title=None, margin=dict(l=0, r=0, t=40, b=0))
         st.plotly_chart(fig)
-        st.dataframe(all_events.style.apply(paint_event, axis=1), hide_index=True, width="stretch")
+        st.dataframe(white_table(all_events).apply(paint_event, axis=1), hide_index=True, width="stretch")
         st.caption("'하한 대상'은 T에 더하지 않고 단계 하한에만 씁니다.")
         
 
@@ -269,7 +273,7 @@ with tab4:   # 과거 비교: 유사 시기 표 + 겹친 선
     if len(similar) == 0:
         st.info("비교할 과거 자료가 없습니다.")
     else:
-        st.dataframe(similar_table.style.apply(paint_similar, axis=1), hide_index=True, width="stretch")
+        st.dataframe(white_table(similar_table).apply(paint_similar, axis=1), hide_index=True, width="stretch")
         lines_df = []                                                 # 겹쳐 그릴 선들을 모을 목록
         cur = df[(df["날짜"] > latest["날짜"] - pd.Timedelta(days=60)) & (df["날짜"] <= latest["날짜"])].copy()
         cur["며칠"] = (cur["날짜"] - latest["날짜"]).dt.days           # 기준일 = 0, 하루 전 = -1
@@ -299,13 +303,13 @@ with tab5:   # [수정] 산출 방법 (F5·F6)
     for text in HALF_LIFE_NOTE:                                     # 4문단 그대로 (문구 바꾸지 않기)
         st.write(text)
     st.markdown("**반감기를 바꾸면 (민감도)**")
-    st.dataframe(hl_table.style.apply(paint_half_life, axis=1).format(precision=1), hide_index=True, width="stretch")   # 14일 행 강조 / 소수 한 자리
+    st.dataframe(white_table(hl_table).apply(paint_half_life, axis=1).format(precision=1), hide_index=True, width="stretch")   # 14일 행 강조 / 소수 한 자리
     with st.expander("위기 10건 단계 · 현재 (반감기별)"):
-        st.dataframe(half_life.drop(columns=HL_COLS[1:]), hide_index=True, width="stretch")   # 반감기 + 나머지 열
+        st.dataframe(white_table(half_life.drop(columns=HL_COLS[1:])), hide_index=True, width="stretch")   # 반감기 + 나머지 열
     st.markdown("**묶음 정규화 효과**")
     st.plotly_chart(load_tension_normalization_figure())
     st.caption(NORMALIZATION_NOTE)
-    st.dataframe(load_tension_basic_stats(), hide_index=True)
+    st.dataframe(white_table(load_tension_basic_stats()), hide_index=True)
     st.markdown("**읽는 법**")
     for text in READING_NOTES:                                      # 판독문
         st.markdown(f"- {text}")

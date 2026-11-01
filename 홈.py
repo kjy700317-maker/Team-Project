@@ -2,10 +2,11 @@ import streamlit as st
 import config
 import pandas as pd
 from utils.loader import load_tension_daily, load_tension_events   # [수정] 산출식 v0.1.4 결과
-from utils.ui import stage_scale_grid   # [수정] 세로 눈금 (Grid)
+from utils.ui import stage_scale_grid, page_style   # [수정] 세로 눈금 (Grid)
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
+page_style()   # 공통 디자인
 
 # ===== 데이터 불러오기 (홈에도 지금 단계를 보여 주기 위해) =====
 df = load_tension_daily()                           # [수정] 일별 결과 (2010-01-01 ~ 계산일)

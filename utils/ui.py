@@ -44,7 +44,16 @@ BOX_CSS = """
 [data-testid="stExpander"] details, [data-testid="stExpander"] summary {
     background: white;
 }
-"""   # key가 box_로 시작하는 상자 → 흰 바탕 + 연한 파란 테두리 + 둥근 모서리 / 접기 칸(expander) → 흰 바탕
+[data-testid="stTabs"] {
+    background: white;
+    border: 1px solid #C9DCEB;
+    border-radius: 12px;
+    padding: 4px 16px 16px;
+}
+[data-testid="stPlotlyChart"] .main-svg:first-child {
+    background: white !important;
+}
+"""   # 상자(key가 box_로 시작)·접기 칸·탭·그래프 → 흰 바탕
 
 def page_style():
     import streamlit as st
