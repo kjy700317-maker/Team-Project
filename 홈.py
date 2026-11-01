@@ -38,9 +38,7 @@ pages = [   # (파일, 제목, 아이콘, 설명) 4개를 목록으로 모아 �
     ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
 ]
 
-card_main = "#3949AB"   # 카드 제목·띠 색 (남색, 4개 모두 같은 색)
-card_style = ("display:block; text-decoration:none; color:inherit; border-radius:12px;"
-             "background:white; border:1px solid #D6E4F0; border-top:4px solid " + card_main + ";"   # 흰 카드 + 위쪽 남색 줄
+card_style = ("display:block; text-decoration:none; color:inherit; border:1px solid #ddd; border-radius:12px;"
              "padding:22px 24px; margin-bottom:16px; min-height:120px;") # [수정] 카드 전체 모양 
 cols = st.columns(2) 
 # 2칸
@@ -51,7 +49,7 @@ for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i =
         #     st.page_link(path, label=f"**{title}**", icon=icon)
         #     st.caption(desc)
         st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style}'>"
-                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px; color:{card_main};'>{icon} {title}</span>"
+                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px;'>{icon} {title}</span>"
                     f"<span style='display:block; font-size:16px; color:#666;'>{desc}</span></a>",
                     unsafe_allow_html=True)
 # ===== 데이터 안내 =====
