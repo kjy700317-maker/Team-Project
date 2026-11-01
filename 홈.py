@@ -31,25 +31,27 @@ st.markdown(f"<div style='display:grid; grid-template-columns:1fr 160px; gap:8px
 st.write("")
 
 # ===== 페이지 안내 카드 (2 × 2) =====
-pages = [   # (파일, 제목, 아이콘, 설명, 진한 색, 연한 색) 4개를 목록으로 모아 두기
-    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지", "#3949AB", "#E8EAF6"),   # 남색
-    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지", "#1E88E5", "#DCEBFB"),   # 파랑
-    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5", "#7E57C2", "#EDE7F6"),   # 보라
-    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기", "#546E7A", "#ECEFF1"),   # 회청
+pages = [   # (파일, 제목, 아이콘, 설명) 4개를 목록으로 모아 두기
+    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지"),
+    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지"),
+    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
+    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
 ]
 
+card_main = "#3949AB"   # 카드 제목·띠 색 (남색, 4개 모두 같은 색)
 card_style = ("display:block; text-decoration:none; color:inherit; border-radius:12px;"
+             "background:white; border:1px solid #D6E4F0; border-top:4px solid " + card_main + ";"   # 흰 카드 + 위쪽 남색 줄
              "padding:22px 24px; margin-bottom:16px; min-height:120px;") # [수정] 카드 전체 모양 
 cols = st.columns(2) 
 # 2칸
-for i, (path, title, icon, desc, main, light) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
+for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
     url = "/" + path.split("/")[1][2:-3] # pages, .py 제거
     with cols[i % 2]: # i % 2: 2로 나눈 나머지 → 0,1,0,1 → 왼쪽·오른쪽 번갈아
         # with st.container(border=True):
         #     st.page_link(path, label=f"**{title}**", icon=icon)
         #     st.caption(desc)
-        st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style} background:{light}; border-left:6px solid {main};'>"   # 카드 속 = 연한 색, 왼쪽 띠 = 진한 색
-                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px; color:{main};'>{icon} {title}</span>"
+        st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style}'>"
+                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px; color:{card_main};'>{icon} {title}</span>"
                     f"<span style='display:block; font-size:16px; color:#666;'>{desc}</span></a>",
                     unsafe_allow_html=True)
 # ===== 데이터 안내 =====
