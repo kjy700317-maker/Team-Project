@@ -5,7 +5,7 @@ from utils.loader import (load_tension_daily, load_tension_monthly, load_tension
                           load_tension_crisis_marks, load_tension_figure, load_tension_month_events, load_tension_events)   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import DATA_COVERAGE, FOOTNOTES, READING_NOTES   # [수정] 자료 충실도·각주·판독문 문구
 import plotly.express as px
-from utils.ui import page_style
+from utils.ui import page_style, white_table
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
@@ -160,14 +160,14 @@ with right.container(border=True, height="stretch", key="box_right"):   # 기여
 
 # ===== 점수 구성표 =====
 with st.expander("점수 구성표 자세히"):   # [수정] 묶음별 + 사건별 10건
-    st.dataframe(bundle_table, hide_index=True)   # 묶음별 평소 대비 → T⁺ → 완화 할인 → T
+    st.dataframe(white_table(bundle_table), hide_index=True)   # 흰 표 / 묶음별 평소 대비 → T⁺ → 완화 할인 → T
     st.caption(f"완화 할인 {latest['완화할인_δ'] * 100:.0f}% · 빼기가 아니라 할인 (남북 회담이 있으면 T를 최대 50%까지 깎음)")
-    st.dataframe(ev.head(10).assign(날짜=ev["날짜"].dt.strftime("%Y-%m-%d")), hide_index=True)    # 남은 점수 큰 사건 10건 / 날짜를 "2026-09-30" 글자로 (시간 00:00:00 숨김)
+    st.dataframe(white_table(ev.head(10).assign(날짜=ev["날짜"].dt.strftime("%Y-%m-%d"))), hide_index=True)    # 남은 점수 큰 사건 10건 / 날짜를 "2026-09-30" 글자로 (시간 00:00:00 숨김)
     st.caption("남은 점수 = S × 2^(−지난 날 수 ÷ 반감기). '하한 대상'은 T에 더하지 않고 단계 하한에만 씀")
 
 # ===== [수정] 자료 충실도·각주·판독문 =====
 with st.expander("자료 충실도 · 각주 · 읽는 법"):
-    st.dataframe(DATA_COVERAGE, hide_index=True)   # 요소별 자료 범위
+    st.dataframe(white_table(DATA_COVERAGE), hide_index=True)   # 요소별 자료 범위
     for text in FOOTNOTES:      # 각주
         st.caption(text)
     for text in READING_NOTES:  # 판독문

@@ -41,9 +41,18 @@ BOX_CSS = """
     border: 1px solid #C9DCEB !important;
     border-radius: 12px;
 }
-"""   # key가 box_로 시작하는 상자 → 흰 바탕 + 연한 파란 테두리 + 둥근 모서리
+[data-testid="stExpander"] details, [data-testid="stExpander"] summary {
+    background: white;
+}
+"""   # key가 box_로 시작하는 상자 → 흰 바탕 + 연한 파란 테두리 + 둥근 모서리 / 접기 칸(expander) → 흰 바탕
 
 def page_style():
     import streamlit as st
     tag = "style"   # HTML 태그 이름 (CSS를 넣는 칸)
     st.markdown(f"<{tag}>{BOX_CSS}</{tag}>", unsafe_allow_html=True)   # 화면에 CSS 넣기
+
+# ===== 흰 표 (st.dataframe에 넣기 전에 감싸기: st.dataframe(white_table(표))) =====
+def white_table(df):
+    nums = df.select_dtypes("float").columns                    # 소수 열만
+    return (df.style.set_properties(**{"background-color": "white"})   # 칸 바탕 흰색
+              .format("{:g}", subset=nums))                      # 소수 끝 0 없애기 (6.250000 → 6.25)
