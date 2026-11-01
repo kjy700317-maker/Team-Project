@@ -5,9 +5,11 @@ from utils.loader import (load_tension_daily, load_tension_monthly, load_tension
                           load_tension_crisis_marks, load_tension_figure, load_tension_month_events, load_tension_events)   # [수정] 산출식 v0.1.4 결과
 from utils.tension.screen import DATA_COVERAGE, FOOTNOTES, READING_NOTES   # [수정] 자료 충실도·각주·판독문 문구
 import plotly.express as px
+from utils.ui import page_style
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
+page_style()   # 공통 디자인(테두리 상자 흰 배경 등)
 
 # ===== 페이지 제목 =====
 st.title("한반도 군사 긴장 지수")
@@ -34,7 +36,7 @@ stage = int(latest["최종단계"]) # 표에서 꺼낸 숫자는 pandas 형식�
 days = int(latest["지속일수"])
 col1, col2, col3 = st.columns(3) # 3칸으로 나누기
 # --- 카드 1: 현재 단계 ---
-with col1:
+with col1.container(border=True, height="stretch", key="box_col1"):   # 칸마다 테두리 상자 (stretch: 세 상자 높이를 맞춤)
     color = config.STAGE_COLORS[stage]   # [수정] 단계 색
     st.markdown(f"<div style='font-size:14px;'>단계</div><div style='background:{color}; color:white; font-size:30px; font-weight:700; "
                 f"padding:4px 14px; border-radius:8px; display:inline-block;'>{latest['화면_단계문구']} · {latest['단계이름']}</div>",
@@ -42,7 +44,7 @@ with col1:
     st.caption(f"T 구간 {int(latest['단계_T'])}거 · 하한(물리 {int(latest['하한_물리'])} / E5 {int(latest['하한_E5'])} / 사건 {int(latest['하한_사건'])}) "
                f"→ 판정 {int(latest['단계_판정'])}거 → 최종 {stage}거" + (f" · 4거 이상 {days}일째" if days > 0 else ""))   # [수정] 판정 근거 한 줄 / 지속일수는 4거 이상일 때만 / caption: 화살표 없는 작은 회색 글씨
 # --- 카드 2: 평소 대비 ---
-with col2:
+with col2.container(border=True, height="stretch", key="box_col2"):
     ratio = latest["평소대비"]   # 7일 표시값 (평소 = 100)
     chg, rate = latest["변화14_표시"], latest["변화율14_표시"]   # [수정] 14일 전과 비교
     delta = None if pd.isna(chg) else f"{chg:+.1f}" + ("" if pd.isna(rate) else f" ({rate:+.0f}%)") + " · 14일 전 대비"   # NaN이면 숨김
@@ -50,7 +52,7 @@ with col2:
     top = "—" if pd.isna(latest["상위%_표시"]) else f"그날까지 상위 {latest['상위%_표시']:.1f}%"   # [수정] 2010년은 NaN → "—"
     st.caption(f"원값 {latest['평소대비_원값']:.1f} · {top}")   # [수정] 원값은 작게
 # --- 카드 3: 원점수 게이지 --- [수정] 다음 기준선 → 위기 눈금
-with col3:
+with col3.container(border=True, height="stretch", key="box_col3"):
     raw = latest["원점수"]   # 원점수 게이지 (단계 판정에는 쓰지 않음)
     marks = load_tension_crisis_marks()   # [수정] 위기 10건과 그때 게이지 눈금
     below = marks[marks["게이지 눈금"] <= raw].nlargest(1, "게이지 눈금")   # 지금보다 낮은 눈금 중 가장 가까운 위기
@@ -59,24 +61,27 @@ with col3:
     near = [f"{r['위기']} {r['게이지 눈금']:.1f}" for _, r in pd.concat([below, above]).iterrows()]   # "6차 핵 33.8"
     st.caption("위기 눈금: " + (" · ".join(near) if near else "—") + " (참고용, 단계 판정에는 안 씀)")   # [수정] "다음 기준선" 삭제
 # ===== 5단계 기준표 =====
-st.subheader("단계 기준표")
-stage_table = load_tension_stage_table()   # [수정] 단계·이름·T 구간(이상)·봉수 원뜻·하한으로 켜지는 경우
-def paint(row):   # [수정] 표 한 줄마다 배경색 정하기
-    no = row["단계"]
-    alpha = "FF" if no == stage else "30"   # 지금 단계 줄은 진하게(FF), 나머지는 연하게(30)
-    text = "white" if no == stage else "black"
-    return [f"background-color: {config.STAGE_COLORS[no]}{alpha}; color: {text}"] * len(row)   # 그 줄의 칸 수만큼 같은 색
-stage_table["현재"] = ["◀ 현재" if no == stage else "" for no in stage_table["단계"]]   # [수정] 지금 단계 줄 표시
-st.dataframe(stage_table.style.apply(paint, axis=1), hide_index=True) # 줄 번호 숨기기 / [수정] .style.apply(함수, axis=1): 줄마다 색칠
+with st.container(border=True, key="box_table"):   # 단계 기준표를 테두리 칸 하나로
+    st.subheader("단계 기준표")
+    stage_table = load_tension_stage_table()   # [수정] 단계·이름·T 구간(이상)·봉수 원뜻·하한으로 켜지는 경우
+    def paint(row):   # [수정] 표 한 줄마다 배경색 정하기
+        no = row["단계"]
+        alpha = "FF" if no == stage else "30"   # 지금 단계 줄은 진하게(FF), 나머지는 연하게(30)
+        text = "white" if no == stage else "black"
+        return [f"background-color: {config.STAGE_COLORS[no]}{alpha}; color: {text}"] * len(row)   # 그 줄의 칸 수만큼 같은 색
+    stage_table["현재"] = ["◀ 현재" if no == stage else "" for no in stage_table["단계"]]   # [수정] 지금 단계 줄 표시
+    st.dataframe(stage_table.style.apply(paint, axis=1), hide_index=True) # 줄 번호 숨기기 / [수정] .style.apply(함수, axis=1): 줄마다 색칠
 
 # ===== 추이 그래프 =====
-st.subheader("긴장도 추이")
-first_year, last_year = int(df["날짜"].dt.year.min()), int(df["날짜"].dt.year.max())   # [수정] 데이터 첫 해·마지막 해 (2026 직접 쓰지 않기)
-start_year = st.slider("그래프 시작 연도", first_year, last_year, max(first_year, latest["날짜"].year - 2))   # [수정] 기본값 = 기준일 2년 전 (2010보다 작아지지 않게 max)
-fig = load_tension_figure()   # [수정] T 구간 띠 + 7일 표시선·원값 + 확장 점선 + 위기 세로선 + 아래 최종 단계 띠 (긴장도 담당이 만든 그림)
-fig.update_xaxes(range=[f"{start_year}-01-01", df["날짜"].max()])   # [수정] 슬라이더는 x축 범위만 바꿈
-fig.add_vline(x=latest["날짜"], line_color=color, line_width=2)   # 기준일 세로선
-st.plotly_chart(fig) # st.plotly_chart(): 완성된 그림을 Streamlit 화면에 올림
+with st.container(border=True, key="box_trend"):   # 추이 그래프를 테두리 칸 하나로
+    st.subheader("긴장도 추이")
+    first_year, last_year = int(df["날짜"].dt.year.min()), int(df["날짜"].dt.year.max())   # [수정] 데이터 첫 해·마지막 해 (2026 직접 쓰지 않기)
+    start_year = st.slider("그래프 시작 연도", first_year, last_year, max(first_year, latest["날짜"].year - 2))   # [수정] 기본값 = 기준일 2년 전 (2010보다 작아지지 않게 max)
+    fig = load_tension_figure()   # [수정] T 구간 띠 + 7일 표시선·원값 + 확장 점선 + 위기 세로선 + 아래 최종 단계 띠 (긴장도 담당이 만든 그림)
+    fig.update_xaxes(range=[f"{start_year}-01-01", df["날짜"].max()])   # [수정] 슬라이더는 x축 범위만 바꿈
+    fig.add_vline(x=latest["날짜"], line_color=color, line_width=2)   # 기준일 세로선
+    fig.update_layout(paper_bgcolor="white")   # 그래프 바깥 여백도 흰색 (흰 상자와 맞춤)
+    st.plotly_chart(fig) # st.plotly_chart(): 완성된 그림을 Streamlit 화면에 올림
 
 
 # ===== 과거 유사 시기 =====
@@ -95,7 +100,7 @@ cols = st.columns(config.SIMILAR_N) # 고른 개수만큼 가로 칸 나누기
 for i in range(len(similar)):   # SIMILAR_N → len(similar): 3개보다 적을 때 에러 방지
     row = similar.iloc[i] # 1번째 줄 꺼내기 (한달)
     past_stage = int(row["최종단계"]) # 그달의 단계 번호
-    with cols[i]: # 1번째 칸안에 그리기
+    with cols[i].container(border=True, height="stretch", key=f"box_similar{i}"): # i번째 칸 안에 테두리 상자를 만들고 그리기
         st.metric(row["연월"], round(row["평소대비"]))   # 큰 숫자 = 그달 평소대비 평균
         st.caption(f"그달 최고 {past_stage}거 · {config.STAGE_NAMES[past_stage]}")   # max로 구한 단계라 "최고"를 붙임 / [수정] 단계 → 거
         top3 = load_tension_month_events(row["연월"], top=3)   # [수정] 그달 주요 사건 (S 큰 순 3건)
@@ -129,7 +134,7 @@ by_group = plus.groupby("묶음")["남은점수"].sum().sort_values(ascending=Fa
 total = plus["남은점수"].sum()
 
 left, right = st.columns([11, 9])
-with left:
+with left.container(border=True, height="stretch", key="box_left"):   # 남은 사건 표 상자
     rows = ""
     for _, r in recent.iterrows():                                            # 사건 한 줄씩 HTML 표 줄로
         w_color = {"상승": "#C0392B", "완화(할인)": "#2E6DB4"}.get(r["구분"], "#888")   # [수정] 올리면 빨강, 완화는 파랑, 나머지 회색
@@ -144,7 +149,7 @@ with left:
                           for h, a in [("날짜", "left"), ("주체", "left"), ("사건", "left"), ("남은 점수", "right")])   # 머리 줄 4칸
                 + f"</tr>{rows}</table>",
                 unsafe_allow_html=True)
-with right:
+with right.container(border=True, height="stretch", key="box_right"):   # 기여도 상자
     if total > 0:   # 올린 점수가 있을 때만 (0으로 나누기 방지)
         st.markdown(bars("주체별 기여도", "상승 사건 남은 점수 중 비중",
                          {ACTOR_NAMES.get(k, k): v / total for k, v in by_actor.items()}), unsafe_allow_html=True)   # 딕셔너리 한 줄 만들기
