@@ -35,14 +35,15 @@ def index_mark(b, v):                                   # 묶음(b)·S(v) → �
     return f"{b} · S {v:.1f}"                           # 예: "핵·미사일 · S 12.5"
 
 # ===== 공통 디자인 (페이지마다 st.set_page_config 바로 아래에서 page_style() 한 번 부르기) =====
+BOX_CSS = """
+[class*="st-key-box_"] {
+    background: white;
+    border: 1px solid #C9DCEB !important;
+    border-radius: 12px;
+}
+"""   # key가 box_로 시작하는 상자 → 흰 바탕 + 연한 파란 테두리 + 둥근 모서리
+
 def page_style():
     import streamlit as st
-    st.markdown("""
-    <style>
-    /* 테두리 상자: st.container(border=True, key="box_이름") → 흰 바탕 + 연한 파란 테두리 */
-    [class*="st-key-box_"] {
-        background: white;
-        border: 1px solid #C9DCEB !important;
-        border-radius: 12px;
-    }
-    </style>""", unsafe_allow_html=True)
+    tag = "style"   # HTML 태그 이름 (CSS를 넣는 칸)
+    st.markdown(f"<{tag}>{BOX_CSS}</{tag}>", unsafe_allow_html=True)   # 화면에 CSS 넣기
