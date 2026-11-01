@@ -31,27 +31,43 @@ st.markdown(f"<div style='display:grid; grid-template-columns:1fr 160px; gap:8px
 st.write("")
 
 # ===== 페이지 안내 카드 (2 × 2) =====
-pages = [   # (파일, 제목, 아이콘, 설명) 4개를 목록으로 모아 두기
-    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지"),
-    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지"),
-    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
-    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
+pages = [   # (파일, 제목, 아이콘, 설명, 진한 색, 연한 색) 4개를 목록으로 모아 두기
+    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지", "#3949AB", "#E8EAF6"),   # 남색
+    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지", "#1E88E5", "#DCEBFB"),   # 파랑
+    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5", "#7E57C2", "#EDE7F6"),   # 보라
+    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기", "#546E7A", "#ECEFF1"),   # 회청
 ]
 
-card_style = ("display:block; text-decoration:none; color:inherit; border:1px solid #ddd; border-radius:12px;"
+card_style = ("display:block; text-decoration:none; color:inherit; border-radius:12px;"
              "padding:22px 24px; margin-bottom:16px; min-height:120px;") # [수정] 카드 전체 모양 
 cols = st.columns(2) 
 # 2칸
-for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
+for i, (path, title, icon, desc, main, light) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
     url = "/" + path.split("/")[1][2:-3] # pages, .py 제거
     with cols[i % 2]: # i % 2: 2로 나눈 나머지 → 0,1,0,1 → 왼쪽·오른쪽 번갈아
         # with st.container(border=True):
         #     st.page_link(path, label=f"**{title}**", icon=icon)
         #     st.caption(desc)
-        st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style}'>"
-                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px;'>{icon} {title}</span>"
+        st.markdown(f"<a href='{url}' target='_self' class='home-card' style='{card_style} background:{light}; border-left:6px solid {main};'>"   # 카드 속 = 연한 색, 왼쪽 띠 = 진한 색
+                    f"<span style='display:block; font-size:22px; font-weight:700; margin-bottom:8px; color:{main};'>{icon} {title}</span>"
                     f"<span style='display:block; font-size:16px; color:#666;'>{desc}</span></a>",
                     unsafe_allow_html=True)
 # ===== 데이터 안내 =====
 st.caption(f"지수에 들어간 사건 {len(events):,}건 ({config.CALC_START_DATE[:4]}년~) · "
            f"계산 끝날 {df['날짜'].max():%Y-%m-%d} · A2 미사일 자료 {config.A2_DATA_END}까지")   # [수정] 자료 한계 표시, 임시값 문구 삭제
+
+# ===== 데이터 출처 (평소엔 접혀 있고, 누르면 펼쳐짐) =====
+SOURCES = [   # (분야, 출처)
+    ("A 군사행동", "CSIS Beyond Parallel(도발·훈련·충돌), CNS North Korea Missile Test Database(미사일), "
+                   "Our World in Data·SIPRI/FOA(핵실험), 통일연구원(열병식), 국방부·주한미군 발표(전략자산)"),
+    ("B 군비·능력", "CSIS Beyond Parallel(신형 무기), 정책브리핑·e-나라지표·국회예산정책처(국방비), "
+                   "국방부·외교부·미 국방부·백악관(확장억제)"),
+    ("C 선언·외교", "통일부 남북회담본부, 외교부, UN 공식문서·1718위원회, 미 재무부 OFAC, 미 연방관보, "
+                   "국가법령정보센터, 국가기록원, Wilson Center Digital Archive, 국내외 언론 보도"),
+    ("E·F 관계·정치", "통일부 북한정보포털 남북관계 연표(북러), 통일부 남북회담본부(남북회담)"),
+    ("수집·분석 참고", "ATOP v5.1 (Leeds et al. 2002), SIPRI Arms Transfers Database, KOSIS 북한통계"),
+    ("방법 참고", "GPR 지수 (Caldara & Iacoviello 2022), Goldstein (1992), HRI 한반도 평화지수 (최성근 2010)"),
+]
+with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
+    for field, src in SOURCES:
+        st.markdown(f"**{field}** · {src}")
