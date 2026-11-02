@@ -64,6 +64,7 @@ SOURCES = [   # (분야, 출처)
     ("E·F 관계·정치", "통일부 북한정보포털 남북관계 연표(북러), 통일부 남북회담본부(남북회담)"),
     ("수집·분석 참고", "ATOP v5.1 (Leeds et al. 2002), SIPRI Arms Transfers Database, KOSIS 북한통계"),
     ("방법 참고", "GPR 지수 (Caldara & Iacoviello 2022), Goldstein (1992), HRI 한반도 평화지수 (최성근 2010)"),
+    ("화면 디자인", "선 아이콘: Lucide (lucide.dev, ISC 라이선스) · 홈 배너 봉수대 그림: 직접 제작"),
 ]
 with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
     for field, src in SOURCES:
