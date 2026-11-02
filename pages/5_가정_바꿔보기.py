@@ -3,11 +3,14 @@ import config
 import plotly.graph_objects as go             # 그래프 조각(선·막대)
 from plotly.subplots import make_subplots     # 그래프를 위아래 칸으로 나누기
 from utils.loader import load_tension_recompute, load_tension_daily # 다시 계산 + 공식 결과
+from utils.ui import page_style, white_table, icon, hero
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
-st.title("가정 바꿔 보기")
-st.caption("여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.")
+page_style()   # 공통 디자인
+
+# ===== 페이지 제목 =====
+st.markdown(hero("가정 바꿔 보기", "여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.", art="sliders"), unsafe_allow_html=True)   # 남색 제목 배너
 
 # ===== 기본값 · 빠른 선택 =====
 BUNDLES = config.BUNDLES_BASE                            # ("핵·미사일", "군사 과시", "위협 언어·교리")
@@ -29,7 +32,7 @@ for k, v in DEFAULT.items():                             # 처음 열었을 때�
 left, right = st.columns([1, 2], gap="large")   # 왼쪽 1 : 오른쪽 2 → 조절판 1/3, 결과 2/3
 
 # ===== 왼쪽: 조절판 =====
-with left:
+with left.container(border=True, key="box_left"):   # 조절판 상자
     st.subheader("조절판")
     b1, b2, b3 = st.columns(3)                                       # 빠른 선택 버튼 3개 가로로
     for col, name in zip((b1, b2, b3), PRESETS):
@@ -64,7 +67,7 @@ def stage_card(title, row):                           # 제목 + 그날 한 줄(
             f"<div style='font-size:30px; font-weight:700;'>{row['화면_단계문구']} · {row['단계이름']}</div>"
             f"<div style='font-size:15px;'>평소대비 {row['평소대비']:.1f}</div></div>")
 
-with right:
+with right.container(border=True, key="box_right"):   # 결과 상자
     if not info["공식과_같음"]:                                        # 기본값과 다를 때만
         st.warning("공식 결과가 아닙니다 — 가정을 바꿔 다시 계산한 결과입니다.")
 
@@ -95,6 +98,6 @@ with right:
     
 # ===== 비교표 + 안내 문구 =====
     st.markdown("**공식 vs 내 설정 비교**")
-    st.dataframe(table, hide_index=True, width="stretch", height=740)   # 20줄 다 보이게 높이 지정
+    st.dataframe(white_table(table), hide_index=True, width="stretch", height=740)   # 20줄 다 보이게 높이 지정
     st.caption("단계 구간은 같은 규칙(평소 기간 2010~2019의 70·90·95·98%)으로 다시 뽑았습니다. "
                "그래서 5거 비율은 크게 바뀌지 않고, 어느 날이 몇 거인지가 바뀝니다.")
