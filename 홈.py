@@ -2,7 +2,7 @@ import streamlit as st
 import config
 import pandas as pd
 from utils.loader import load_tension_daily, load_tension_events   # 산출식 v0.1.4 결과
-from utils.ui import stage_scale_grid, page_style, icon, hero   # 세로 눈금 (Grid), 공통 디자인·아이콘·배너
+from utils.ui import stage_scale_grid, page_style   # 세로 눈금 (Grid)
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
@@ -16,8 +16,8 @@ stage = int(latest["최종단계"])
 color = config.STAGE_COLORS[stage]                  # 지금 단계 색
 
 # ===== 제목 =====
-st.markdown(hero("한반도 군사 긴장도 대시보드", "사건 데이터를 점수로 바꿔, 지금 한반도의 군사 긴장이 평소보다 얼마나 높은지 보여 줍니다."),
-            unsafe_allow_html=True)   # 남색 제목 배너
+st.title("🛡️ 한반도 군사 긴장도 대시보드")
+st.caption("사건 데이터를 점수로 바꿔, 지금 한반도의 군사 긴장이 평소보다 얼마나 높은지 보여 줍니다.")
 
 # ===== 지금 단계 띠 + 세로 눈금 =====
 top = "—" if pd.isna(latest["상위%_표시"]) else f"그날까지 상위 {latest['상위%_표시']:.1f}%"   # 2010년은 NaN → "—"
@@ -33,13 +33,13 @@ st.write("")
 
 # ===== 페이지 안내 카드 (2 × 2) =====
 pages = [   # (파일, 제목, 아이콘, 설명) 4개를 목록으로 모아 두기
-    ("pages/1_긴장도_지수.py", "긴장도 지수", icon("gauge"), "지금 몇 단계인지, 평소보다 얼마나 높은지"),
-    ("pages/2_사건_기록.py", "사건 기록", icon("search"), "기간·종류·검색어로 어떤 사건이 있었는지"),
-    ("pages/3_월별_연별.py", "월별·연별 추이", icon("calendar"), "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
-    ("pages/4_보고서.py", "보고서", icon("file"), "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
+    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지"),
+    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지"),
+    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
+    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
 ]
 
-card_style = ("display:block; text-decoration:none; color:inherit; background:white; border:1px solid #DDE2E8; border-radius:12px;"
+card_style = ("display:block; text-decoration:none; color:inherit; border:1px solid #ddd; border-radius:12px;"
              "padding:22px 24px; margin-bottom:16px; min-height:120px;") # 카드 전체 모양
 cols = st.columns(2)   # 2칸
 for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
@@ -64,7 +64,6 @@ SOURCES = [   # (분야, 출처)
     ("E·F 관계·정치", "통일부 북한정보포털 남북관계 연표(북러), 통일부 남북회담본부(남북회담)"),
     ("수집·분석 참고", "ATOP v5.1 (Leeds et al. 2002), SIPRI Arms Transfers Database, KOSIS 북한통계"),
     ("방법 참고", "GPR 지수 (Caldara & Iacoviello 2022), Goldstein (1992), HRI 한반도 평화지수 (최성근 2010)"),
-    ("화면 디자인", "선 아이콘: Lucide (lucide.dev, ISC 라이선스) · 홈 배너 봉수대 그림: 직접 제작"),
 ]
 with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
     for field, src in SOURCES:

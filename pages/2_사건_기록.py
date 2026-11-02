@@ -4,14 +4,15 @@ from utils.loader import load_events, load_tension_events # 정리된 사건 표
 from datetime import timedelta # 날짜 빼기용
 import plotly.express as px # 막대그래프
 import pandas as pd
-from utils.ui import index_mark, page_style, white_table, hero
+from utils.ui import index_mark, page_style, white_table
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인
 
 # ===== 페이지 제목 =====
-st.markdown(hero("사건 기록", "왼쪽 필터로 기간·종류·주체국·검색어를 골라 보세요. 처음에는 최근 1년이 보입니다.", art="search"), unsafe_allow_html=True)   # 남색 제목 배너
+st.title("사건 기록") # 정리된 사건 표 창구
+st.caption("왼쪽 필터로 기간·종류·주체국·검색어를 골라 보세요. 처음에는 최근 1년이 보입니다.")   # 설명 줄
 
 # ===== 데이터 불러오기 =====
 events = load_events() # 사건_일단위 표

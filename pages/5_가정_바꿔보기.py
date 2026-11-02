@@ -3,12 +3,13 @@ import config
 import plotly.graph_objects as go             # 그래프 조각(선·막대)
 from plotly.subplots import make_subplots     # 그래프를 위아래 칸으로 나누기
 from utils.loader import load_tension_recompute, load_tension_daily # 다시 계산 + 공식 결과
-from utils.ui import page_style, white_table, hero
+from utils.ui import page_style, white_table
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인
-st.markdown(hero("가정 바꿔 보기", "여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.", art="sliders"), unsafe_allow_html=True)   # 남색 제목 배너
+st.title("가정 바꿔 보기")
+st.caption("여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.")
 
 # ===== 기본값 · 빠른 선택 =====
 BUNDLES = config.BUNDLES_BASE                            # ("핵·미사일", "군사 과시", "위협 언어·교리")
