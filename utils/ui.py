@@ -66,7 +66,7 @@ def white_table(df):
     return (df.style.set_properties(**{"background-color": "white"})   # 칸 바탕 흰색
               .format("{:g}", subset=nums))                      # 소수 끝 0 없애기 (6.250000 → 6.25)
 
-# ===== 아이콘 (선 그림 SVG, 홈 카드용) =====
+# ===== 아이콘 (선 그림 SVG, 홈 카드·페이지 배너용) — 모양 출처: Lucide (lucide.dev, ISC 라이선스) =====
 def icon(name, color="#1F3A5F", size=26):
     paths = {
         "gauge": "<path d='M12 14l4-4'/><path d='M3.3 19a10 10 0 1 1 17.4 0'/>",
@@ -78,7 +78,7 @@ def icon(name, color="#1F3A5F", size=26):
     return (f"<svg width='{size}' height='{size}' viewBox='0 0 24 24' fill='none' stroke='{color}' stroke-width='2' "
             f"stroke-linecap='round' stroke-linejoin='round' style='vertical-align:-5px; margin-right:6px;'>{paths[name]}</svg>")
 
-# ===== 홈 제목 배너 (남색 띠 + 봉수 불꽃 그림) =====
+# ===== 제목 배너 (남색 띠 + 홈은 봉수 불꽃 그림, 페이지는 선 아이콘) =====
 def hero(title, subtitle, art=None):   # art: 아이콘 이름 (없으면 봉수 불꽃)
     beacon = ("<svg width='64' height='64' viewBox='0 0 64 64' fill='none'>"
               "<path d='M18 56h28l-5-18H23z' fill='#ffffff22' stroke='#ffffffaa' stroke-width='2' stroke-linejoin='round'/>"   # 봉수대
