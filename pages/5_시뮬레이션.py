@@ -1,16 +1,18 @@
 import streamlit as st
 import config
+import pandas as pd
+from datetime import timedelta
 import plotly.graph_objects as go             # 그래프 조각(선·막대)
 from plotly.subplots import make_subplots     # 그래프를 위아래 칸으로 나누기
 from utils.loader import load_tension_recompute, load_tension_daily # 다시 계산 + 공식 결과
-from utils.ui import page_style, white_table, icon, hero
+from utils.ui import page_style, white_table, icon, hero, period_picker
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인
 
 # ===== 페이지 제목 =====
-st.markdown(hero("가정 바꿔 보기", "여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.", art="sliders"), unsafe_allow_html=True)   # 남색 제목 배너
+st.markdown(hero("시뮬레이션", "여기부터는 공식 결과가 아니라, 계산 가정을 바꿔 보면 긴장도가 어떻게 달라지는지 보는 화면입니다.", art="sliders"), unsafe_allow_html=True)
 
 # ===== 기본값 · 빠른 선택 =====
 BUNDLES = config.BUNDLES_BASE                            # ("핵·미사일", "군사 과시", "위협 언어·교리")
@@ -81,9 +83,10 @@ with right.container(border=True, key="box_right"):   # 결과 상자
                 f"<div style='display:flex; border-radius:8px; overflow:hidden;'>{bar}</div>", unsafe_allow_html=True)
     
 # ===== 공식 vs 내 설정 겹친 그래프 + 단계 띠 두 줄 =====
-    days = st.radio("기간", [90, 365, 730], format_func=lambda d: f"최근 {d}일", horizontal=True)   # 보여 줄 기간
-    a = official.tail(days)                                               # 공식
-    b = daily.tail(days)                                                  # 내 설정
+    first, last = official["날짜"].min().date(), official["날짜"].max().date()   # 공식 결과의 처음·마지막 날
+    start, end = period_picker("p5_period", first, last, (last - timedelta(days=90), last), quick=(90, 365, 730))   # 기본: 최근 90일, 함수는 utils/ui.py
+    a = official[official["날짜"].between(pd.Timestamp(start), pd.Timestamp(end))]   # 공식
+    b = daily[daily["날짜"].between(pd.Timestamp(start), pd.Timestamp(end))]         # 내 설정
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.8, 0.2], vertical_spacing=0.04)   # 위: 선, 아래: 띠
     fig.add_trace(go.Scatter(x=a["날짜"], y=a["평소대비"], name="공식 결과", line=dict(color="#999", width=2)), row=1, col=1)
     fig.add_trace(go.Scatter(x=b["날짜"], y=b["평소대비"], name="내 설정", line=dict(color="#C0392B", width=2)), row=1, col=1)

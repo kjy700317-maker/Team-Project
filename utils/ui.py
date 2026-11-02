@@ -54,6 +54,11 @@ BOX_CSS = """
 [data-testid="stPlotlyChart"] .main-svg:first-child {
     background: white !important;
 }
+[data-testid="stDateInputField"] {
+    background: white !important;
+    border: 1px solid #B8C2CF !important;
+    border-radius: 8px;
+}
 """   # 상자(key가 box_로 시작)·접기 칸·탭·그래프 → 흰 바탕
 
 def page_style():
@@ -86,7 +91,31 @@ def hero(title, subtitle, art=None):   # art: 아이콘 이름 (없으면 봉수
               "<path d='M32 36c-3-2-3-6 0-9 1 2 2 3 3 2 1 3 0 6-3 7z' fill='#FFE29A'/></svg>")
     if art:   # 페이지 배너: 흰 선 아이콘
         beacon = f"<div style='width:64px; text-align:center;'>{icon(art, color='white', size=44)}</div>"
-    return (f"<div style='display:flex; align-items:center; gap:18px; background:linear-gradient(120deg,#1F3A5F,#2E5077); "
+    return (f"<div style='display:flex; align-items:center; gap:18px; background:linear-gradient(120deg,#3D5A80,#5B7BA3); "
             f"color:white; padding:22px 28px; border-radius:14px; margin-bottom:14px;'>{beacon}"
             f"<div><div style='font-size:30px; font-weight:700; letter-spacing:-0.5px;'>{title}</div>"
             f"<div style='font-size:15px; opacity:0.85; margin-top:4px;'>{subtitle}</div></div></div>")
+    
+# ===== 기간 달력 + [전체 기간] [초기화] 버튼 (2페이지·5페이지가 같이 씀) =====
+def period_picker(key, first, last, default, sidebar=False, quick=()):   # quick: (90, 365) 처럼 주면 "최근 N일" 버튼도 만듦
+    import streamlit as st
+    from datetime import timedelta
+
+    def set_period(value):                                       # 버튼을 누르면 실행: 달력 값을 바꿈
+        st.session_state[key] = value
+
+    st.session_state.setdefault(key, default)                    # 처음 열었을 때만 기본값 넣어 두기
+    where = st.sidebar if sidebar else st                        # 그릴 곳: 사이드바 또는 본문
+    if sidebar:                                                  # 사이드바: 달력 아래에 버튼 2개
+        cal = st.sidebar
+        b1, b2 = st.sidebar.columns(2)
+    else:                                                        # 본문: 달력 | 버튼 | 버튼 한 줄
+        cal, b1, b2 = st.columns([3, 1, 1], vertical_alignment="bottom")
+    period = cal.date_input("기간", key=key, min_value=first, max_value=last)
+    b1.button("전체 기간", key=f"{key}_all", on_click=set_period, args=((first, last),), width="stretch")
+    b2.button("초기화", key=f"{key}_reset", on_click=set_period, args=(default,), width="stretch")
+    if quick:                                                    # "최근 N일" 버튼 줄 (선택)
+        for col, days in zip(where.columns(len(quick)), quick):
+            col.button(f"최근 {days}일", key=f"{key}_{days}", on_click=set_period,
+                       args=((max(first, last - timedelta(days=days)), last),), width="stretch")   # 처음 날보다 앞서지 않게
+    return period[0], period[-1]                                 # 시작일만 고른 순간에도 에러 안 나게 [0], [-1]
