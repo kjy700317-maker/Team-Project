@@ -4,15 +4,15 @@ import plotly.express as px
 import pandas as pd
 from utils.loader import load_tension_monthly, load_tension_yearly, load_tension_gpr, load_tension_gpr_stats, load_tension_gpr_figure, load_tension_events   # 산출식 v0.1.4 결과
 from utils.tension.screen import GPR_NOTES, GPR_SOURCE   # GPR 판독문·출처 문구
-from utils.ui import page_style, white_table
+from utils.ui import page_style, white_table, icon, hero
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인
 
 # ===== 페이지 제목 =====
-st.title("월별·연별 추이")
-st.caption("막대 높이 = 그 기간 평소대비(T) 평균, 막대 색 = 그 기간에 가장 높았던 날의 단계")
+st.markdown(hero("월별·연별 추이", "막대 높이 = 그 기간 평소대비(T) 평균, 막대 색 = 그 기간에 가장 높았던 날의 단계", art="calendar"), unsafe_allow_html=True)   # 남색 제목 배너
+
 # ===== 보기 단위 고르기 필터, 슬라이더=====
 with st.container(border=True, key="box_chart"):   # 보기 단위·슬라이더·막대그래프 상자
     c1, c2 = st.columns([1, 3])   # 단위와 슬라이더를 한 줄에 (1:3)

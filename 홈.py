@@ -2,11 +2,11 @@ import streamlit as st
 import config
 import pandas as pd
 from utils.loader import load_tension_daily, load_tension_events   # 산출식 v0.1.4 결과
-from utils.ui import stage_scale_grid, page_style   # 세로 눈금 (Grid)
+from utils.ui import stage_scale_grid, page_style, icon, hero   # 세로 눈금 (Grid)
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide", page_icon="🛡️")
-page_style()   # 공통 디자인
+page_style()
 
 # ===== 데이터 불러오기 (홈에도 지금 단계를 보여 주기 위해) =====
 df = load_tension_daily()                           # 일별 결과 (2010-01-01 ~ 계산일)
@@ -16,8 +16,7 @@ stage = int(latest["최종단계"])
 color = config.STAGE_COLORS[stage]                  # 지금 단계 색
 
 # ===== 제목 =====
-st.title("🛡️ 한반도 군사 긴장도 대시보드")
-st.caption("사건 데이터를 점수로 바꿔, 지금 한반도의 군사 긴장이 평소보다 얼마나 높은지 보여 줍니다.")
+st.markdown(hero("한반도 군사 긴장도 대시보드", "사건 데이터를 점수로 바꿔, 지금 한반도의 군사 긴장이 평소보다 얼마나 높은지 보여 줍니다."), unsafe_allow_html=True)   # 남색 제목 배너
 
 # ===== 지금 단계 띠 + 세로 눈금 =====
 top = "—" if pd.isna(latest["상위%_표시"]) else f"그날까지 상위 {latest['상위%_표시']:.1f}%"   # 2010년은 NaN → "—"
@@ -33,13 +32,13 @@ st.write("")
 
 # ===== 페이지 안내 카드 (2 × 2) =====
 pages = [   # (파일, 제목, 아이콘, 설명) 4개를 목록으로 모아 두기
-    ("pages/1_긴장도_지수.py", "긴장도 지수", "⚠️", "지금 몇 단계인지, 평소보다 얼마나 높은지"),
-    ("pages/2_사건_기록.py", "사건 기록", "🔎", "기간·종류·검색어로 어떤 사건이 있었는지"),
-    ("pages/3_월별_연별.py", "월별·연별 추이", "📆", "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
-    ("pages/4_보고서.py", "보고서", "📃", "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
+    ("pages/1_긴장도_지수.py", "긴장도 지수", icon("gauge"), "지금 몇 단계인지, 평소보다 얼마나 높은지"),
+    ("pages/2_사건_기록.py", "사건 기록", icon("search"), "기간·종류·검색어로 어떤 사건이 있었는지"),
+    ("pages/3_월별_연별.py", "월별·연별 추이", icon("calendar"), "언제 긴장이 높았는지, 가장 높았던 시기 TOP 5"),
+    ("pages/4_보고서.py", "보고서", icon("file"), "숫자로 자동 작성한 브리핑, 워드로 내려받기"),
 ]
 
-card_style = ("display:block; text-decoration:none; color:inherit; border:1px solid #ddd; border-radius:12px;"
+card_style = ("display:block; text-decoration:none; color:inherit; background:white; border:1px solid #DDE2E8; border-radius:12px;"
              "padding:22px 24px; margin-bottom:16px; min-height:120px;") # 카드 전체 모양
 cols = st.columns(2)   # 2칸
 for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i = 0,1,2,3
@@ -54,17 +53,20 @@ st.caption(f"지수에 들어간 사건 {len(events):,}건 ({config.CALC_START_D
            f"계산 끝날 {df['날짜'].max():%Y-%m-%d} · A2 미사일 자료 {config.A2_DATA_END}까지")   # 자료 한계 표시
 
 # ===== 데이터 출처 (평소엔 접혀 있고, 누르면 펼쳐짐) =====
-SOURCES = [   # (분야, 출처)
-    ("A 군사행동", "CSIS Beyond Parallel(도발·훈련·충돌), CNS North Korea Missile Test Database(미사일), "
-                   "Our World in Data·SIPRI/FOA(핵실험), 통일연구원(열병식), 국방부·주한미군 발표(전략자산)"),
-    ("B 군비·능력", "CSIS Beyond Parallel(신형 무기), 정책브리핑·e-나라지표·국회예산정책처(국방비), "
-                   "국방부·외교부·미 국방부·백악관(확장억제)"),
-    ("C 선언·외교", "통일부 남북회담본부, 외교부, UN 공식문서·1718위원회, 미 재무부 OFAC, 미 연방관보, "
-                   "국가법령정보센터, 국가기록원, Wilson Center Digital Archive, 국내외 언론 보도"),
-    ("E·F 관계·정치", "통일부 북한정보포털 남북관계 연표(북러), 통일부 남북회담본부(남북회담)"),
-    ("수집·분석 참고", "ATOP v5.1 (Leeds et al. 2002), SIPRI Arms Transfers Database, KOSIS 북한통계"),
-    ("방법 참고", "GPR 지수 (Caldara & Iacoviello 2022), Goldstein (1992), HRI 한반도 평화지수 (최성근 2010)"),
+SOURCES = [   # (분야, 출처) — 지수 계산·화면에 실제로 쓴 자료만
+    ("A 군사행동", "핵실험: Our World in Data · Arms Control Association / "
+                   "미사일: CNS North Korea Missile Test Database (NTI 제공) / "
+                   "도발·훈련·충돌: CSIS Beyond Parallel / 미 전략자산: NCAFP 보고서, 언론·군 발표 / "
+                   "열병식: 통일연구원 CO20-26(e) (공공누리 제2유형)"),
+    ("B 군비·능력", "신형 무기: CSIS Beyond Parallel / 확장억제: 국방부·외교부(정책브리핑), 미 국방부, 백악관 아카이브"),
+    ("C 선언·외교", "위협 성명: 언론 보도, UMD 디지털 아카이브, UN Digital Library / "
+                   "교리·법제: 정책브리핑, 국가법령정보센터 / 동맹·정상회담: 외교부, 언론 보도 / "
+                   "제재(확장 계산만): UN 안보리, 미 재무부 OFAC, 외교부"),
+    ("E·F 관계·정치", "북러: 통일부 북한정보포털 / 남북회담: 통일부 남북회담본부 (dialogue.unikorea.go.kr)"),
+    ("비교 지표", "GPR 지수 (Caldara & Iacoviello 2022)"),
+    ("화면 디자인", "선 아이콘: Lucide (lucide.dev, ISC 라이선스) · 홈 배너 봉수대 그림: 직접 제작"),
 ]
 with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
     for field, src in SOURCES:
         st.markdown(f"**{field}** · {src}")
+    st.caption("원자료에서 사건을 골라 팀이 직접 점수화·계산한 결과이며, 각 기관의 공식 자료나 입장이 아닙니다. 비상업 교육용.")

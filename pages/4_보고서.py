@@ -6,7 +6,7 @@ from utils.loader import (load_tension_daily, load_tension_monthly, load_tension
                           load_tension_month_events, load_tension_half_life, load_tension_normalization_figure,
                           load_tension_basic_stats, load_tension_events)   # 산출식 v0.1.4 결과
 from utils.tension.screen import READING_NOTES, HALF_LIFE_NOTE, NORMALIZATION_NOTE   # 판독문·반감기 설명·정규화 설명 문구
-from utils.ui import stage_scale, page_style, white_table   # 5단계 눈금 (홈과 같이 씀), 공통 디자인
+from utils.ui import stage_scale, page_style, white_table, icon, hero   # 5단계 눈금 (홈과 같이 씀), 공통 디자인
 from io import BytesIO                          # 파일 대신 쓸 메모리 공간
 from docx import Document                       # 워드 문서 만들기
 from docx.shared import Pt, RGBColor, Cm        # 글자 크기(Pt), 글자 색(RGB), 길이(Cm)
@@ -19,7 +19,7 @@ st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인
 
 # ===== 화면: 제목 =====
-st.title("긴장도 브리핑")
+st.markdown(hero("긴장도 브리핑", "숫자로 자동 작성한 브리핑입니다. 아래에서 워드·md로 내려받을 수 있어요.", art="file"), unsafe_allow_html=True)   # 남색 제목 배너
 
 # ===== 데이터 불러오기 =====
 df = load_tension_daily()           # 결과_일별 표

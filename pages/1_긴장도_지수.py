@@ -5,14 +5,14 @@ from utils.loader import (load_tension_daily, load_tension_monthly, load_tension
                           load_tension_crisis_marks, load_tension_figure, load_tension_month_events, load_tension_events)   # 산출식 v0.1.4 결과
 from utils.tension.screen import DATA_COVERAGE, FOOTNOTES, READING_NOTES   # 자료 충실도·각주·판독문 문구
 import plotly.express as px
-from utils.ui import page_style, white_table
+from utils.ui import page_style, white_table, icon, hero
 
 # ===== 페이지 설정 =====
 st.set_page_config(page_title="한반도 긴장도", layout="wide")
 page_style()   # 공통 디자인(테두리 상자 흰 배경 등)
 
 # ===== 페이지 제목 =====
-st.title("한반도 군사 긴장 지수")
+st.markdown(hero("한반도 군사 긴장 지수", "지금 몇 단계인지, 평소보다 얼마나 높은지 봅니다.", art="gauge"), unsafe_allow_html=True)   # 남색 제목 배너
 
 # ===== 데이터 불러오기 =====
 df = load_tension_daily()
