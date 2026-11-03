@@ -44,7 +44,17 @@ if kinds: # 하나라도 골랐으면
 if actors:
     events = events[events["주체국"].isin(actors)]
 if word: # 검색어를 썼으면
-    events = events[events["사건명"].str.contains(word, na=False)] # 사건명에 그 글자가 들어간 줄만
+    keyword = "".join(word.split()).casefold() # 검색어 공백 제거 및 대소문자 통일
+
+    events = events[
+        events["사건명"]
+        .fillna("")
+        .astype(str)
+        .str.replace(r"\s+", "", regex=True)
+        .str.casefold()
+        .str.contains(keyword, regex=False)
+    ] # 사건명에 그 글자가 들어간 줄만
+
 if only_index:
     events = events[events["지수 반영"] != "지수 밖"]   # 지수에 들어간 사건만
     
