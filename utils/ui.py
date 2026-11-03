@@ -96,26 +96,33 @@ def hero(title, subtitle, art=None):   # art: 아이콘 이름 (없으면 봉수
             f"<div><div style='font-size:30px; font-weight:700; letter-spacing:-0.5px;'>{title}</div>"
             f"<div style='font-size:15px; opacity:0.85; margin-top:4px;'>{subtitle}</div></div></div>")
     
-# ===== 기간 달력 + [전체 기간] [초기화] 버튼 (2페이지·5페이지가 같이 씀) =====
+# ===== 기간 고르기: [시작일] [종료일] 두 칸 + [전체 기간] [초기화] 버튼 (2페이지·5페이지가 같이 씀) =====
 def period_picker(key, first, last, default, sidebar=False, quick=()):   # quick: (90, 365) 처럼 주면 "최근 N일" 버튼도 만듦
     import streamlit as st
     from datetime import timedelta
+    k1, k2 = f"{key}_start", f"{key}_end"                        # 시작일·종료일 칸 이름표
 
-    def set_period(value):                                       # 버튼을 누르면 실행: 달력 값을 바꿈
-        st.session_state[key] = value
+    def set_period(value):                                       # 버튼을 누르면 실행: 두 칸 값을 한 번에 바꿈
+        st.session_state[k1], st.session_state[k2] = value
 
-    st.session_state.setdefault(key, default)                    # 처음 열었을 때만 기본값 넣어 두기
+    st.session_state.setdefault(k1, default[0])                  # 처음 열었을 때만 기본값 넣어 두기
+    st.session_state.setdefault(k2, default[1])
     where = st.sidebar if sidebar else st                        # 그릴 곳: 사이드바 또는 본문
-    if sidebar:                                                  # 사이드바: 달력 아래에 버튼 2개
-        cal = st.sidebar
+    if sidebar:                                                  # 사이드바는 좁아서 시작·끝을 위아래로, 아래에 버튼 2개
+        c1 = c2 = st.sidebar
+    else:                                                        # 본문: 시작 | 끝 | 버튼 | 버튼 한 줄 ("전체 기간" 글자가 안 잘리게 1.3)
+        c1, c2, b1, b2 = st.columns([2, 2, 1.3, 1], vertical_alignment="bottom")
+    start = c1.date_input("시작일", key=k1, min_value=first, max_value=last)
+    end = c2.date_input("종료일", key=k2, min_value=first, max_value=last)
+    if sidebar:                                                  # 사이드바 버튼 줄은 날짜 칸 아래에 만듦
         b1, b2 = st.sidebar.columns(2)
-    else:                                                        # 본문: 달력 | 버튼 | 버튼 한 줄
-        cal, b1, b2 = st.columns([3, 1, 1], vertical_alignment="bottom")
-    period = cal.date_input("기간", key=key, min_value=first, max_value=last)
     b1.button("전체 기간", key=f"{key}_all", on_click=set_period, args=((first, last),), width="stretch")
     b2.button("초기화", key=f"{key}_reset", on_click=set_period, args=(default,), width="stretch")
     if quick:                                                    # "최근 N일" 버튼 줄 (선택)
         for col, days in zip(where.columns(len(quick)), quick):
             col.button(f"최근 {days}일", key=f"{key}_{days}", on_click=set_period,
                        args=((max(first, last - timedelta(days=days)), last),), width="stretch")   # 처음 날보다 앞서지 않게
-    return period[0], period[-1]                                 # 시작일만 고른 순간에도 에러 안 나게 [0], [-1]
+    if start > end:                                              # 시작이 끝보다 늦으면 알려 주고 순서를 바꿔서 씀
+        where.caption("⚠ 시작일이 종료일보다 늦어서 두 날짜를 바꿔 적용했어요.")
+        start, end = end, start
+    return start, end
