@@ -17,7 +17,7 @@
 
 | 요소 | 출처 | 이용 조건·표기 |
 |---|---|---|
-| A1 핵실험 | 연간: Our World in Data, "Nuclear weapons tests per year." https://ourworldindata.org/grapher/number-of-nuclear-weapons-tests · 원자료: Arms Control Association, "The Nuclear Testing Tally." https://www.armscontrol.org/factsheets/nucleartesttally (재사용 정책 https://www.armscontrol.org/act/copyright-reprint) · 일 단위: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." | OWID 자체 저작물은 CC BY, 원자료는 ACA 조건 적용. 지수·그래프만 공개하고 원본·정제 CSV 다운로드는 제공하지 않음 |
+| A1 핵실험 | 연간: Our World in Data, "Nuclear weapons tests per year." https://ourworldindata.org/grapher/number-of-nuclear-weapons-tests · 원자료: Arms Control Association, "The Nuclear Testing Tally." https://www.armscontrol.org/factsheets/nucleartesttally (재사용 정책 https://www.armscontrol.org/act/copyright-reprint) · 일 단위: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." | OWID 자체 저작물은 CC BY, 원자료는 ACA 조건 적용 |
 | A2 미사일 발사 | 원자료: James Martin Center for Nonproliferation Studies (CNS), *The CNS North Korea Missile Test Database*, Nuclear Threat Initiative (NTI). https://www.nti.org/analysis/articles/cns-north-korea-missile-test-database/ | 원본 303건 중 294건 사용. 사건 선별·제외·분류·보완은 팀 작업이며 CNS·NTI의 공식 수정본이 아님. 보조 검증: CSIS Missile Threat, 38 North |
 | A3 저강도 물리 도발 | Center for Strategic and International Studies (CSIS), *Beyond Parallel*, "Database: North Korean Provocations." https://beyondparallel.csis.org/database-north-korean-provocations/ | 65건 선별(사용 62). 영문 설명문은 옮기지 않음. CSIS 재게시 정책 https://www.csis.org/about/media/reprint-permissions |
 | A4 군사훈련 | CSIS, *Beyond Parallel*, "North Korean Provocations and US-ROK Military Exercises." https://beyondparallel.csis.org/north-korean-provocations-us-rok-military-exercises/ · 2021~2026 보완 11건: 사건별 언론·주한미군 보도(부록 A) | 원본에서 40건 선별(사용 39) + 보완 11건 |
@@ -62,7 +62,7 @@
 
 전처리 과정에서 수집·검토했지만 현재 대시보드 화면과 지수 계산에는 들어가지 않은 자료입니다. 이용 조건을 지키기 위해 출처를 함께 남깁니다.
 
-> **KOSIS 북한통계**: 2026-11-03 문의해 "KOSIS 게시 정보는 출처와 관리기관만 명시하면 사용 가능"하다는 답을 받아(서면 확인 없음), 비상업 교육 목적으로 정제 파일을 레포에 두고 표마다 출처와 관리기관을 아래 [KOSIS 표별 출처](#kosis-표별-출처)에 적었습니다. 레포의 파일은 KOSIS 원자료를 팀이 정제·가공한 것이며, 국가데이터처나 작성기관의 공식 자료가 아닙니다.
+> **KOSIS 북한통계**: KOSIS 통계정보 이용지침에는 북한통계를 비상업적 목적으로만 쓰고 재배포하지 않도록 되어 있습니다. 2026-11-03 국가데이터처 콜센터(02-2012-9114)에 문의해 "KOSIS 게시 정보는 출처와 관리기관만 명시하면 사용 가능"하다는 답을 받아(서면 확인 없음), 비상업 교육 목적으로 정제 파일을 레포에 두고 표마다 출처와 관리기관을 아래 [KOSIS 표별 출처](#kosis-표별-출처)에 적었습니다. 레포의 파일은 KOSIS 원자료를 팀이 정제·가공한 것이며, 국가데이터처나 작성기관의 공식 자료가 아닙니다.
 
 | 자료 (요소) | 출처 | 이용 조건 |
 |---|---|---|
@@ -94,7 +94,7 @@
 | 수출입액 (DT_1ZGA92) | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」 2026.8 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2025, 2026.10.02 |
 | 주요국별 교역비중 변화 추이 (DT_1ZGA97) | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, (남북교역)통일부「남북교류협력동향」 2026.8 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2025, 2026.10.04 |
 | 수출·수입 (DT_1ZGA96) | 관세청, IMF, KOSIS 국가통계포털(자료관리: 통계서비스기획과), ~2025, 2026.10.04 |
-| 농업생산지수 (DT_1ZGAE22) | (북)FAO, (남)농림축산식품부「농림업생산지수」 2026.6 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10W.02 |
+| 농업생산지수 (DT_1ZGAE22) | (북)FAO, (남)농림축산식품부「농림업생산지수」 2026.6 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10.02 |
 
 ---
 
