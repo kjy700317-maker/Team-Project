@@ -17,7 +17,7 @@
 
 | 요소 | 출처 | 이용 조건·표기 |
 |---|---|---|
-| A1 핵실험 | 연간: Our World in Data, "Nuclear weapons tests per year." https://ourworldindata.org/grapher/number-of-nuclear-weapons-tests · 원자료: Arms Control Association, "The Nuclear Testing Tally." https://www.armscontrol.org/factsheets/nucleartesttally (재사용 정책 https://www.armscontrol.org/act/copyright-reprint) · 일 단위: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." | OWID 자체 저작물은 CC BY, 원자료는 ACA 조건 적용 |
+| A1 핵실험 | 실험별 기록: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." | 사실 정보(날짜·장소·위력)만 사용. 위키 CC BY-SA 4.0 |
 | A2 미사일 발사 | 원자료: James Martin Center for Nonproliferation Studies (CNS), *The CNS North Korea Missile Test Database*, Nuclear Threat Initiative (NTI). https://www.nti.org/analysis/articles/cns-north-korea-missile-test-database/ | 원본 303건 중 294건 사용. 사건 선별·제외·분류·보완은 팀 작업이며 CNS·NTI의 공식 수정본이 아님. 보조 검증: CSIS Missile Threat, 38 North |
 | A3 저강도 물리 도발 | Center for Strategic and International Studies (CSIS), *Beyond Parallel*, "Database: North Korean Provocations." https://beyondparallel.csis.org/database-north-korean-provocations/ | 65건 선별(사용 62). 영문 설명문은 옮기지 않음. CSIS 재게시 정책 https://www.csis.org/about/media/reprint-permissions |
 | A4 군사훈련 | CSIS, *Beyond Parallel*, "North Korean Provocations and US-ROK Military Exercises." https://beyondparallel.csis.org/north-korean-provocations-us-rok-military-exercises/ · 2021~2026 보완 11건: 사건별 언론·주한미군 보도(부록 A) | 원본에서 40건 선별(사용 39) + 보완 11건 |
@@ -62,7 +62,36 @@
 
 전처리 과정에서 수집·검토했지만 현재 대시보드 화면과 지수 계산에는 들어가지 않은 자료입니다. 이용 조건을 지키기 위해 출처를 함께 남깁니다.
 
-> **KOSIS 북한통계**: 문의해 "KOSIS 게시 정보는 출처와 관리기관만 명시하면 사용 가능"하다는 답을 받아(서면 확인 없음), 비상업 교육 목적으로 정제 파일을 레포에 두고 표마다 출처와 관리기관을 아래 [KOSIS 표별 출처](#kosis-표별-출처)에 적었습니다. 레포의 파일은 KOSIS 원자료를 팀이 정제·가공한 것이며, 국가데이터처나 작성기관의 공식 자료가 아닙니다.
+> **KOSIS 북한통계 (D 북한 경제·교역, F 북한 내부 지표)**
+>
+> **라이선스**
+> 1. KOSIS 통계정보 이용지침: 북한통계는 예외 조항이 적용되어 비상업적 목적으로만 쓸 수 있고, 재배포가 금지됨
+> 2. 국가데이터처 콜센터(02-2012-9114) 전화 문의(2026-11-03, KOSIS > 북한통계 > 주제별 > 영양 > 1인 1일당 영양공급량 경로를 따라가며 문의): "KOSIS 게시 정보는 출처와 관리기관만 명시하면 사용 가능"이라고 답변받음. 서면 확인은 받지 않음
+>
+> - **용도**: 수집·검토 자료. 현재 대시보드 화면과 산출식에는 넣지 않음
+> - **이용 조건**: 비상업적 연구·교육 목적에 한함. 위 2번 답변에 따라 출처와 관리기관을 명시하고 정제 CSV를 레포에 포함함
+> - **필수 준수 사항**:
+>   1. 출처와 관리기관 명시: 표별 작성기관 문구 + “KOSIS 국가통계포털(자료관리: 국제협력담당관실)” + 통계표명 + 참조일자(2026.10.05) + URL
+>   2. 통계 수치를 임의로 바꾸거나 왜곡하지 않음
+>   3. 개인·사업체·특정 조직을 식별할 목적으로 다른 정보와 연결하지 않음
+>   4. 영양공급량은 2010년부터 FBS 새 방법론 자료이고, 인구 2026년 이후는 추계값임을 표시함
+>
+> 레포의 파일은 KOSIS 원자료를 팀이 정제·가공한 것이며, 국가데이터처나 작성기관의 공식 자료가 아닙니다.
+
+> **통일의식조사 (F4 위협 인식 여론)**
+>
+> **출처**: 김범수. 통일의식조사, 2025 [데이터 세트]. 서울대학교 통일평화연구원 [연구수행기관]. 서울대학교 통일평화연구원 데이터 아카이브 [자료제공기관], 2026-02-03, https://ipus.snu.ac.kr/blog/archives/research/11790. (2026-10-05 다운로드)
+>
+> **라이선스**: 명시적 라이선스 없음. 저작권은 통일평화연구원에 있음("all rights reserved"). 원자료는 누구나 받을 수 있게 공개되어 있고, 출처 명기를 요청함
+>
+> - **데이터**: 1-2025-통일의식조사_로데이터.zip (2025년, 1,200명, 조사 2025-08-08~09-01) → F4_통일의식조사_응답자_정제.csv, F4_통일의식조사_위협문항집계.csv
+> - **용도**: 위협 문항 5개의 응답 비율을 긴장도의 검증 마커(대조용)로만 쓰고, 점수는 매기지 않음
+> - **이용 조건**: 비상업적 학술·교육 목적(KDT 프로젝트·포트폴리오)에 한함. 원자료 zip은 레포에 두지 않고, 정제 파일만 포함함. 원자료가 필요한 사람에게는 IPUS 링크를 안내함
+> - **필수 준수 사항**:
+>   1. 출처는 위 인용 서식(KOSSDA 데이터 인용 서식 준용)으로 표기
+>   2. 논문·보고서 등으로 발간하면 tongil@snu.ac.kr로 발간 사실을 알림(기관 요청 사항)
+>   3. 기초보고서의 문장·표·그래프는 복제하지 않음
+>   4. 응답자 단위 자료를 다른 정보와 연결하지 않음
 
 | 자료 (요소) | 출처 | 이용 조건 |
 |---|---|---|
@@ -73,28 +102,28 @@
 | 북한 경제·사회 통계 | 국가데이터처 국가통계포털(KOSIS) 북한통계 12개 표(국민총소득·식량작물·무역·영양공급량·인구·성장률·교역비중 등). https://kosis.kr/bukhan · 표별 작성기관·관리부서는 [KOSIS 표별 출처](#kosis-표별-출처) | 비상업 교육용. 출처·관리부서 명시(2026-11-03 콜센터 확인). 통계 수치 임의 변경 금지. 인구 2026년 이후는 추계값 |
 | UN 총회 표결 (E1) | United Nations Voting Data (Up to 2025), UN_Voting_Records_1946-2025_v3. 원출처 UN Digital Library https://digitallibrary.un.org | CC0. 안보리 거부권은 기록 투표가 없어 포함 안 됨 |
 | 동맹 (E1·E3) | Leeds, Brett Ashley, Jeffrey M. Ritter, Sara McLaughlin Mitchell, and Andrew G. Long. 2002. "Alliance Treaty Obligations and Provisions, 1815-1944." *International Interactions* 28: 237-260. 데이터 ATOP v5.1(atop5_1ddyr, atopinst5_1, atop-sscore). http://www.atopdata.org | 학술·비영리 무료. 결과물에 공식 인용 문구 필수 |
-| 위협 인식 여론 (F4) | 서울대학교 통일평화연구원(IPUS) 「2025 통일의식조사」 자료(1,200명, 2025-08-08~09-01). 데이터 아카이브 > 2025 통일의식조사 Raw Data, https://ipus.snu.ac.kr/blog/archives/research/11790 (2026-02-03 게시, 2026-10-05 다운로드) | 저작권은 통일평화연구원(all rights reserved), 출처 명기 요청. 비상업 학술·교육용. 원자료·응답자 단위 파일은 다시 배포하지 않고 위협 문항 집계(F4_통일의식조사_위협문항집계.csv)만 공개. 발간 시 tongil@snu.ac.kr에 알림 |
+| 위협 인식 여론 (F4) | 김범수. 통일의식조사, 2025 [데이터 세트]. 서울대학교 통일평화연구원 [연구수행기관]. 서울대학교 통일평화연구원 데이터 아카이브 [자료제공기관], 2026-02-03, https://ipus.snu.ac.kr/blog/archives/research/11790. (2026-10-05 다운로드, 1,200명, 조사 2025-08-08~09-01) | 저작권은 통일평화연구원(all rights reserved), 출처는 KOSSDA 데이터 인용 서식 준용. 비상업 학술·교육용. 응답자 단위 정제 파일과 위협 문항 집계 파일을 레포에 포함(원자료 zip은 미포함). 발간 시 tongil@snu.ac.kr에 알림 |
 | 북↔남 위협 이벤트 (C1 선택) | The GDELT Project. https://www.gdeltproject.org | 제한 없이 이용, 출처 표기 필수. 미수집 |
 
 
 ### KOSIS 표별 출처
 
-형식: 작성기관「조사명」 기준시점, KOSIS 국가통계포털(자료관리: 관리부서), 수록 기간, 참조일자. URL은 `https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=<표 번호>`
+구분: D = 북한 경제·교역, F = 북한 내부 지표, D·F = 둘 다 같은 표를 씀. 형식(라이선스 노트 F1 기준): 작성기관, KOSIS 국가통계포털(자료관리: 관리부서), 「통계표명」, 참조일자, URL
 
-| 통계표 (표 번호) | 출처 |
-|---|---|
-| 남북한 국민총소득 (DT_1ZGA37) | (남북)한국은행「국민계정」 2025.12 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 1953~2024, 2026.10.05 |
-| 남북한 식량작물 생산량 (DT_1ZGA55) | (북)농촌진흥청, (남)국가데이터처「농작물생산조사」 2026.3 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 1965~2025, 2026.10.05 |
-| 남북한 무역총액·교역액 (DT_1ZGA91) | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, (남북교역)통일부 남북교류협력시스템「남북교역통계」 2026.8 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 1990~2025, 2026.10.05 |
-| 남북한 1인 1일당 영양공급량 (DT_1ZGAB4) | (북)FAO, (남)한국농촌경제연구원, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 1987~2018, 2026.10.05. 2010년부터 FBS 새 방법론 자료 |
-| 남북한 인구 (DT_1ZGA21) | 국가데이터처, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 2008~2070(2026년 이후 추계), 2026.10.05 |
-| 어업 및 양식 생산량 (DT_1ZGA58) | (북)관계기관, (남)국가데이터처「어업생산동향조사」 2025.12 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10.02 |
-| 경제성장률 (DT_1ZGA31) | (남북)한국은행「국민계정」 2025.12 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10.02 |
-| 산업별 성장률 (DT_1ZGA32) | (남북)한국은행「국민계정」 2025.12 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10.02 |
-| 수출입액 (DT_1ZGA92) | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」 2026.8 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2025, 2026.10.02 |
-| 주요국별 교역비중 변화 추이 (DT_1ZGA97) | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, (남북교역)통일부「남북교류협력동향」 2026.8 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2025, 2026.10.04 |
-| 수출·수입 (DT_1ZGA96) | 관세청, IMF, KOSIS 국가통계포털(자료관리: 통계서비스기획과), ~2025, 2026.10.04 |
-| 농업생산지수 (DT_1ZGAE22) | (북)FAO, (남)농림축산식품부「농림업생산지수」 2026.6 기준, KOSIS 국가통계포털(자료관리: 국제협력담당관실), ~2024, 2026.10.02 |
+| 구분 | 통계표 | 출처 |
+|---|---|---|
+| D·F | 남북한 국민총소득 | (남북)한국은행「국민계정」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「남북한 국민총소득」, 2026.10.05, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA37 |
+| D·F | 남북한 식량작물 생산량 | (북)농촌진흥청, (남)국가데이터처「농작물생산조사」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「남북한 식량작물 생산량」, 2026.10.05, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA55 |
+| F | 남북한 무역총액·교역액 | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, (남북교역)통일부「남북교역통계」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「남북한 무역총액·교역액」, 2026.10.05, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA91 |
+| F | 남북한 1인 1일당 영양공급량 | (북)FAO, (남)한국농촌경제연구원, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「남북한 1인 1일당 영양공급량」, 2026.10.05, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGAB4 ※ 2010년부터 FBS 새 방법론 자료 |
+| F | 남북한 인구 | 국가데이터처, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「남북한 인구」, 2026.10.05, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA21 ※ 2026년 이후는 추계값 |
+| D | 어업 및 양식 생산량 | (북)관계기관, (남)국가데이터처「어업생산동향조사」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「어업 및 양식 생산량」, 2026.10.02, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA58 |
+| D | 경제성장률 | (남북)한국은행「국민계정」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「경제성장률」, 2026.10.02, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA31 |
+| D | 산업별 성장률 | (남북)한국은행「국민계정」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「산업별 성장률」, 2026.10.02, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA32 |
+| D | 수출입액 | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「수출입액」, 2026.10.02, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA92 |
+| D | 주요국별 교역비중 변화 추이 | (북)KOTRA「북한의 대외무역동향」, (남)한국무역협회「한국무역통계」, (남북교역)통일부「남북교류협력동향」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「주요국별 교역비중 변화 추이」, 2026.10.04, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA97 |
+| D | 수출·수입 | 관세청, IMF, KOSIS 국가통계포털(자료관리: 통계서비스기획과), 「수출·수입」, 2026.10.04, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGA96 |
+| D (레포에 파일 없음) | 농업생산지수 | (북)FAO, (남)농림축산식품부「농림업생산지수」, KOSIS 국가통계포털(자료관리: 국제협력담당관실), 「농업생산지수」, 2026.10.02, https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ZGAE22 |
 
 ---
 
