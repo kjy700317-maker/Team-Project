@@ -51,16 +51,18 @@ for i, (path, title, icon, desc) in enumerate(pages):   # 4개를 하나씩, i =
 # ===== 데이터 안내 =====
 st.caption(f"지수에 들어간 사건 {len(events):,}건 ({config.CALC_START_DATE[:4]}년~) · "
            f"계산 끝날 {df['날짜'].max():%Y-%m-%d} · A2 미사일 자료 {config.A2_DATA_END}까지")   # 자료 한계 표시
-
+ 
 # ===== 데이터 출처 (평소엔 접혀 있고, 누르면 펼쳐짐) =====
-SOURCES = [   # (분야, 출처) — 지수 계산·화면에 실제로 쓴 자료만
-    ("A 군사행동", "핵실험: Our World in Data · Arms Control Association / "
+SOURCES = [   # (분야, 출처) — 화면·지수 계산에 실제로 쓴 자료만, 미사용 자료와 전체 이용 조건은 레포의 SOURCES.md
+    ("A 군사행동", "핵실험: 실험별 기록(SIPRI-ID·DOE·ISC 출처 코드), 북한 6건 위키백과 보완 / "
                    "미사일: CNS North Korea Missile Test Database (NTI 제공) / "
                    "도발·훈련·충돌: CSIS Beyond Parallel / 미 전략자산: NCAFP 보고서, 언론·군 발표 / "
                    "열병식: 통일연구원 CO20-26(e) (공공누리 제2유형)"),
-    ("B 군비·능력", "신형 무기: CSIS Beyond Parallel / 확장억제: 국방부·외교부(정책브리핑), 미 국방부, 백악관 아카이브"),
+    ("B 군비·능력", "신형 무기: CSIS Beyond Parallel / 확장억제: 국방부·외교부(정책브리핑, 공공누리 제1유형), 미 국방부, 백악관 아카이브 / "
+                   "국방비(사건 기록만): 국방부·방위사업청 보도자료, e-나라지표, 국회예산정책처"),
     ("C 선언·외교", "위협 성명: 언론 보도, UMD 디지털 아카이브, UN Digital Library / "
-                   "교리·법제: 정책브리핑, 국가법령정보센터 / 동맹·정상회담: 외교부, 언론 보도 / "
+                   "교리·법제: 정책브리핑, 국가법령정보센터 / 동맹·정상회담: 외교부(공공누리 제1유형), 언론 보도 / "
+                   "대화·합의(사건 기록만): 통일부 남북회담본부, 국가기록원 / "
                    "제재(확장 계산만): UN 안보리, 미 재무부 OFAC, 외교부"),
     ("E·F 관계·정치", "북러: 통일부 북한정보포털 / 남북회담: 통일부 남북회담본부 (dialogue.unikorea.go.kr)"),
     ("비교 지표", "GPR 지수 (Caldara & Iacoviello 2022)"),
@@ -69,4 +71,5 @@ SOURCES = [   # (분야, 출처) — 지수 계산·화면에 실제로 쓴 자�
 with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
     for field, src in SOURCES:
         st.markdown(f"**{field}** · {src}")
-    st.caption("원자료에서 사건을 골라 팀이 직접 점수화·계산한 결과이며, 각 기관의 공식 자료나 입장이 아닙니다. 비상업 교육용.")
+    st.caption("원자료에서 사건을 골라 팀이 직접 점수화·계산한 결과이며, 각 기관의 공식 자료·수정본·평가가 아닙니다. 비상업 교육용. "
+               "북한 발언·결정은 조선중앙통신을 인용한 보도에 근거합니다. 미사용 자료와 이용 조건 전체는 GitHub의 SOURCES.md에 있습니다.")
