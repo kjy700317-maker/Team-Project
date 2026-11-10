@@ -17,7 +17,7 @@
 
 | 요소 | 출처 | 이용 조건·표기 |
 |---|---|---|
-| A1 핵실험 | 실험별 기록: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." · 연도별 건수 대조(원본 A1 연 단위 집계): Arms Control Association, "The Nuclear Testing Tally," Our World in Data 경유, "Number of nuclear weapons tests." | 사실 정보(날짜·장소·위력·건수)만 사용. 연 단위 집계는 실험별 기록의 건수 대조에만 쓰고 레포에 포함하지 않음. 위키 CC BY-SA 4.0 |
+| A1 핵실험 | 실험별 기록: 파일에 기록된 SIPRI-ID·DOE·ISC·USGS 출처 코드 · 북한 6건 보완: Wikipedia, "List of nuclear weapons tests of North Korea." · 연도별 건수(원본 A1 연 단위 집계): Source: Arms Control Association, The Nuclear Testing Tally (https://www.armscontrol.org/factsheets/nuclear-testing-tally), via Our World in Data. | 사실 정보(날짜·장소·위력·건수)만 사용. ACA 연 단위 표는 Arms Control Association 허가(2026-11-10, Arms Control Today 편집장 Carol Giacomo)를 받아 레포 포함·차트 사용 가능. 위키 CC BY-SA 4.0 |
 | A2 미사일 발사 | 원자료: James Martin Center for Nonproliferation Studies (CNS), *The CNS North Korea Missile Test Database*, Nuclear Threat Initiative (NTI). https://www.nti.org/analysis/articles/cns-north-korea-missile-test-database/ | 원본 303건 중 294건 사용. 사건 선별·제외·분류·보완은 팀 작업이며 CNS·NTI의 공식 수정본이 아님. 보조 검증: CSIS Missile Threat, 38 North |
 | A3 저강도 물리 도발 | Center for Strategic and International Studies (CSIS), *Beyond Parallel*, "Database: North Korean Provocations." https://beyondparallel.csis.org/database-north-korean-provocations/ | 65건 선별(사용 62). 영문 설명문은 옮기지 않음. CSIS 재게시 정책 https://www.csis.org/about/media/reprint-permissions |
 | A4 군사훈련 | CSIS, *Beyond Parallel*, "North Korean Provocations and US-ROK Military Exercises." https://beyondparallel.csis.org/north-korean-provocations-us-rok-military-exercises/ · 2021~2026 보완 11건: 사건별 언론·주한미군 보도(부록 A) | 원본에서 40건 선별(사용 39) + 보완 11건 |
