@@ -54,7 +54,8 @@ st.caption(f"지수에 들어간 사건 {len(events):,}건 ({config.CALC_START_D
  
 # ===== 데이터 출처 (평소엔 접혀 있고, 누르면 펼쳐짐) =====
 SOURCES = [   # (분야, 출처) — 화면·지수 계산에 실제로 쓴 자료만, 미사용 자료와 전체 이용 조건은 레포의 SOURCES.md
-    ("A 군사행동", "핵실험: 실험별 기록(SIPRI-ID·DOE·ISC 출처 코드), 북한 6건 위키백과 보완 / "
+    ("A 군사행동", "핵실험: 북한 6건 위키백과 / "
+                   "미사일: CNS North Korea Missile Test Database (NTI 제공) / "
                    "미사일: CNS North Korea Missile Test Database (NTI 제공) / "
                    "도발·훈련·충돌: CSIS Beyond Parallel / 미 전략자산: NCAFP 보고서, 언론·군 발표 / "
                    "열병식: 통일연구원 CO20-26(e) (공공누리 제2유형)"),
@@ -72,4 +73,6 @@ with st.expander("📚 데이터 출처 보기"):    # 기본은 접힌 상태
     for field, src in SOURCES:
         st.markdown(f"**{field}** · {src}")
     st.caption("원자료에서 사건을 골라 팀이 직접 점수화·계산한 결과이며, 각 기관의 공식 자료·수정본·평가가 아닙니다. 비상업 교육용. "
-               "북한 발언·결정은 조선중앙통신을 인용한 보도에 근거합니다. 미사용 자료와 이용 조건 전체는 GitHub의 SOURCES.md에 있습니다.")
+               "북한 발언·결정은 조선중앙통신을 인용한 보도에 근거합니다. 미사용 자료와 이용 조건 전체는 GitHub의 SOURCES.md에 있습니다.")\
+                   
+                   
